@@ -43,6 +43,7 @@ class template {
         C('cms:form:add',array('hash'=>'description','formname'=>'描述','kind'=>'column','modulehash'=>'article','inputhash'=>'textarea'));
         C('cms:form:add',array('hash'=>'content','formname'=>'内容','kind'=>'column','modulehash'=>'article','inputhash'=>$content_input));
         C('cms:form:add',array('hash'=>'recommend','formname'=>'推荐','kind'=>'column','modulehash'=>'article','inputhash'=>'switch','defaultvalue'=>0));
+        C($GLOBALS['C']['DbClass'].':addIndex','article_'.__CLASS__.'_article','recommend');
         C('cms:form:add',array('hash'=>'datetime','formname'=>'时间','kind'=>'column','modulehash'=>'article','inputhash'=>'datetime','indexshow'=>1,'config'=>array('nowtime'=>1)));
         $channel=C('cms:channel:add',array('channelname'=>'文章','modulehash'=>'article','var'=>array('title'=>'文章栏目')));
         if($channel) {

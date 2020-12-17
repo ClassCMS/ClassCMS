@@ -260,6 +260,19 @@ class admin_class {
     }
     function uninstall() {
         $classhash=@$_POST['hash'];
+        if(isset($GLOBALS['hook']) && is_array($GLOBALS['hook'])) {
+            foreach($GLOBALS['hook'] as $key=>$classhooks) {
+                if(is_array($classhooks)) {
+                    foreach($classhooks as $key2=>$classhook) {
+                        $classfunction=explode(':',$key2);
+                        if($classfunction[0]==$classhash) {
+                            unset($GLOBALS['hook'][$key][$key2]);
+                        }
+                    }
+                    if(!count($GLOBALS['hook'][$key])) {unset($GLOBALS['hook'][$key]);}
+                }
+            }
+        }
         $info=C('cms:class:uninstall',$classhash);
         if($info===true) {
             Return C('this:ajax','卸载成功.');
@@ -282,6 +295,19 @@ class admin_class {
         $classhash=@$_POST['hash'];
         $state=@$_POST['state'];
         if($state=='false') {
+            if(isset($GLOBALS['hook']) && is_array($GLOBALS['hook'])) {
+                foreach($GLOBALS['hook'] as $key=>$classhooks) {
+                    if(is_array($classhooks)) {
+                        foreach($classhooks as $key2=>$classhook) {
+                            $classfunction=explode(':',$key2);
+                            if($classfunction[0]==$classhash) {
+                                unset($GLOBALS['hook'][$key][$key2]);
+                            }
+                        }
+                        if(!count($GLOBALS['hook'][$key])) {unset($GLOBALS['hook'][$key]);}
+                    }
+                }
+            }
             $info=C('cms:class:stop',$classhash);
             if($info===true) {
                 Return C('this:ajax','停用成功');
@@ -353,8 +379,8 @@ class admin_class {
         if(!is_hash($classhash)) {
             Return C('this:ajax',$classhash." 安装包文件名不合法,格式为:xxx.zip或xxx.1.0.zip",1);
         }
-        if(!function_exists('zip_open')) {
-            Return C('this:ajax',"未安装ZIP组件,请手动解压安装包,上传文件夹应用目录",1);
+        if(!function_exists('zip_open') || !class_exists('ZipArchive')) {
+            Return C('this:ajax',"未安装ZIP组件,请解压安装包,将文件夹上传至应用目录",1);
         }
         $classdir=classDir($classhash);
         if(is_dir($classdir)) {

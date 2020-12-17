@@ -162,7 +162,11 @@ class admin_var {
                     $thismsg.=' 变量名已存在';
                 }
                 if(empty($vars['hash'][$key])) {
-                    $vars['hash'][$key]=C('cms:common:pinyin',$vars['formname'][$key]);
+                    if(is_hash($vars['formname'][$key])) {
+                        $vars['hash'][$key]=$vars['formname'][$key];
+                    }else {
+                        $vars['hash'][$key]=C('cms:common:pinyin',$vars['formname'][$key]);
+                    }
                 }
                 if(!is_hash($vars['hash'][$key])) {
                     $thismsg.=' 标识格式错误';

@@ -139,7 +139,9 @@
             </td>
             <td>
             {if $role._editabled}
-                拥有全部权限
+                {loop $actions as $thiskey=>$actionname}
+                    <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname[0]}" lay-skin="primary" checked disabled>
+                {/loop}
             {else}
                 {loop $actions as $thiskey=>$actionname}
                     {$checkkey=cms:module:authStr($module,$thiskey)}

@@ -64,7 +64,9 @@ class cms_route {
         }else {
             Return false;
         }
-        if(!isset($route_add_query['classfunction'])) {
+        if(isset($route_add_query['classfunction'])) {
+            $route_add_query['classfunction']=trim($route_add_query['classfunction']);
+        }else {
             $route_add_query['classfunction']='';
         }
         if(!isset($route_add_query['classview'])) {
@@ -105,6 +107,9 @@ class cms_route {
         if(isset($route_edit_query['uri'])) {
             $route_edit_query['uri']=C('this:route:optimize',$route_edit_query['uri']);
         }
+        if(isset($route_edit_query['classfunction'])) {
+            $route_edit_query['classfunction']=trim($route_edit_query['classfunction']);
+        }
         Return update($route_edit_query);
     }
     function del($hash) {
@@ -132,6 +137,7 @@ class cms_route {
         if(empty($uri)) {
             Return $uri;
         }
+        $uri=trim($uri);
         if(substr($uri,0,1)!='/') {
             $uri='/'.$uri;
         }

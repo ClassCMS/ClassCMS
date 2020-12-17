@@ -288,9 +288,9 @@
             }
         },error: function(){
                 {if $nginx}
-                    layui.$('#rewrite').text('不支持.Nginx服务器请开启pathinfo');
+                    layui.$('#rewrite').html('未开启,Nginx服务器必须开启伪静态,否则无法正常访问. [<a target="_blank" href="//classcms.com/class/cms/doc/10005.html" style="color:#1E9FFF">查看帮助</a>]');
                 {else}
-                    layui.$('#rewrite').text('未开启');
+                    layui.$('#rewrite').html('未开启 [<a target="_blank" href="//classcms.com/class/cms/doc/10005.html" style="color:#1E9FFF">查看帮助</a>]');
                 {/if}
             }
         });

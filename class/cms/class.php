@@ -42,11 +42,9 @@ class cms_class {
                 $start_class['where']=array('hash'=>$classhash);
                 $start_class['enabled']='1';
                 update($start_class);
-                begin();
                 C('this:class:installConfig',$classhash);
                 C('this:class:installRoute',$classhash);
                 C('this:class:installHook',$classhash);
-                commit();
                 Return true;
             }
             Return $startinfo;
@@ -273,7 +271,6 @@ class cms_class {
         Return $updateinfo;
     }
     function removeClassConfig($classhash) {
-        begin();
         $del_hook=array();
         $del_hook['table']='hook';
         $del_hook['where']=array('classhash'=>$classhash);
@@ -314,11 +311,9 @@ class cms_class {
         $del_module['table']='module';
         $del_module['where']=array('classhash'=>$classhash);
         del($del_module);
-        commit();
         Return true;
     }
     function changeClassConfig($classhash,$enabled) {
-        begin();
         $hook=array();
         $hook['table']='hook';
         $hook['where']=array('classhash'=>$classhash);
@@ -344,7 +339,6 @@ class cms_class {
         $input['where']=array('classhash'=>$classhash);
         $input['classenabled']=$enabled;
         update($input);
-        commit();
         Return true;
     }
     function changeClassOrder($classhash,$order=1) {
@@ -453,40 +447,46 @@ class cms_class {
     }
     function unzip($src_file, $dest_dir=false, $create_zip_name_dir=true, $overwrite=true) 
     {
-        if(!function_exists('zip_open')) {
-            Return false;
-        }
-        cms_createdir($dest_dir);
-        if ($zip = zip_open($src_file)){
-            if ($zip){
-                if($create_zip_name_dir){
-                    $splitter='.';
-                }else {
-                    $splitter='/';
-                }
-                if ($dest_dir === false){
-                    $dest_dir = substr($src_file, 0, strrpos($src_file, $splitter))."/";
-                }
-                while ($zip_entry = @zip_read($zip)){
-                    $pos_last_slash = strrpos(zip_entry_name($zip_entry), "/");
-                    if ($pos_last_slash !== false)
-                    {
-                        cms_createdir($dest_dir.substr(zip_entry_name($zip_entry), 0, $pos_last_slash+1));
-                    }
-                    if (zip_entry_open($zip,$zip_entry,"r")){
-                        $file_name = $dest_dir.zip_entry_name($zip_entry);
-                        if ($overwrite === true || $overwrite === false && !is_file($file_name)){
-                            $fstream = zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
-                            @file_put_contents($file_name, $fstream);
-                        }
-                        zip_entry_close($zip_entry);
-                    }
-                }
-                @zip_close($zip);
+        if(class_exists('ZipArchive')) {
+            $zip = new ZipArchive;
+            if ($zip->open($src_file) === TRUE)
+            {
+                $zip->extractTo($dest_dir);
+                $zip->close();
+                Return true;
             }
-        }else{
-            return false;
+        }elseif(function_exists('zip_open')) {
+            cms_createdir($dest_dir);
+            if ($zip = zip_open($src_file)){
+                if ($zip){
+                    if($create_zip_name_dir){
+                        $splitter='.';
+                    }else {
+                        $splitter='/';
+                    }
+                    if ($dest_dir === false){
+                        $dest_dir = substr($src_file, 0, strrpos($src_file, $splitter))."/";
+                    }
+                    while ($zip_entry = @zip_read($zip)){
+                        $pos_last_slash = strrpos(zip_entry_name($zip_entry), "/");
+                        if ($pos_last_slash !== false)
+                        {
+                            cms_createdir($dest_dir.substr(zip_entry_name($zip_entry), 0, $pos_last_slash+1));
+                        }
+                        if (zip_entry_open($zip,$zip_entry,"r")){
+                            $file_name = $dest_dir.zip_entry_name($zip_entry);
+                            if ($overwrite === true || $overwrite === false && !is_file($file_name)){
+                                $fstream = zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
+                                @file_put_contents($file_name, $fstream);
+                            }
+                            zip_entry_close($zip_entry);
+                        }
+                    }
+                    @zip_close($zip);
+                }
+                Return true;
+            }
         }
-        return true;
+        Return false;
     }
 }

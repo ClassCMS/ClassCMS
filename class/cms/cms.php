@@ -222,6 +222,7 @@ function ClassCms_init() {
         if(is_array($routes)) {$GLOBALS['route']=array_merge($GLOBALS['route'],$routes);}
     }else {
         $GLOBALS['route'][]=array('uri'=>'/','classhash'=>'cms','classfunction'=>'install:startup');
+        $GLOBALS['route'][]=array('uri'=>'/'.$GLOBALS['C']['Indexfile'],'classhash'=>'cms','classfunction'=>'install:startup');
         $GLOBALS['route'][]=array('uri'=>'/class_cms_rewrite_test.html','classhash'=>'cms','classfunction'=>'install:rewrite');
         $GLOBALS['route'][]=array('uri'=>'/(classcms)','classhash'=>'cms','classfunction'=>'install:goInstall');
         $GLOBALS['route'][]=array('uri'=>'/(classcms)/','classhash'=>'cms','classfunction'=>'install:goInstall');
@@ -376,7 +377,7 @@ function C() {
     }else {
         Return false;
     }
-    if($end_class!=='-' && isset($GLOBALS['hook'][strtolower($class)])) {
+    if($end_class!=='-' && isset($GLOBALS['hook'][strtolower($class)]) && count($GLOBALS['hook'][strtolower($class)])) {
         foreach($GLOBALS['hook'][strtolower($class)] as $hookclass) {
             $args[0]=$hookclass;
             if($GLOBALS['C']['Debug']) {
@@ -477,7 +478,7 @@ function C() {
             }
         }
     }
-    if($end_class!=='-' && isset($GLOBALS['hook'][strtolower($class).':='])) {
+    if($end_class!=='-' && isset($GLOBALS['hook'][strtolower($class).':=']) && count($GLOBALS['hook'][strtolower($class).':='])) {
         foreach($GLOBALS['hook'][strtolower($class).':='] as $watchclass) {
             $watch_args=array();
             $watch_args['class']=$class;
@@ -563,6 +564,7 @@ function V($Temp_file,$Temp_var=array(),$Temp_classhash='') {
         array_pop($GLOBALS['C']['runing_class']);
     }
     array_pop($GLOBALS['C']['runing_class']);
+    Return true;
 }
 function P($do,$classhash=false,$userid=false) {
     if($classhash) {
@@ -668,9 +670,9 @@ function rewriteUri($uri) {
     if(isset($GLOBALS['C']['UrlRewrite']) && $GLOBALS['C']['UrlRewrite']) {
         Return $GLOBALS['C']['SystemDir'].ltrim($uri,'/');
     }else {
-        if($uri=='/' && $GLOBALS['C']['SystemDir']=='/') {
-            Return '/';
-        }elseif($uri=='/' && $GLOBALS['C']['SystemDir']!='/') {
+        if($uri=='/' && in_array($GLOBALS['C']['Indexfile'],array('index.php','default.php'))) {
+            Return $GLOBALS['C']['SystemDir'];
+        }elseif($uri=='/') {
             Return $GLOBALS['C']['SystemDir'].$GLOBALS['C']['Indexfile'];
         }else {
             Return $GLOBALS['C']['SystemDir'].$GLOBALS['C']['Indexfile'].'/'.ltrim($uri,'/');
@@ -1652,7 +1654,7 @@ class cms_database {
         }
         if(!empty($where)) {
             if(is_array($where)) {
-                $where='where '.$this->where($where);
+                $where='where '.$this->where(array($where));
             }else {
                 $where='where '.$where;
             }
@@ -2097,22 +2099,28 @@ class cms_database {
         }
     }
     function begin(){
-        if($this->kind=='mysql') {
-            Return false;
+        if(!method_exists($this->databaselink,'inTransaction')) {
+            return false;
         }
         return $this->databaselink->beginTransaction();
     }
     function commit(){
-        if($this->kind=='mysql') {
-            Return false;
+        if(!method_exists($this->databaselink,'inTransaction')) {
+            return false;
         }
-        return $this->databaselink->commit();
+        if($this->databaselink->inTransaction()) {
+            return $this->databaselink->commit();
+        }
+        return false;
     }
     function rollback(){
-        if($this->kind=='mysql') {
-            Return false;
+        if(!method_exists($this->databaselink,'inTransaction')) {
+            return false;
         }
-        return $this->databaselink->rollBack();
+        if($this->databaselink->inTransaction()) {
+            return $this->databaselink->rollBack();
+        }
+        return false;
     }
     function affectrows(){
         if($this->kind=='mysql') {

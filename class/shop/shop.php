@@ -68,7 +68,7 @@ class shop {
             echo(json_encode(array('msg'=>"服务器未安装Curl组件,无法下载应用文件",'error'=>1)));
             Return ;
         }
-        if(!function_exists('zip_open')) {
+        if(!function_exists('zip_open') || !class_exists('ZipArchive')) {
             echo(json_encode(array('msg'=>"未安装zip组件,无法解压安装包",'error'=>1)));
             Return ;
         }
@@ -125,7 +125,7 @@ class shop {
             echo(json_encode(array('msg'=>"服务器未安装Curl组件,无法下载应用文件",'error'=>1)));
             Return ;
         }
-        if(!function_exists('zip_open')) {
+        if(!function_exists('zip_open') || !class_exists('ZipArchive')) {
             echo(json_encode(array('msg'=>"未安装zip组件,无法解压安装包",'error'=>1)));
             Return ;
         }

@@ -156,7 +156,11 @@ class admin_info {
                     $thismsg.=' 属性名已存在';
                 }
                 if(empty($infos['hash'][$key])) {
-                    $infos['hash'][$key]=C('cms:common:pinyin',$infos['formname'][$key]);
+                    if(is_hash($infos['formname'][$key])) {
+                        $infos['hash'][$key]=$infos['formname'][$key];
+                    }else {
+                        $infos['hash'][$key]=C('cms:common:pinyin',$infos['formname'][$key]);
+                    }
                 }
                 if(!is_hash($infos['hash'][$key])) {
                     $thismsg.=' 标识格式错误';

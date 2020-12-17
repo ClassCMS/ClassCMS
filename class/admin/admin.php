@@ -55,7 +55,21 @@ class admin {
         if(P('class:index')) {Return '?do=admin:class:index';}
         C('this:leftMenu');
         if(isset($GLOBALS['C']['admin']['defaultpage'])) {Return $GLOBALS['C']['admin']['defaultpage'];}
-        if(P('my:info')) {Return '?do=admin:my:info';}
+        if(P('my:info')) {
+            $infos=C('cms:form:all','info');
+            $infos=C('cms:form:getColumnCreated',$infos,'user');
+            if(count($infos)) {
+                foreach($infos as $key=>$info) {
+                    if($infos[$key]['enabled']) {
+                        $infos[$key]=C('cms:form:build',$info['id']);
+                        $infos[$key]['auth']=C('this:formAuth',$info['id']);
+                        if($infos[$key]['auth']['read']) {
+                            Return '?do=admin:my:info';
+                        }
+                    }
+                }
+            }
+        }
         if(P('my:edit')) {Return '?do=admin:my:edit';}
         Return '';
     }

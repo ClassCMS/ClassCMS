@@ -211,7 +211,12 @@
                           <td> <input type="checkbox" name="{$role.hash}" title="{$role.rolename}[{$role.hash}]"  lay-filter="checkall" lay-skin="primary"{if $role._editabled} disabled checked{/if}></td>
                           <td id="{$role.hash}_auth_list" class="info_auth_list">
                             {if $role._editabled}
-                                拥有全部权限
+                                {loop $actions as $thiskey=>$actionname}
+                                    <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname[0]}" lay-filter="checkone" lay-skin="primary" checked disabled>
+                                {/loop}
+                                {loop $input_actions as $thiskey=>$actionname}
+                                    <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname}" lay-filter="checkone" lay-skin="primary" checked disabled>
+                                {/loop}
                             {else}
                                 {loop $actions as $thiskey=>$actionname}
                                     {$checkkey=cms:form:authStr($info,$thiskey)}

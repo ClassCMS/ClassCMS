@@ -118,9 +118,12 @@ class cms_install {
         }
         if(C('this:install:extTest','pdo_sqlite')) {
             $array['sqlite']=1;
-            $array['sqlitefilename']='db_'.substr(md5(rand(10000000,99999999).time()),0,16);
+            $array['sqlitefilename']='db_'.substr(md5(dirname(__FILE__).date('ymdH').server_name().@$_SERVER['HTTP_USER_AGENT']),0,16);
             $array['sqlitefile']='/'.$array['sqlitefilename'].'.db';
             $array['sqliteinfo']='';
+            if(!C('this:install:sqliteTest',$array['sqlitefilename'].'.db')) {
+                $array['sqliteinfo']='[无权限,数据库文件写入失败]';
+            }
         }else {
             $array['sqlite']=0;
             $array['sqlitefilename']='';
@@ -384,7 +387,6 @@ class cms_install {
         if(!is_array($tables)) {
             Return '获取数据库字段失败';
         }
-        begin();
         foreach($tables as $key=>$table) {
             $getfieleds=C($GLOBALS['C']['DbClass'].':getFields',$key);
             if(count($getfieleds)) {
@@ -396,7 +398,6 @@ class cms_install {
                 Return '数据库表字段建立失败,请确认是否拥有权限';
             }
         }
-        commit();
         Return true;
     }
     function defaultTable() {

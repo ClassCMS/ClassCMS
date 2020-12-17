@@ -180,7 +180,11 @@ class admin_column {
                     $thismsg.=' 字段名已存在';
                 }
                 if(empty($columns['hash'][$key])) {
-                    $columns['hash'][$key]=C('cms:common:pinyin',$columns['formname'][$key]);
+                    if(is_hash($columns['formname'][$key])) {
+                        $columns['hash'][$key]=$columns['formname'][$key];
+                    }else {
+                        $columns['hash'][$key]=C('cms:common:pinyin',$columns['formname'][$key]);
+                    }
                 }
                 if(!is_hash($columns['hash'][$key])) {
                     $thismsg.=' 标识格式错误';

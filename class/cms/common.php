@@ -301,10 +301,9 @@ class cms_common {
         arsort($_Data);
         reset($_Data);
         $gbkstring='';
-        if($_String < 0x80) {
+        if($_String < 0x80 || version_compare(PHP_VERSION,'8.0','>=')) {
             $gbkstring .= $_String;
-        }elseif($_String < 0x800)
-        {
+        }elseif($_String < 0x800){
             $gbkstring .= chr(0xC0 | $_String>>6);
             $gbkstring .= chr(0x80 | $_String & 0x3F);
         }elseif($_String < 0x10000){
@@ -323,11 +322,9 @@ class cms_common {
         {
             $_P = ord(substr($_String, $i, 1));
             if($_P>160) { $_Q = ord(substr($_String, ++$i, 1)); $_P = $_P*256 + $_Q - 65536; }
-
             if ($_P>0 && $_P<160 ){ 
                 $_Res .= chr($_P);
             }elseif($_P<-20319 || $_P>-10247) {
-                
             }else {
                 foreach($_Data as $k=>$v){ if($v<=$_P) break; }
                 $_Res .= $k;
