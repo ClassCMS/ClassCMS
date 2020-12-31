@@ -531,8 +531,8 @@ class admin {
         Return ('<div class="layui-trans layadmin-user-login-footer"><p>© '.date('Y').' <a href="http://classcms.com" target="_blank">ClassCMS.com</a></p></div>');
     }
     function logout() {
-        if(isset($_COOKIE['csrf'.C('this:cookieHash')]) && !C('this:csrfCheck')) {
-            Return false;
+        if(!C('this:csrfCheck',1)) {
+            Return C('this:ajax','非法提交,请刷新当前页面或重新登入系统',1,1002);
         }
         C('this:adminCookie','');
         C('this:csrfSet','');

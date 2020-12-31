@@ -74,4 +74,25 @@ class cms_hook {
         $del_hook_query['where']=array('hookname'=>$hookname,'hookedfunction'=>$hookedfunction,'classhash'=>$classhash);
         Return del($del_hook_query);
     }
+    function unhook($classhash,$hookname='') {
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(isset($GLOBALS['hook']) && is_array($GLOBALS['hook'])) {
+            foreach($GLOBALS['hook'] as $key=>$classhooks) {
+                if(is_array($classhooks)) {
+                    foreach($classhooks as $key2=>$classhook) {
+                        if(empty($hookname)) {
+                            $classfunction=explode(':',$key2);
+                            if($classfunction[0]==$classhash) {
+                                unset($GLOBALS['hook'][$key][$key2]);
+                            }
+                        }elseif($classhash.':'.$hookname==$key2) {
+                            unset($GLOBALS['hook'][$key][$key2]);
+                        }
+                    }
+                    if(!count($GLOBALS['hook'][$key])) {unset($GLOBALS['hook'][$key]);}
+                }
+            }
+        }
+        Return true;
+    }
 }

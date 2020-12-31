@@ -15,7 +15,7 @@ class shop {
         Return $hooks;
     }
     function show() {
-        if(!P('index')) {Return false;}
+        if(!P('index')) {Return ;}
         if(isset($GLOBALS['C']['admin']['load']) && $GLOBALS['C']['admin']['load']=='admin:class:index') {
             echo('<script>layui.use([\'index\'],function(){layui.$(\'#cms-right-top-button\').append(\'<a href="?do=shop:index" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-cart-simple"></i><b>应用商店</b></a>\');});</script>');
         }

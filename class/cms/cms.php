@@ -214,8 +214,8 @@ function ClassCms_init() {
             }
         }
         if(isset($GLOBALS['C']['AdminDir'])) {
-            $GLOBALS['route'][]=array('uri'=>'/'.$GLOBALS['C']['AdminDir'],'classhash'=>'admin','classfunction'=>'load');
-            $GLOBALS['route'][]=array('uri'=>'/'.$GLOBALS['C']['AdminDir'].'/','classhash'=>'admin','classfunction'=>'load');
+            $GLOBALS['route'][]=array('uri'=>'/'.$GLOBALS['C']['AdminDir'].'/','classhash'=>'admin','hash'=>'adminpath','modulehash'=>'','classfunction'=>'load');
+            $GLOBALS['route'][]=array('uri'=>'/'.$GLOBALS['C']['AdminDir'],'classhash'=>'admin','hash'=>'adminpath2','modulehash'=>'','classfunction'=>'load');
         }
         $routes=all(array('table'=>'route','order'=>'classorder desc,moduleorder desc,routeorder desc,id asc','where'=>array('enabled'=>1,'classenabled'=>1,'moduleenabled'=>1)));
         if(!isset($GLOBALS['route'])) {$GLOBALS['route']=array();}
@@ -480,14 +480,10 @@ function C() {
     }
     if($end_class!=='-' && isset($GLOBALS['hook'][strtolower($class).':=']) && count($GLOBALS['hook'][strtolower($class).':='])) {
         foreach($GLOBALS['hook'][strtolower($class).':='] as $watchclass) {
-            $watch_args=array();
-            $watch_args['class']=$class;
-            $watch_args['args']=array_values($args);
-            $watch_args['return']=$return;
             if($GLOBALS['C']['Debug']) {
-                $watchreturn=call_user_func_array('C', array_merge(array($watchclass),$watch_args));
+                $watchreturn=call_user_func_array('C',array($watchclass,$class,array_values($args),$return));
             }else {
-                $watchreturn=@call_user_func_array('C', array_merge(array($watchclass),$watch_args));
+                $watchreturn=@call_user_func_array('C',array($watchclass,$class,array_values($args),$return));
             }
             if($watchreturn!==null) {
                 $return=$watchreturn;

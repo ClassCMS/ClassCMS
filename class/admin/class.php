@@ -260,19 +260,7 @@ class admin_class {
     }
     function uninstall() {
         $classhash=@$_POST['hash'];
-        if(isset($GLOBALS['hook']) && is_array($GLOBALS['hook'])) {
-            foreach($GLOBALS['hook'] as $key=>$classhooks) {
-                if(is_array($classhooks)) {
-                    foreach($classhooks as $key2=>$classhook) {
-                        $classfunction=explode(':',$key2);
-                        if($classfunction[0]==$classhash) {
-                            unset($GLOBALS['hook'][$key][$key2]);
-                        }
-                    }
-                    if(!count($GLOBALS['hook'][$key])) {unset($GLOBALS['hook'][$key]);}
-                }
-            }
-        }
+        C('cms:hook:unhook',$classhash);
         $info=C('cms:class:uninstall',$classhash);
         if($info===true) {
             Return C('this:ajax','卸载成功.');
@@ -295,19 +283,7 @@ class admin_class {
         $classhash=@$_POST['hash'];
         $state=@$_POST['state'];
         if($state=='false') {
-            if(isset($GLOBALS['hook']) && is_array($GLOBALS['hook'])) {
-                foreach($GLOBALS['hook'] as $key=>$classhooks) {
-                    if(is_array($classhooks)) {
-                        foreach($classhooks as $key2=>$classhook) {
-                            $classfunction=explode(':',$key2);
-                            if($classfunction[0]==$classhash) {
-                                unset($GLOBALS['hook'][$key][$key2]);
-                            }
-                        }
-                        if(!count($GLOBALS['hook'][$key])) {unset($GLOBALS['hook'][$key]);}
-                    }
-                }
-            }
+            C('cms:hook:unhook',$classhash);
             $info=C('cms:class:stop',$classhash);
             if($info===true) {
                 Return C('this:ajax','停用成功');
