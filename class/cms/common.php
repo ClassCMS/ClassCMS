@@ -74,6 +74,57 @@ class cms_common {
         }
         Return true;
     }
+    function serverName() {
+        if(isset($_SERVER['HTTP_HOST'])){
+            if(stripos($_SERVER['HTTP_HOST'],']')) {
+                $thisserver_names=explode(']',$_SERVER['HTTP_HOST']);
+                $name=$thisserver_names[0].']';
+            }else {
+                $thisserver_names=explode(':',$_SERVER['HTTP_HOST']);
+                $name=$thisserver_names[0];
+            }
+        }else {
+            if(!isset($_SERVER['SERVER_NAME'])) {$_SERVER['SERVER_NAME']='';}
+            $name=$_SERVER['SERVER_NAME'];
+        }
+        Return strtolower($name);
+    }
+    function serverPort($colon=true) {
+        if(isset($_SERVER['HTTP_HOST'])){
+            if(stripos($_SERVER['HTTP_HOST'],']')) {
+                $thisserver_port=explode(']:',$_SERVER['HTTP_HOST']);
+            }else {
+                $thisserver_port=explode(':',$_SERVER['HTTP_HOST']);
+            }
+            if(isset($thisserver_port[1]) && is_numeric($thisserver_port[1])) {
+                $port=$thisserver_port[1];
+            }else {
+                $port='80';
+            }
+        }elseif(isset($_SERVER['SERVER_PORT']) && is_numeric($_SERVER['SERVER_PORT'])) {
+            $port=$_SERVER['SERVER_PORT'];
+        }else {
+            $port='80';
+        }
+        if($port=='80') {
+            Return '';
+        }elseif($colon) {
+            Return ':'.$port;
+        }else{
+            Return $port;
+        }
+    }
+    function createDir($path){
+        if (!file_exists($path)){
+            if(!C('this:common:createDir',dirname($path))) {
+                Return false;
+            }
+            if(!@mkdir($path, 0777)) {
+                Return false;
+            }
+        }
+        Return true;
+    }
     function upload($name,$path='',$filename='') {
         if(!isset($_FILES[$name])) {Return array('error'=>1,'message'=>'no '.$name);}
         $path=trim($path);
@@ -176,7 +227,9 @@ class cms_common {
             $allpath =iconv('UTF-8', 'GBK//IGNORE', $allpath);
             $filename =iconv('UTF-8', 'GBK//IGNORE', $filename);
         }
-        if(!file_exists($allpath)) {cms_createdir($allpath);}
+        if(!file_exists($allpath) && !cms_createdir($allpath)) {
+            Return false;
+        }
         $allpath=rtrim($allpath,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$filename;
         if(@copy($tempfile,$allpath)) {
             @unlink($tempfile);

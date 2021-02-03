@@ -797,7 +797,7 @@ function include_template($template_config) {
     if(isset($template_config['code'])) {
         $template_config['file']=md5($template_config['code']);
     }
-    $cachefile=cachemd5dir($template_config['file'],'template'.DIRECTORY_SEPARATOR.$template_config['class']);
+    $cachefile=dir_template($template_config['file'],'template'.DIRECTORY_SEPARATOR.$template_config['class']);
     $cachefiletime=@filemtime($cachefile);
     if(($cachefiletime+$template_config['cache'])>time()) {
         Return $cachefile;
@@ -807,12 +807,40 @@ function include_template($template_config) {
             $content='template file not found: '.str_replace($GLOBALS['C']['SystemRoot'],DIRECTORY_SEPARATOR,$template_config['file']);
             if(stripos($template_config['file'],'.php')===false){$content.='.php ';}
         }
-        $cached=cacheset($template_config['file'],$content,$template_config['cache'],'template'.DIRECTORY_SEPARATOR.$template_config['class']);
+        $cached=save_template($template_config['file'],$content,$template_config['cache'],'template'.DIRECTORY_SEPARATOR.$template_config['class']);
         if($cached && $content) {
             Return $cachefile;
         }
     }
     Return false;
+}
+function save_template($keyname,$value,$overtime=604800,$keykind='') {
+    $filename=dir_template($keyname,$keykind);
+    if(!is_dir(dirname($filename)) && !cms_createdir(dirname($filename))) {
+        error($filename.' permission denied');
+        Return false;
+    }
+    $fp = @fopen($filename,"w");
+    if($fp===false) {
+        error($filename.' permission denied');
+        Return false;
+    }
+    if(@fwrite($fp,$value)===false){
+        @fclose($fp);
+        error($filename.' permission denied');
+        Return false;
+    }
+    @fclose($fp);
+    Return true;
+}
+function dir_template($keyname,$keykind='') {
+    $md5=md5(server_name().server_port().$keyname.$GLOBALS['C']['SiteHash'].$GLOBALS['C']['UrlRewrite'].$GLOBALS['C']['Indexfile']);
+    if(empty($keykind)) {
+        $keykind=substr($md5,0,4).DIRECTORY_SEPARATOR;
+    }else {
+        $keykind.=DIRECTORY_SEPARATOR;
+    }
+    Return $GLOBALS['C']['SystemRoot'].$GLOBALS['C']['CacheDir'].DIRECTORY_SEPARATOR.$keykind.substr($md5,8,20).'.html';
 }
 function echo_replace($str) {
     Return str_replace("'","\\'",$str);
@@ -1276,95 +1304,14 @@ function fetchone($query){
 function fetchall($query){
     Return C($GLOBALS['C']['DbClass'].':fetchall',$query);
 }
-function cacheget($keyname,$overtime=604800,$keykind='') {
-    $filename=cachemd5dir($keyname,$keykind);
-    if(is_file($filename) && filemtime($filename)+$overtime>time()) {
-        Return file_get_contents($filename);
-    }
-    Return false;
-}
-function cacheset($keyname,$value,$overtime=604800,$keykind='') {
-    $filename=cachemd5dir($keyname,$keykind);
-    if(!is_dir(dirname($filename))) {
-        cms_createdir(dirname($filename));
-    }
-    $fp = @fopen($filename,"w");
-    if($fp===false) {
-        error($filename.' permission denied');
-        Return false;
-    }
-    if(@fwrite($fp,$value)===false){
-        @fclose($fp);
-        error($filename.' permission denied');
-        Return false;
-    }
-    @fclose($fp);
-    Return true;
-}
-function cachedel($keyname,$keykind='') {
-    $filename=cachemd5dir($keyname,$keykind);
-    if(file_exists($filename)) {
-        @unlink($filename);
-    }
-    Return true;
-}
-function cachelasttime($keyname,$keykind='') {
-    $filename=cachemd5dir($keyname,$keykind);
-    Return filemtime($filename);
-}
-function cachemd5dir($keyname,$keykind='') {
-    $md5=md5(server_name().server_port().$keyname.$GLOBALS['C']['SiteHash'].$GLOBALS['C']['UrlRewrite'].$GLOBALS['C']['Indexfile']);
-    if(empty($keykind)) {
-        $keykind=substr($md5,0,4).DIRECTORY_SEPARATOR;
-    }else {
-        $keykind.=DIRECTORY_SEPARATOR;
-    }
-    Return $GLOBALS['C']['SystemRoot'].$GLOBALS['C']['CacheDir'].DIRECTORY_SEPARATOR.$keykind.substr($md5,8,20).'.html';
-}
 function cms_createdir($path){
-    if (!file_exists($path)){
-        cms_createdir(dirname($path));
-        if(!@mkdir($path, 0777)) {
-            error(dirname($path).' permission denied');
-            Return false;
-        }
-    }
-    Return true;
+    Return C('cms:common:createDir',$path);
 }
 function server_name() {
-    if(!isset($_SERVER['CMSSERVER_NAME'])) {
-        if(isset($_SERVER['HTTP_HOST'])){
-            $thisserver_names=explode(':',$_SERVER['HTTP_HOST']);
-            $_SERVER['CMSSERVER_NAME']=$thisserver_names[0];
-        }else {
-            if(!isset($_SERVER['SERVER_NAME'])) {$_SERVER['SERVER_NAME']='';}
-            $_SERVER['CMSSERVER_NAME']=$_SERVER['SERVER_NAME'];
-        }
-        $_SERVER['CMSSERVER_NAME']=strtolower($_SERVER['CMSSERVER_NAME']);
-    }
-    Return $_SERVER['CMSSERVER_NAME'];
+    Return C('cms:common:serverName');
 }
-function server_port() {
-    if(!isset($_SERVER['CMSSERVER_PORT'])) {
-        if(isset($_SERVER['HTTP_HOST'])){
-            $thisserver_port=explode(':',$_SERVER['HTTP_HOST']);
-            if(isset($thisserver_port[1])) {
-                $_SERVER['CMSSERVER_PORT']=$thisserver_port[1];
-            }else {
-                $_SERVER['CMSSERVER_PORT']='80';
-            }
-        }elseif(isset($_SERVER['SERVER_PORT'])) {
-            $_SERVER['CMSSERVER_PORT']=$_SERVER['SERVER_PORT'];
-        }else {
-            $_SERVER['CMSSERVER_PORT']='80';
-        }
-        if($_SERVER['CMSSERVER_PORT']=='80') {
-            $_SERVER['CMSSERVER_PORT']='';
-        }else {
-            $_SERVER['CMSSERVER_PORT']=':'.$_SERVER['CMSSERVER_PORT'];
-        }
-    }
-    Return $_SERVER['CMSSERVER_PORT'];
+function server_port($colon=true) {
+    Return C('cms:common:serverPort',$colon);
 }
 class cms_database {
     function __construct(){

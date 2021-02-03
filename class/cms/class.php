@@ -451,12 +451,16 @@ class cms_class {
             $zip = new ZipArchive;
             if ($zip->open($src_file) === TRUE)
             {
-                $zip->extractTo($dest_dir);
+                if(@$zip->extractTo($dest_dir)) {
+                    $zip->close();
+                    Return true;
+                }
                 $zip->close();
-                Return true;
             }
         }elseif(function_exists('zip_open')) {
-            cms_createdir($dest_dir);
+            if(!cms_createdir($dest_dir)) {
+                Return false;
+            }
             if ($zip = zip_open($src_file)){
                 if ($zip){
                     if($create_zip_name_dir){

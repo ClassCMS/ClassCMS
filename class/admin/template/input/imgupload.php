@@ -9,7 +9,7 @@
   <div {if !$value} class="layui-hide"{/if} id="{$name}_imgupload_view"  style="border-top: 1px solid #e2e2e2;">
     {loop $pics as $pic}
         <p style="display:inline-block;position:relative;padding:5px">
-            <img src="{$pic}" style="max-height: {$width}px;{if $multiple}cursor:move;{/if}">
+            <img src="{$pic}" style="max-width:100%;max-height: {$height}px;{if $multiple}cursor:move;{/if}">
             <i class="layui-icon layui-icon-close cmscolor" style="color:#fff;position:absolute;top:3%;right:3%;cursor:pointer;font-size:20px;background-color:#000000;opacity: 0.5;"></i>
         </p>
     {/loop}
@@ -79,7 +79,7 @@ layui.use(['index','sortable','upload'], function(){
             $('#{$name}_imgupload_view p').remove();
             $('#{$name}_imgupload_text').html('上传成功');
           {/if}
-          $('#{$name}_imgupload_view').append('<p style="display:inline-block;position:relative;padding:5px"><img src="'+res.url+'" style="max-height: {$width}px;{if $multiple}cursor:move;{/if}"><i class="layui-icon layui-icon-close" style="color:#fff;position:absolute;top:3%;right:3%;cursor:pointer;font-size:20px;background-color:#000000;opacity: 0.5;"></i></p>');
+          $('#{$name}_imgupload_view').append('<p style="display:inline-block;position:relative;padding:5px"><img src="'+res.url+'" style="max-width:100%;max-height: {$height}px;{if $multiple}cursor:move;{/if}"><i class="layui-icon layui-icon-close" style="color:#fff;position:absolute;top:3%;right:3%;cursor:pointer;font-size:20px;background-color:#000000;opacity: 0.5;"></i></p>');
           {$name}_imgupload_reload();
       }else{
           {if !$multiple}

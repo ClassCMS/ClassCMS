@@ -263,6 +263,13 @@ class cms_install {
         }
         if($_POST['database']=="1") {
             $GLOBALS['C']['DbInfo']=array('showerror'=>0);
+            $GLOBALS['C']['DbInfo']['host']=$_POST['mysql_host'];
+            $GLOBALS['C']['DbInfo']['dbname']=$_POST['mysql_dbname'];
+            $GLOBALS['C']['DbInfo']['user']=$_POST['mysql_user'];
+            $GLOBALS['C']['DbInfo']['password']=$_POST['mysql_password'];
+            $GLOBALS['C']['DbInfo']['prefix']=$_POST['prefix'];
+            $GLOBALS['C']['DbInfo']['engine']='MyISAM';
+            $GLOBALS['C']['DbInfo']['charset']='utf8';
             if(C('this:install:extTest','pdo_mysql')) {
                 $GLOBALS['C']['DbInfo']['kind']='mysqlpdo';
             }elseif(C('this:install:extTest','mysql')) {
@@ -270,12 +277,6 @@ class cms_install {
             }else {
                 Return 'pdo_mysql或mysql组件未安装';
             }
-            $GLOBALS['C']['DbInfo']['host']=$_POST['mysql_host'];
-            $GLOBALS['C']['DbInfo']['user']=$_POST['mysql_user'];
-            $GLOBALS['C']['DbInfo']['password']=$_POST['mysql_password'];
-            $GLOBALS['C']['DbInfo']['prefix']=$_POST['prefix'];
-            $GLOBALS['C']['DbInfo']['engine']='MyISAM';
-            $GLOBALS['C']['DbInfo']['charset']='utf8';
             $engines_query=query('show engines');
             if($engines_query) {
                 $engines=fetchall($engines_query);
@@ -290,7 +291,6 @@ class cms_install {
             if($create) {
                 query('CREATE DATABASE IF NOT EXISTS `'.escape($_POST['mysql_dbname']).'` DEFAULT CHARSET '.$GLOBALS['C']['DbInfo']['charset']);
             }
-            $GLOBALS['C']['DbInfo']['dbname']=$_POST['mysql_dbname'];
             $databases_query=query('show databases');
             if(!$databases_query) {
                 Return '数据库无法连接';
@@ -346,6 +346,7 @@ class cms_install {
                 $configstr.="\$GLOBALS['C']['".$key."']=array(";
                 foreach($val as $key2=>$val2) {
                     if(!is_array($val2)) {
+                        $val2=str_replace(array("'","\\"),array("\'","\\\\"),$val2);
                         $configstr.="'".$key2."'=>'".$val2."',";
                     }
                 }
@@ -354,6 +355,7 @@ class cms_install {
                 if(is_int($val)) {
                     $configstr.="\$GLOBALS['C']['".$key."']=".$val.";".$linestr;
                 }else {
+                    $val=str_replace(array("'","\\"),array("\'","\\\\"),$val);
                     $configstr.="\$GLOBALS['C']['".$key."']='".$val."';".$linestr;
                 }
             }

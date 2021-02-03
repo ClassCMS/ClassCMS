@@ -62,6 +62,9 @@ class admin_article {
                 unset($array['columns'][$key]);
             }
         }
+        if(!C('cms:route:get','article',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash'])) {
+            $array['viewbutton']=0;
+        }
         $article_query=array();
         $article_query['cid']=$array['channel']['id'];
         $article_query['page']='page';

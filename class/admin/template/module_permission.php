@@ -34,7 +34,11 @@
                           <td id="{$role.hash}_auth_list" class="module_auth_list">
                             {if $role._editabled}
                                 {loop $actions as $thiskey=>$actionname}
-                                    <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname[0]}" lay-filter="checkone" lay-skin="primary" disabled checked>
+                                    {if stripos($thiskey,'|false')}
+                                        <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname[0]}" lay-filter="checkone" lay-skin="primary" disabled>
+                                    {else}
+                                        <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname[0]}" lay-filter="checkone" lay-skin="primary" disabled checked>
+                                    {/if}
                                 {/loop}
                             {else}
                                 {loop $actions as $thiskey=>$actionname}

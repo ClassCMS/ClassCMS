@@ -242,7 +242,7 @@ class admin {
         if(isset($form['kind']) && in_array($form['kind'],$formkinds)) {
             if(C('this:check','admin:'.$form['kind'].':index')) {
                 foreach($all_auth as $key=>$this_auth) {
-                    if(stripos($this_auth,'|false')===false) {
+                    if(stripos($key,'|false')===false) {
                         $user_auth[$key]=true;
                     }else {
                         $user_auth[$key]=false;

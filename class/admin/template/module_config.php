@@ -140,7 +140,11 @@
             <td>
             {if $role._editabled}
                 {loop $actions as $thiskey=>$actionname}
-                    <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname[0]}" lay-skin="primary" checked disabled>
+                    {if stripos($thiskey,'|false')}
+                        <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname[0]}" lay-skin="primary" disabled>
+                    {else}
+                        <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname[0]}" lay-skin="primary" checked disabled>
+                    {/if}
                 {/loop}
             {else}
                 {loop $actions as $thiskey=>$actionname}

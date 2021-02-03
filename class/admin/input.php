@@ -195,7 +195,7 @@ class admin_input {
             case 'form':
                 if($config['multiple']) {
                     $config['pics']=explode(';',$config['value']);
-                    $config['width']='150';
+                    $config['height']='150';
                     if(empty($config['pics'][0])) {
                         $config['pics']=array();
                     }
@@ -208,7 +208,7 @@ class admin_input {
                         $config['value']=$config['pics'][0];
                         $config['pics']=array($config['pics'][0]);
                     }
-                    $config['width']='200';
+                    $config['height']='200';
                 }
                 V('input/imgupload',$config);
                 Return '';
