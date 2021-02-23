@@ -2177,6 +2177,7 @@ class admin_input {
             case 'form':
                 $config['chosechannel']='';
                 if(!isset($config['classhash'])) {$config['classhash']='';}
+                if(isset($config['defaultclasshash']) && $config['defaultclasshash']) {$config['classhash']=$config['defaultclasshash'];}
                 if($config['value']) {
                     if($channel=C('cms:channel:get',$config['value'])) {
                         $config['classhash']=$channel['classhash'];
@@ -2219,6 +2220,10 @@ class admin_input {
                     Return false;
                 }
                 Return $channel['id'];
+            case 'config':
+                Return array(
+                            array('configname'=>'默认应用','hash'=>'defaultclasshash','inputhash'=>'classselect','tips'=>'默认显示此应用下的栏目')
+                        );
         }
         Return false;
     }
@@ -3358,6 +3363,126 @@ class admin_input {
                 }
                 $html.='</select></div>';
                 Return $html;
+        }
+        Return false;
+    }
+    function databasetree($action,$config=array()) {
+        if($action=='tree') {
+            if(!isset($config['fidvalue'])) {$config['fidvalue']=0;}
+            if(!isset($config['times'])) {$config['times']=0;}
+            $treearticles=array();
+            foreach($config['articles'] as $article) {
+                if($article[$config['fidcolumn']]==$config['fidvalue']) {
+                    $article['_ex']='|--'.str_repeat('----',$config['times']*2);
+                    $treearticles[]=$article;
+                    $config['times']++;
+                    $oldfid=$config['fidvalue'];
+                    $config['fidvalue']=$article[$config['idcolumn']];
+                    $sonarticles=C('this:input:databasetree','tree',$config);
+                    if(count($sonarticles)) {
+                        foreach($sonarticles as $sonarticle) {
+                            $treearticles[]=$sonarticle;
+                        }
+                    }
+                    $config['times']--;
+                    $config['fidvalue']=$oldfid;
+                }
+            }
+            Return $treearticles;
+        }
+        if($action=='form' || $action=='view' || $action=='post') {
+            $config['savetype']=1;
+            if(empty($config['table'])) {
+                if($action=='post') {
+                    Return false;
+                }else {
+                    Return '尚未配置';
+                }
+            }
+            if(empty($config['idcolumn'])) {$config['idcolumn']='id';}
+            if(empty($config['fidcolumn'])) {$config['fidcolumn']='fid';}
+            if(empty($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            $list_query=array();
+            $list_query['table']=$config['table'];
+            if(!empty($config['order'])) {$list_query['order']=$config['order'];}
+            $articles=all($list_query);
+            $config['values']=array();
+            if(isset($articles[0])) {
+                if(!isset($articles[0][$config['idcolumn']])) {
+                    if($action=='post') {
+                        Return false;
+                    }else {
+                        Return '未拥有数据字段:'.htmlspecialchars($config['idcolumn']);
+                    }
+                }
+                if(!isset($articles[0][$config['fidcolumn']])) {
+                    if($action=='post') {
+                        Return false;
+                    }else {
+                        Return '未拥有分类字段:'.htmlspecialchars($config['fidcolumn']);
+                    }
+                }
+                if(!isset($articles[0][$config['titlecolumn']])) {
+                    if($action=='post') {
+                        Return false;
+                    }else {
+                        Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
+                    }
+                }
+                if(!is_numeric($articles[0][$config['idcolumn']]) && $config['idtype']==1) {
+                    if($action=='post') {
+                        Return false;
+                    }else {
+                        Return '数据字段 '.htmlspecialchars($config['titlecolumn']).' 类型为文字,请修改配置';
+                    }
+                }
+            }
+            $config['articles']=$articles;
+            $articles=C('this:input:databasetree','tree',$config);
+            if(!count($articles)) {
+                $config['values'][]='0:暂无选项:disabled';
+            }
+            foreach($articles as $article) {
+                if($action=='view') {$article['_ex']='';}
+                $article[$config['idcolumn']]=str_replace(':','\\:',$article[$config['idcolumn']]);
+                $article[$config['titlecolumn']]=str_replace(':','\\:',$article[$config['titlecolumn']]);
+                $config['values'][]=implode(':',array($article[$config['idcolumn']],$article['_ex'].$article[$config['titlecolumn']]));
+            }
+        }
+        switch($action) {
+            case 'name':
+                Return '数据树形列表框';
+            case 'hash':
+                Return 'databasetree';
+            case 'group':
+                Return '数据库';
+            case 'sql':
+                if($config['idtype']==1) {Return 'bigint(11)';}
+                Return 'varchar(255)';
+            case 'form':
+                if(!count(C($GLOBALS['C']['DbClass'].':getfields',$config['table']))) {
+                    Return '数据表不存在';
+                }
+                $config['inputhash']='select';
+                Return C('cms:input:form',$config);
+            case 'view':
+                $config['inputhash']='select';
+                Return C('cms:input:view',$config);
+            case 'post':
+                $config['inputhash']='select';
+                Return C('cms:input:post',$config);
+            case 'config':
+                Return array(
+                    array('configname'=>'表名','hash'=>'table','inputhash'=>'text','tips'=>'选项来源的数据库表名,系统会自动加表名前缀.如不需要加前缀,则使用no_perfix_表名'),
+                    array('configname'=>'数据字段','hash'=>'idcolumn','inputhash'=>'text','tips'=>'请确保数据库表中拥有此字段,修改数据字段会丢失数据,请提前确认好字段','defaultvalue'=>'id'),
+                    array('configname'=>'数据类型','hash'=>'idtype','inputhash'=>'radio','tips'=>'数据字段在数据库中的类型.切换类型会丢失信息,请提前确认好保存类型.','defaultvalue'=>'1','values'=>"1:数字\n2:文字",'savetype'=>1),
+                    array('configname'=>'分类字段','hash'=>'fidcolumn','inputhash'=>'text','tips'=>'请确保数据库表中拥有此字段','defaultvalue'=>'fid'),
+                    array('configname'=>'标题字段','hash'=>'titlecolumn','inputhash'=>'text','tips'=>'请确保数据库表中拥有此字段','defaultvalue'=>'title'),
+                    array('configname'=>'排序','hash'=>'order','inputhash'=>'text','tips'=>'如:id asc','defaultvalue'=>''),
+                    array('configname'=>'默认文字','hash'=>'selecttitle','inputhash'=>'text','tips'=>'未选择时列表框的默认文字,不填则不显示','defaultvalue'=>'请选择'),
+                    array('configname'=>'默认值','hash'=>'selectvalue','inputhash'=>'text','tips'=>'未选择时列表框的默认值','defaultvalue'=>'0'),
+                    array('configname'=>'搜索','hash'=>'search','inputhash'=>'switch','tips'=>'当选项太多时,开启搜索功能可以快速找到对应的选项'),
+                );
         }
         Return false;
     }

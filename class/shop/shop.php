@@ -31,7 +31,7 @@ class shop {
             Return ;
         }
         if(count($_GET)===1 && isset($_GET['do']) && $_GET['do']=='shop:index') {
-            $array['content']=$array['content']='<meta http-equiv=refresh content=\'0; url=?do=shop:index&action=home\'><i class="layui-icon layui-icon-loading layui-icon layui-anim layui-anim-rotate layui-anim-loop"></i>';
+            $array['content']='<meta http-equiv=refresh content=\'0; url=?do=shop:index&action=home\'><i class="layui-icon layui-icon-loading layui-icon layui-anim layui-anim-rotate layui-anim-loop"></i>';
         }else {
             $array['content']=C('this:get');
         }
@@ -203,8 +203,11 @@ class shop {
         echo(json_encode($array));
         Return ;
     }
+    function defaultHost() {
+        Return 'classcms.com;classcms.uuu.la';
+    }
     function shopHost() {
-        if(!$defaulthost=config('defaulthost')) {$defaulthost='classcms.com;classcms.uuu.la';}
+        if(!$defaulthost=config('defaulthost')) {$defaulthost=C('this:defaultHost');}
         $defaulthost=explode(';',$defaulthost);
         $lasthost=config('host');
         if(!$lasthost) {$host=$defaulthost[0];}
@@ -300,6 +303,14 @@ class shop {
         Return $content;
     }
     function download($url,$filepath) {
+        $hosts=array_merge(explode(';',C('this:defaultHost')),array(config('host')));
+        if($defaulthost=config('defaulthost')) {
+            $hosts=array_merge($hosts,explode(';',$defaulthosts));
+        }
+        $checkurl=parse_url($url);
+        if(!isset($checkurl['host']) || !in_array($checkurl['host'],$hosts)) {
+            Return false;
+        }
         $curl=curl_init();
         curl_setopt($curl,CURLOPT_URL,$url);
         if(!$fp = @fopen ($filepath,'w+')) {

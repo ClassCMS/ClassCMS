@@ -241,7 +241,11 @@ input:disabled,textarea:disabled{color: #ccc;cursor:not-allowed}
 .pageback-btn{display:none;}
 .cms-text-disabled{color:#FF5722;text-decoration:line-through}
 #LAY-system-side-menu{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
-#LAY-system-side-menu dl dl dl{padding-left:10px;}
+#LAY-system-side-menu dl dl dl a{text-indent:10px;}
+#LAY-system-side-menu dl dl dl dl a{text-indent:20px;}
+#LAY-system-side-menu dl dl dl dl dl a{text-indent:30px;}
+#LAY-system-side-menu dl dl dl dl dl a{text-indent:40px;}
+#LAY-system-side-menu dl dl dl dl dl a{text-indent:50px;}
 #LAY-system-side-menu a.layui-this:hover{background-color:#1E9FFF}
 .layui-layer-adminRightmenu{top:80px!important;bottom:0;box-shadow:1px 1px 10px rgba(0,0,0,.1);border-radius:0;overflow:auto}
 

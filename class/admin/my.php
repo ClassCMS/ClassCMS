@@ -88,6 +88,7 @@ class admin_my {
     }
     function infoPost() {
         $array['userid']=C('admin:nowUser');
+        $array['userinfo']=C('cms:user:get',$array['userid']);
         $array['infos']=C('cms:form:all','info');
         $array['infos']=C('cms:form:getColumnCreated',$array['infos'],'user');
         $msg='';
@@ -99,8 +100,8 @@ class admin_my {
                 $info['auth']=C('this:formAuth',$info['id']);
                 $info['source']='my_info_save';
                 if($info['auth']['read'] && $info['auth']['write']) {
-                    if(isset($array['user'][$info['hash']])) {
-                        $info['value']=$array['user'][$info['hash']];
+                    if(isset($array['userinfo'][$info['hash']])) {
+                        $info['value']=$array['userinfo'][$info['hash']];
                     }else {
                         $info['value']='';
                     }

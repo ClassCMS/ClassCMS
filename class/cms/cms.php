@@ -190,6 +190,9 @@ function ClassCms_init() {
     if(!isset($GLOBALS['C']['Debug'])) {$GLOBALS['C']['Debug']=false;}
     if(!isset($GLOBALS['C']['DbClass'])) {$GLOBALS['C']['DbClass']='cms:database';}
     if(!isset($GLOBALS['C']['MatchUri'])) {$GLOBALS['C']['MatchUri']=true;}
+    if(!isset($GLOBALS['C']['LoadHooks'])) {$GLOBALS['C']['LoadHooks']=true;}
+    if(!isset($GLOBALS['C']['LoadRoutes'])) {$GLOBALS['C']['LoadRoutes']=true;}
+    if(!isset($GLOBALS['C']['MatchUri'])) {$GLOBALS['C']['MatchUri']=true;}
     if(!isset($GLOBALS['C']['TemplateClass'])) {$GLOBALS['C']['TemplateClass']='template';}
     $GLOBALS['C']['start_time']=microtime(true);
     $GLOBALS['C']['start_memory']=round(memory_get_usage()/1024/1024, 2).'MB';
@@ -206,20 +209,24 @@ function ClassCms_init() {
     }
     _stripslashes();
     if(isset($GLOBALS['C']['DbInfo']) && is_array($GLOBALS['C']['DbInfo'])) {
-        $hooks=all(array('table'=>'hook','order'=>'classorder desc,hookorder desc,id asc','where'=>array('enabled'=>1,'classenabled'=>1)));
-        foreach($hooks as $hook) {
-            $hook['hookedfunction']=strtolower($hook['hookedfunction']);
-            if(!empty($hook['hookedfunction']) && !isset($GLOBALS['hook'][$hook['hookedfunction']][$hook['classhash'].':'.$hook['hookname']])) {
-                $GLOBALS['hook'][$hook['hookedfunction']][$hook['classhash'].':'.$hook['hookname']]=$hook['classhash'].':'.$hook['hookname'];
+        if($GLOBALS['C']['LoadHooks']) {
+            $hooks=all(array('table'=>'hook','order'=>'classorder desc,hookorder desc,id asc','where'=>array('enabled'=>1,'classenabled'=>1)));
+            foreach($hooks as $hook) {
+                $hook['hookedfunction']=strtolower($hook['hookedfunction']);
+                if(!empty($hook['hookedfunction']) && !isset($GLOBALS['hook'][$hook['hookedfunction']][$hook['classhash'].':'.$hook['hookname']])) {
+                    $GLOBALS['hook'][$hook['hookedfunction']][$hook['classhash'].':'.$hook['hookname']]=$hook['classhash'].':'.$hook['hookname'];
+                }
             }
         }
+        if(!isset($GLOBALS['route'])) {$GLOBALS['route']=array();}
         if(isset($GLOBALS['C']['AdminDir'])) {
             $GLOBALS['route'][]=array('uri'=>'/'.$GLOBALS['C']['AdminDir'].'/','classhash'=>'admin','hash'=>'adminpath','modulehash'=>'','classfunction'=>'load');
             $GLOBALS['route'][]=array('uri'=>'/'.$GLOBALS['C']['AdminDir'],'classhash'=>'admin','hash'=>'adminpath2','modulehash'=>'','classfunction'=>'load');
         }
-        $routes=all(array('table'=>'route','order'=>'classorder desc,moduleorder desc,routeorder desc,id asc','where'=>array('enabled'=>1,'classenabled'=>1,'moduleenabled'=>1)));
-        if(!isset($GLOBALS['route'])) {$GLOBALS['route']=array();}
-        if(is_array($routes)) {$GLOBALS['route']=array_merge($GLOBALS['route'],$routes);}
+        if($GLOBALS['C']['LoadRoutes']) {
+            $routes=all(array('table'=>'route','order'=>'classorder desc,moduleorder desc,routeorder desc,id asc','where'=>array('enabled'=>1,'classenabled'=>1,'moduleenabled'=>1)));
+            if(is_array($routes)) {$GLOBALS['route']=array_merge($GLOBALS['route'],$routes);}
+        }
     }else {
         $GLOBALS['route'][]=array('uri'=>'/','classhash'=>'cms','classfunction'=>'install:startup');
         $GLOBALS['route'][]=array('uri'=>'/'.$GLOBALS['C']['Indexfile'],'classhash'=>'cms','classfunction'=>'install:startup');
@@ -1325,7 +1332,7 @@ class cms_database {
         if($db_info['kind']=='sqlitepdo'){
             $this->databaselink = new PDO('sqlite:' . $db_info['file']);
         }elseif($db_info['kind']=='mysqlpdo') {
-            if(!isset($db_info['dbname']) || empty($db_info['dbname'])) {$dbinfo='';}else {$dbinfo='dbname='.$db_info['dbname'];}
+            if(!isset($db_info['dbname']) || empty($db_info['dbname']) || isset($GLOBALS['C']['DbInfo']['createdb'])) {$dbinfo='';}else {$dbinfo='dbname='.$db_info['dbname'];}
             $db_info['hostinfo']=explode(':',$db_info['host']);
             if(count($db_info['hostinfo'])>1) {$db_info['host']=$db_info['hostinfo'][0];$db_info['port']=$db_info['hostinfo'][1];}else {$db_info['port']='3306';}
             try{

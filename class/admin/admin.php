@@ -37,6 +37,12 @@ class admin {
         update(array('table'=>'input','where'=>array('groupname'=>'系统'),'inputorder'=>10));
         commit();
     }
+    function upgrade($old_version) {
+        if(version_compare($old_version,'1.4','<')) {
+            C('cms:input:add','this:input:databasetree');
+            update(array('table'=>'input','where'=>array('hash'=>'databasetree'),'inputorder'=>5));
+        }
+    }
     function auth() {
         $auth=array();
         $auth['基础权限']=C('this:my:auth');

@@ -118,7 +118,11 @@ class cms_install {
         }
         if(C('this:install:extTest','pdo_sqlite')) {
             $array['sqlite']=1;
-            $array['sqlitefilename']='db_'.substr(md5(dirname(__FILE__).date('ymdH').server_name().@$_SERVER['HTTP_USER_AGENT']),0,16);
+            if(isset($_SERVER['DbInfo_file']) && $_SERVER['DbInfo_file']) {
+                $array['sqlitefilename']=$_SERVER['DbInfo_file'];
+            }else {
+                $array['sqlitefilename']='db_'.substr(md5(dirname(__FILE__).date('ymdH').server_name().@$_SERVER['HTTP_USER_AGENT']),0,16);
+            }
             $array['sqlitefile']='/'.$array['sqlitefilename'].'.db';
             $array['sqliteinfo']='';
             if(!C('this:install:sqliteTest',$array['sqlitefilename'].'.db')) {
@@ -167,6 +171,9 @@ class cms_install {
             }else {
                 $array['allow']=false;
             }
+        }
+        if(isset($_SERVER['DbInfo_prefix']) && $_SERVER['DbInfo_prefix']=='rand') {
+            $_SERVER['DbInfo_prefix']='c'.date('md').rand(1000,9999).'_';
         }
         V('install',$array);
     }
@@ -277,6 +284,9 @@ class cms_install {
             }else {
                 Return 'pdo_mysql或mysql组件未安装';
             }
+            if($create) {
+                $GLOBALS['C']['DbInfo']['createdb']=true;
+            }
             $engines_query=query('show engines');
             if($engines_query) {
                 $engines=fetchall($engines_query);
@@ -318,6 +328,7 @@ class cms_install {
         unset($dbinfo['sql']);
         unset($dbinfo['querycount']);
         unset($dbinfo['showerror']);
+        unset($dbinfo['createdb']);
         Return $dbinfo;
     }
     function configfileTest() {
