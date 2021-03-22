@@ -12,7 +12,8 @@ class admin_input {
             case 'sql':
                 Return 'varchar(255)';
             case 'form':
-                echo('<input type="text" name="'.$config['name'].'"  lay-filter="'.$config['name'].'" value="'.$config['value'].'" placeholder="'.$config['placeholder'].'"');
+                $config['value']=str_replace(array('"','<','>'),array('&quot;','&lt;','&gt;'),$config['value']);
+                echo('<input type="text" name="'.$config['name'].'"  lay-filter="'.$config['name'].'" value="'.($config['value']).'" placeholder="'.$config['placeholder'].'"');
                 if($config['disabled']) {
                     echo(' disabled');
                 }
@@ -245,7 +246,7 @@ class admin_input {
                 }
                 Return '';
             case 'post':
-                Return trim(htmlspecialchars(@$_POST[$config['name']]),';');
+                Return trim(str_replace(array('"','<','>'),array('&quot;','&lt;','&gt;'),@$_POST[$config['name']]),';');
             case 'config':
                 Return array(
                             array('configname'=>'多图','hash'=>'multiple','inputhash'=>'switch','tips'=>'允许同时上传多张图片.开启后再关闭此选项,已上传的图片数据将丢失!'),
@@ -330,7 +331,7 @@ class admin_input {
                 }
                 Return '';
             case 'post':
-                Return trim(htmlspecialchars(@$_POST[$config['name']]),';');
+                Return trim(str_replace(array('"','<','>'),array('&quot;','&lt;','&gt;'),@$_POST[$config['name']]),';');
             case 'config':
                 Return array(
                             array('configname'=>'多文件','hash'=>'multiple','inputhash'=>'switch','tips'=>'允许同时上传多个文件.开启后再关闭此选项,已上传的文件数据将丢失!'),

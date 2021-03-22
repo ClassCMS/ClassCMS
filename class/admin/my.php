@@ -3,6 +3,7 @@ if(!defined('ClassCms')) {exit();}
 class admin_my {
     function auth() {
         Return array(
+            'showleftmenu'=>'显示管理菜单',
             'my:info;my:infoPost'=>'个人资料管理',
             'my:edit;my:editPost'=>'个人账号管理',
         );

@@ -35,7 +35,7 @@ class cms_class {
                 Return false;
             }
             $startinfo=C($classhash.':start');
-            if($startinfo===true || $startinfo===false || $startinfo===null) {
+            if($startinfo===true || $startinfo===null) {
                 C('this:class:changeClassConfig',$classhash,1);
                 $start_class=array();
                 $start_class['table']='class';
@@ -47,6 +47,7 @@ class cms_class {
                 C('this:class:installHook',$classhash);
                 Return true;
             }
+            if(!is_string($startinfo)) {$startinfo='';}
             Return $startinfo;
         }
         Return false;
@@ -57,7 +58,7 @@ class cms_class {
                 Return false;
             }
             $stopinfo=C($classhash.':stop');
-            if($stopinfo===true || $stopinfo===false || $stopinfo===null) {
+            if($stopinfo===true || $stopinfo===null) {
                 C('this:class:changeClassConfig',$classhash,0);
                 $stop_class=array();
                 $stop_class['table']='class';
@@ -66,6 +67,7 @@ class cms_class {
                 update($stop_class);
                 Return true;
             }
+            if(!is_string($stopinfo)) {$stopinfo='';}
             Return $stopinfo;
         }
         Return false;
@@ -85,7 +87,7 @@ class cms_class {
                 Return false;
             }
             $installinfo=C($classhash.':install');
-            if($installinfo===true || $installinfo===false || $installinfo===null) {
+            if($installinfo===true || $installinfo===null) {
                 $new_class=array();
                 $new_class['table']='class';
                 $new_class['where']=array('hash'=>$classhash);
@@ -95,6 +97,7 @@ class cms_class {
                 C('this:class:start',$classhash);
                 Return true;
             }
+            if(!is_string($installinfo)) {$installinfo='';}
             C('this:class:removeClassConfig',$classhash);
             Return $installinfo;
         }
@@ -228,7 +231,7 @@ class cms_class {
         }else {
             $uninstallinfo=true;
         }
-        if($uninstallinfo===true || $uninstallinfo===false || $uninstallinfo===null) {
+        if($uninstallinfo===true || $uninstallinfo===null) {
             C('this:class:removeClassConfig',$classhash);
             $new_class=array();
             $new_class['table']='class';
@@ -237,6 +240,7 @@ class cms_class {
             $new_class['installed']='0';
             Return update($new_class);
         }
+        if(!is_string($uninstallinfo)) {$uninstallinfo='';}
         Return $uninstallinfo;
     }
     function upgrade($classhash) {
@@ -253,8 +257,12 @@ class cms_class {
         if(!C('this:class:phpCheck',$classhash)) {
             Return false;
         }
-        $updateinfo=C($classhash.':upgrade',$old_version);
-        if($updateinfo===true || $updateinfo===false || $updateinfo===null) {
+        if($class['installed']) {
+            $updateinfo=C($classhash.':upgrade',$old_version);
+        }else {
+            $updateinfo=true;
+        }
+        if($updateinfo===true || $updateinfo===null) {
             $new_class=array();
             $new_class['table']='class';
             $new_class['where']=array('hash'=>$classhash);
@@ -378,6 +386,8 @@ class cms_class {
             $new_class['enabled']='0';
             $new_class['installed']='0';
             if(isset($config['version']) && !empty($config['version'])) {$new_class['classversion']=$config['version'];}else {$new_class['classversion']='1.0';}
+        }elseif(!$class['installed'] && isset($config['version']) && !empty($config['version'])) {
+            $new_class['classversion']=$config['version'];
         }
         if(isset($config['name']) && !empty($config['name'])) {$new_class['classname']=$config['name'];}
         if(isset($config['ico']) && !empty($config['ico'])) {$new_class['ico']=$config['ico'];}else{$new_class['ico']='layui-icon-component';}

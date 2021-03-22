@@ -429,7 +429,7 @@ class admin_article {
     }
     function articleAction() {
         Return array(
-            'var'=>array('变量管理','修改栏目变量'),
+            'var'=>array('变量管理','修改栏目变量,如栏目标题'),
             'list'=>array('文章管理'),
             'add'=>array('文章增加'),
             'edit'=>array('文章修改'),

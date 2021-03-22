@@ -42,6 +42,9 @@
         {if $classinfo.classversion && $classinfo.classversion<$new_version}
             <a id="class_update" rel="{$classinfo.hash}" old="{$classinfo.classversion}" new="{$new_version}" class="layui-btn layui-btn-sm layui-btn-normal">新版本:{$new_version}</a>
         {/if}
+        {if $classinfo.classversion && $classinfo.classversion>$new_version}
+            应用文件有变动,请卸载后重新安装.
+        {/if}
     </td>
 </tr>
 
@@ -58,7 +61,7 @@
     <tr id="author">
         <td align="right">开发者:</td>
         <td>
-            {$classinfo.author}{if isset($classinfo.url) && ($classinfo.url)} [<a href="{$classinfo.url}" target="_blank" style="color:blue" rel="nofollow noreferrer">{$classinfo.url}</a>]{/if}
+            {$classinfo.author}{if isset($classinfo.url) && ($classinfo.url)} [<a href="{$classinfo.url}" target="_blank" style="color:blue" rel="nofollow noreferrer">{ltrim($classinfo.url,"//")}</a>]{/if}
         </td>
     </tr>
 {/if}

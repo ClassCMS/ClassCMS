@@ -72,6 +72,9 @@ class admin_class {
                     Return C('this:error',$classhash.'.config 文件解析错误');
                 }
                 $array['new_version']=C('cms:class:config',$array['classinfo']['hash'],'version');
+                if($array['classinfo']['classversion']!=$array['new_version']) {
+                    C('cms:common:opcacheReset');
+                }
                 $array['description']=C('cms:class:config',$array['classinfo']['hash'],'description');
                 $array['setting']=false;
                 $array['phpcheck']='';

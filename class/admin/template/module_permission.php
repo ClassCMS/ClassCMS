@@ -21,6 +21,10 @@
     <div class="layui-card-body">
 
                 <table class="layui-table">
+                      <colgroup>
+                        <col width="150">
+                        <col>
+                      </colgroup>
                       <thead>
                         <tr>
                           <th>角色</th>

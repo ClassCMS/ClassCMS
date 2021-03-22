@@ -310,7 +310,7 @@ class admin {
         foreach($classes as $key=>$class) {
             if($class['enabled'] && $class['menu']) {
                 $this_menu=C($class['hash'].':menu');
-                if(!$this_menu) {
+                if(!$this_menu && $this_menu!==false) {
                     if($class['adminpage'] && P($class['adminpage'],$class['hash'])) {
                         $this_menu=array('title'=>$class['classname'],'url'=>'?do='.$class['hash'].':'.$class['adminpage'],'ico'=>$class['ico']);
                     }elseif(P('class:config')) {
@@ -338,21 +338,40 @@ class admin {
         if(!isset($child['title'])) {$child['title']='unknown';}
         if(!isset($child['ico'])) {$child['ico']='';}
         if(!isset($child['function'])) {$child['function']='';}
+        if(!isset($child['classhash'])) {$child['classhash']=$classhash;}
+        if(!isset($child['target'])) {$child['target']=false;}
+        if(!isset($child['open'])) {
+            if($times) {
+                $child['open']=false;
+            }else {
+                $child['open']=true;
+            }
+        }
         if(!empty($child['function'])) {
-            if(!P($child['function'],$classhash)) {Return '';}
+            if(!P($child['function'],$child['classhash'])) {Return '';}
             if(empty($child['url'])) {
-                $child['url']='?do='.$classhash.':'.$child['function'];
+                $child['url']='?do='.$child['classhash'].':'.$child['function'];
             }
         }
         if(!isset($GLOBALS['C']['admin']['defaultpage']) && !empty($child['url']) && $child['url']!='javascript:;') {
             $GLOBALS['C']['admin']['defaultpage']=$child['url'];
         }
-        if($times) {
-            $html.='<dd data-name="'.($child['title']).'">';
-            $html.='<a lay-href="'.$child['url'].'" lay-direction=""><i class="layui-icon '.$child['ico'].'"></i>'.$child['title'].'</a>';
+        if($child['target']) {
+            $targethtml=' target="_blank" href="'.$child['url'].'"';
         }else {
-            $html.='<li data-name="'.($child['title']).'" class="layui-nav-item layui-nav-itemed">';
-            $html.='<a lay-href="'.$child['url'].'" lay-direction=""><i class="layui-icon '.$child['ico'].'"></i><cite>'.$child['title'].'</cite></a>';
+            $targethtml=' lay-href="'.$child['url'].'"';
+        }
+        if($child['open']) {
+            $openhtml=' layui-nav-itemed';
+        }else {
+            $openhtml='';
+        }
+        if($times) {
+            $html.='<dd data-name="'.($child['title']).'" class="layui-nav-item'.$openhtml.'">';
+            $html.='<a'.$targethtml.' lay-direction=""><i class="layui-icon '.$child['ico'].'"></i>'.$child['title'].'</a>';
+        }else {
+            $html.='<li data-name="'.($child['title']).'" class="layui-nav-item'.$openhtml.'">';
+            $html.='<a'.$targethtml.' lay-direction=""><i class="layui-icon '.$child['ico'].'"></i><cite>'.$child['title'].'</cite></a>';
         }
         if(isset($child['child']) && is_array($child['child']) && count($child['child'])) {
             $html.='<dl class="layui-nav-child">';
@@ -365,6 +384,9 @@ class admin {
         Return $html;
     }
     function menu() {
+        if(!P('showleftmenu')) {
+            Return false;
+        }
         if(P('class:index') || P('module:index') || P('channel:index') || P('user:index') ) {
             $menu=array('title'=>'管理','ico'=>'layui-icon-set',);
         }else {

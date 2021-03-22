@@ -131,7 +131,10 @@
     <td align="right"><a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:module:permission&id={$module.id}">权限</a></td>
     <td>
         <table class="layui-table">
-        {$actions=this:article:articleAction()}
+          <colgroup>
+            <col width="150">
+            <col>
+          </colgroup>
         {loop $roles as $role}
             <tr>
             <td>

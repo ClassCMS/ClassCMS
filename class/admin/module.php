@@ -170,6 +170,17 @@ class admin_module {
         foreach($array['roles'] as $key=>$thisrole) {
             $array['roles'][$key]['_editabled']=C('this:roleCheck','admin:module:permission',$thisrole['hash'],false);
         }
+        $actions=C('this:article:articleAction');
+        if(count($array['vars'])) {
+            $array['actions']['var']=$actions['var'];
+        }
+        if(count($array['columns'])) {
+            foreach($actions as $key=>$action) {
+                if($key!='var') {
+                    $array['actions'][$key]=$action;
+                }
+            }
+        }
         V('module_config',$array);
     }
     function editPost() {
@@ -237,8 +248,20 @@ class admin_module {
         $array['classinfo']=C('cms:class:get',$array['module']['classhash']);
         $array['breadcrumb']=C('this:module:breadcrumb',$array['classinfo'],$array['module'],'权限');
         $array['admin_role_name']=C('cms:user:$admin_role');
-
-        $array['actions']=C('this:article:articleAction');
+        $array['actions']=array();
+        $actions=C('this:article:articleAction');
+        $array['vars']=C('cms:form:all','var',$array['module']['hash'],$array['module']['classhash']);
+        if(count($array['vars'])) {
+            $array['actions']['var']=$actions['var'];
+        }
+        $array['columns']=C('cms:form:all','column',$array['module']['hash'],$array['module']['classhash']);
+        if(count($array['columns'])) {
+            foreach($actions as $key=>$action) {
+                if($key!='var') {
+                    $array['actions'][$key]=$action;
+                }
+            }
+        }
         $array['roles']=C('cms:user:roleAll');
         foreach($array['roles'] as $key=>$thisrole) {
             $array['roles'][$key]['_editabled']=C('this:roleCheck','admin:module:permission',$thisrole['hash'],false);
