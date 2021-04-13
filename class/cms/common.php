@@ -6,7 +6,7 @@ class cms_common {
             $time=date('Y-m-d H:i:s');
         }
         $file = fopen('log_'.md5($GLOBALS['C']['SiteHash']).'.txt', "a");
-        fwrite($file, $time.' '.$msg."\r\n");
+        fwrite($file, $time.' '.$msg.PHP_EOL);
         fclose($file);
         Return true;
     }
@@ -55,6 +55,18 @@ class cms_common {
     }
     function safeHtml($html) {
         Return $html;
+    }
+    function session($hash,$value=null) {
+        if(!isset($_SESSION)) { session_start(); }
+        if($value===null) {
+            if(!isset($_SESSION[$hash])) {
+                Return null;
+            }
+            Return $_SESSION[$hash];
+        }else {
+            $_SESSION[$hash]=$value;
+        }
+        Return true;
     }
     function randStr($length,$str='') {
         if(empty($str)) {
@@ -146,6 +158,7 @@ class cms_common {
         $replace_key=array('(ext)','(rand)','(filename)','(Y)','(y)','(m)','(d)','(H)','(h)','(i)','(s)');
         foreach($allfiles as $filekey=>$file) {
             $allfiles[$filekey]['message']='';
+            $allfiles[$filekey]['url']='';
             $file['name']=htmlspecialchars($file['name']);
             if(isset($file['size']) && $file['size']>$uploadSize) {$file['error']=1;}
             if(empty($file['name'])) {
@@ -164,11 +177,11 @@ class cms_common {
             if(!in_array($file_ext,$uploadExt)) {
                 $allfiles[$filekey]['message']=$file['name'].' 不允许的文件类型';
             }
+            $replace_value=array($file_ext,substr(md5(time().rand(1000000, 9999999).@$allfiles[$filekey]['tmp_name']),0,14),implode('.',$temp_arr),date('Y'),date('y'),date('m'),date('d'),date('H'),date('h'),date('i'),date('s'));
+            $allfiles[$filekey]['save_path']=str_replace($replace_key,$replace_value,$path);
+            $allfiles[$filekey]['save_name']=str_replace($replace_key,$replace_value,$filename);
             if(empty($allfiles[$filekey]['message'])) {
-                $replace_value=array($file_ext,substr(md5(time().rand(1000000, 9999999).@$allfiles[$filekey]['tmp_name']),0,14),implode('.',$temp_arr),date('Y'),date('y'),date('m'),date('d'),date('H'),date('h'),date('i'),date('s'));
-                $thispath=str_replace($replace_key,$replace_value,$path);
-                $thisfilename=str_replace($replace_key,$replace_value,$filename);
-                if (!$allfiles[$filekey]['url']=C('this:common:uploadMove',$file['tmp_name'],$thispath,$thisfilename)) {
+                if (!$allfiles[$filekey]['url']=C('this:common:uploadMove',$file['tmp_name'],$allfiles[$filekey]['save_path'],$allfiles[$filekey]['save_name'])) {
                     $allfiles[$filekey]['message']=$file['name'].' 系统出错';
                 }
             }

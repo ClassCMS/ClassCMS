@@ -111,7 +111,7 @@ foreach($classlist as $class) {
     <div class="layui-form-item layui-layout-admin">
         <div class="layui-input-block">
             <div class="layui-footer">
-            <button class="layui-btn layui-btn-normal {if $superadmin}layui-btn-disabled{else}cms-btn{/if}" lay-submit="" lay-filter="form-submit">保存</button>
+            <button class="layui-btn {if $superadmin}layui-btn-disabled{else}cms-btn{/if}" lay-submit="" lay-filter="form-submit">保存</button>
             <button type="button" class="layui-btn layui-btn-primary" layadmin-event="back">返回</button>
             </div>
         </div>

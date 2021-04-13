@@ -362,25 +362,25 @@ class admin {
             $targethtml=' lay-href="'.$child['url'].'"';
         }
         if($child['open']) {
-            $openhtml=' layui-nav-itemed';
+            $openhtml='layui-nav-itemed';
         }else {
             $openhtml='';
         }
         if($times) {
-            $html.='<dd data-name="'.($child['title']).'" class="layui-nav-item'.$openhtml.'">';
-            $html.='<a'.$targethtml.' lay-direction=""><i class="layui-icon '.$child['ico'].'"></i>'.$child['title'].'</a>';
+            $html.='<dd data-name="'.($child['title']).'" class="'.$openhtml.'">';
+            $html.='<a'.$targethtml.'><i class="layui-icon '.$child['ico'].'"></i>'.$child['title'].'</a>';
         }else {
-            $html.='<li data-name="'.($child['title']).'" class="layui-nav-item'.$openhtml.'">';
-            $html.='<a'.$targethtml.' lay-direction=""><i class="layui-icon '.$child['ico'].'"></i><cite>'.$child['title'].'</cite></a>';
+            $html.='<li data-name="'.($child['title']).'" class="layui-nav-item '.$openhtml.'">'.PHP_EOL;
+            $html.='<a'.$targethtml.'><i class="layui-icon '.$child['ico'].'"></i><cite>'.$child['title'].'</cite></a>';
         }
         if(isset($child['child']) && is_array($child['child']) && count($child['child'])) {
-            $html.='<dl class="layui-nav-child">';
+            $html.=PHP_EOL.'<dl class="layui-nav-child">'.PHP_EOL;
             foreach($child['child'] as $this_child) {
                 $html.=C('this:childMenu',$classhash,$this_child,$times+1);
             }
-            $html.='</dl>';
+            $html.='</dl>'.PHP_EOL;
         }
-        if($times) {$html.='</dd>';}else {$html.='</li>';}
+        if($times) {$html.='</dd>'.PHP_EOL;}else {$html.='</li>'.PHP_EOL;}
         Return $html;
     }
     function menu() {
@@ -413,18 +413,18 @@ class admin {
         Return true;
     }
     function head($title='') {
-        $headhtml='<meta charset="utf-8"><title>'.$title.'</title><meta name="renderer" content="webkit">';
-        $headhtml.='<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="referrer" content="origin-when-cross-origin">';
-        $headhtml.='<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">';
-        $headhtml.=C('layui:css').'<link rel="stylesheet" href="'.template_url().'static/admin.css" media="all">';
+        $headhtml='<meta charset="utf-8"><title>'.$title.'</title><meta name="renderer" content="webkit">'.PHP_EOL;
+        $headhtml.='<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="referrer" content="origin-when-cross-origin">'.PHP_EOL;
+        $headhtml.='<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">'.PHP_EOL;
+        $headhtml.=C('layui:css').PHP_EOL;
         $headhtml.=C('this:css');
-        $headhtml.=C('layui:js');
-        $headhtml.=C('this:csrfJs');
-        $headhtml.='<script>layui.config({base: \''.template_url().'static/\'}).extend({index: \'lib/index\'}).use([\'index\',\'form\'],function(){});</script>';
+        $headhtml.=C('layui:js').PHP_EOL;
+        $headhtml.=C('this:csrfJs').PHP_EOL;
+        $headhtml.='<script>layui.config({base: \''.template_url().'static/\'}).extend({index: \'lib/index\'}).use([\'index\',\'form\'],function(){});</script>'.PHP_EOL;
         Return $headhtml;
     }
     function css() {
-        Return '<link rel="stylesheet" href="'.template_url().'static/admin.css" media="all">';
+        Return '<link rel="stylesheet" href="'.template_url().'static/admin.css" media="all">'.PHP_EOL;
     }
     function icoNav() {
         Return '<li class="layui-nav-item layadmin-flexible" lay-unselect><a href="javascript:;" layadmin-event="flexible" title="侧边伸缩"><i class="layui-icon layui-icon-shrink-right" id="LAY_app_flexible"></i></a></li><li class="layui-nav-item" lay-unselect><a href="?do=admin:jumpHome" target="_blank" title="主页"><i class="layui-icon layui-icon-website"></i></a></li><li class="layui-nav-item" lay-unselect><a href="javascript:;" layadmin-event="refresh" title="刷新"><i class="layui-icon layui-icon-refresh-3"></i></a></li>';

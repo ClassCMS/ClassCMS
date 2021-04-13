@@ -56,9 +56,9 @@
         <div class="layui-input-block">
             <div class="layui-footer">
             {if $allowsubmit}
-                <button class="layui-btn layui-btn-normal cms-btn" lay-submit="" lay-filter="form-submit">保存</button>
+                <button class="layui-btn cms-btn" lay-submit="" lay-filter="form-submit">保存</button>
             {else}
-                <button class="layui-btn layui-btn-normal layui-btn-disabled" lay-submit="" lay-filter="form-submit">保存</button>
+                <button class="layui-btn layui-btn-disabled" lay-submit="" lay-filter="form-submit">保存</button>
             {/if}
             <button type="button" class="layui-btn layui-btn-primary" layadmin-event="back">返回</button>
             </div>

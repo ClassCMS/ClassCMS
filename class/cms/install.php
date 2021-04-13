@@ -276,7 +276,11 @@ class cms_install {
             $GLOBALS['C']['DbInfo']['password']=$_POST['mysql_password'];
             $GLOBALS['C']['DbInfo']['prefix']=$_POST['prefix'];
             $GLOBALS['C']['DbInfo']['engine']='MyISAM';
-            $GLOBALS['C']['DbInfo']['charset']='utf8';
+            if(isset($GLOBALS['C']['charset']) && !empty($GLOBALS['C']['charset'])) {
+                $GLOBALS['C']['DbInfo']['charset']=$GLOBALS['C']['charset'];
+            }else {
+                $GLOBALS['C']['DbInfo']['charset']='utf8';
+            }
             if(C('this:install:extTest','pdo_mysql')) {
                 $GLOBALS['C']['DbInfo']['kind']='mysqlpdo';
             }elseif(C('this:install:extTest','mysql')) {
@@ -348,10 +352,6 @@ class cms_install {
     }
     function writeConfig($config=array()) {
         $configstr='';
-        $linestr="\n";
-        if(DIRECTORY_SEPARATOR=='\\') {
-            $linestr="\r\n";
-        }
         foreach($config as $key=>$val) {
             if(is_array($val)) {
                 $configstr.="\$GLOBALS['C']['".$key."']=array(";
@@ -361,17 +361,17 @@ class cms_install {
                         $configstr.="'".$key2."'=>'".$val2."',";
                     }
                 }
-                $configstr.=");".$linestr;
+                $configstr.=");".PHP_EOL;
             }else {
                 if(is_int($val)) {
-                    $configstr.="\$GLOBALS['C']['".$key."']=".$val.";".$linestr;
+                    $configstr.="\$GLOBALS['C']['".$key."']=".$val.";".PHP_EOL;
                 }else {
                     $val=str_replace(array("'","\\"),array("\'","\\\\"),$val);
-                    $configstr.="\$GLOBALS['C']['".$key."']='".$val."';".$linestr;
+                    $configstr.="\$GLOBALS['C']['".$key."']='".$val."';".PHP_EOL;
                 }
             }
         }
-        $configstr.=$linestr.$linestr."require('class/cms/cms.php');";
+        $configstr.=PHP_EOL.PHP_EOL."require('class/cms/cms.php');";
         $file=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['Indexfile'];
         $indexfileContent=@file_get_contents($file);
         if(!$indexfileContent) {

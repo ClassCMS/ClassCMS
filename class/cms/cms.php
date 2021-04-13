@@ -937,7 +937,7 @@ function cms_template($template_config) {
     $templatecontent=str_ireplace(array('</head>','</body>'),array('{cms:head:~('.$template_config['class'].')}</head>','{cms:body:~('.$template_config['class'].')}</body>'),$templatecontent);
     if(!isset($GLOBALS['C']['template_var']['host'])) {$GLOBALS['C']['template_var']['host']=server_name();}
     if(!isset($GLOBALS['C']['template_var']['cmsdir'])) {$GLOBALS['C']['template_var']['cmsdir']=$GLOBALS['C']['SystemDir'];}
-    if(!isset($GLOBALS['C']['template_var']['br'])) {$GLOBALS['C']['template_var']['br']="\r\n";}
+    if(!isset($GLOBALS['C']['template_var']['br'])) {$GLOBALS['C']['template_var']['br']=PHP_EOL;}
     $GLOBALS['C']['template_var']['template']=$template_config['httpdir'];
     $GLOBALS['C']['system_syntax'][1][]='else';
     $GLOBALS['C']['system_syntax'][2][]='}else{';

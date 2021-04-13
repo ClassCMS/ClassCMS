@@ -327,11 +327,11 @@ class admin_article {
                 if(is_string($savetrturn)) {
                     Return C('this:ajax',$savetrturn,1);
                 }elseif(!$savetrturn) {
-                    Return C('this:ajax','修改失败',1);
+                    Return C('this:ajax','保存失败',1);
                 }
                 
             }
-            Return C('this:ajax','修改成功');
+            Return C('this:ajax','保存成功');
         }else {
             Return C('this:ajax',$msg,1);
         }
