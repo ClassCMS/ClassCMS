@@ -14,6 +14,9 @@ class cms_install {
                 $GLOBALS['C']['UrlRewrite']=0;
             }
             if($_POST['step']=='_database') {
+                if(isset($_POST['admindir']) && !is_hash($_POST['admindir'])) {
+                    Return C('admin:ajax','admin dir error',1);
+                }
                 $createDatabase=C('this:install:createDatabase',1);
                 if(!is_array($createDatabase)) {
                     Return C('admin:ajax',$createDatabase,1);
@@ -31,6 +34,16 @@ class cms_install {
                 }
             }
             if($_POST['step']=='_config') {
+                if(isset($_POST['debug'])) {
+                    $config['Debug']=1;
+                }else {
+                    $config['Debug']=0;
+                }
+                if(isset($_POST['admindir']) && is_hash($_POST['admindir'])) {
+                    $config['AdminDir']=$_POST['admindir'];
+                }else {
+                    $config['AdminDir']='admin';
+                }
                 $config['SiteHash']=substr(md5(rand(10000000,99999999).time().rand(10000000,99999999)),0,16);
                 if(!isset($GLOBALS['C']['TemplateClass']) || $GLOBALS['C']['TemplateClass']=='template') {
                     $config['TemplateClass']='template';
@@ -41,7 +54,7 @@ class cms_install {
                     Return C('admin:ajax',$writeConfig,1);
                 }
                 C('this:common:opcacheReset');
-                Return C('admin:ajax',rewriteUri($GLOBALS['C']['AdminDir'].'/'));
+                Return C('admin:ajax',rewriteUri($config['AdminDir'].'/'));
             }
             if($classdirslist=@scandir(classDir())) {
                 if(in_array($_POST['step'],$classdirslist)) {
@@ -79,9 +92,9 @@ class cms_install {
             $array['infos'][]=array('name'=>'scandir','value'=>'函数被禁用,无法获取应用列表','error'=>1);
         }
         if(C('this:install:configfileTest')) {
-            $array['infos'][]=array('name'=>'配置文件权限('.$GLOBALS['C']['Indexfile'].')','value'=>'正常');
+            $array['infos'][]=array('name'=>'配置文件('.$GLOBALS['C']['Indexfile'].')','value'=>'正常');
         }else {
-            $array['infos'][]=array('name'=>'配置文件权限('.$GLOBALS['C']['Indexfile'].')','value'=>'无权限,无法安装','error'=>1);
+            $array['infos'][]=array('name'=>'配置文件('.$GLOBALS['C']['Indexfile'].')','value'=>'无写入权限,无法安装','error'=>1);
             $array['allow']=false;
         }
         if(C('this:install:dirTest',$GLOBALS['C']['ClassDir'])) {
@@ -276,8 +289,11 @@ class cms_install {
             $GLOBALS['C']['DbInfo']['password']=$_POST['mysql_password'];
             $GLOBALS['C']['DbInfo']['prefix']=$_POST['prefix'];
             $GLOBALS['C']['DbInfo']['engine']='MyISAM';
-            if(isset($GLOBALS['C']['charset']) && !empty($GLOBALS['C']['charset'])) {
-                $GLOBALS['C']['DbInfo']['charset']=$GLOBALS['C']['charset'];
+            if(is_numeric($_POST['mysql_dbname'])) {
+                Return '数据库名不能为纯数字';
+            }
+            if(isset($_POST['mysql_utf8mb4'])) {
+                $GLOBALS['C']['DbInfo']['charset']='utf8mb4';
             }else {
                 $GLOBALS['C']['DbInfo']['charset']='utf8';
             }
@@ -290,6 +306,18 @@ class cms_install {
             }
             if($create) {
                 $GLOBALS['C']['DbInfo']['createdb']=true;
+            }
+            $character_query=query('show character set;');
+            if($character_query) {
+                $characters=fetchall($character_query);
+                if(is_array($characters)) {
+                    $GLOBALS['C']['DbInfo']['charset']='utf8';
+                    foreach($characters as $character) {
+                        if(isset($character['Charset']) && $character['Charset']=='utf8mb4' && isset($_POST['mysql_utf8mb4'])) {
+                            $GLOBALS['C']['DbInfo']['charset']='utf8mb4';
+                        }
+                    }
+                }
             }
             $engines_query=query('show engines');
             if($engines_query) {

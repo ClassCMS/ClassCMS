@@ -387,11 +387,7 @@ function C() {
     if($end_class!=='-' && isset($GLOBALS['hook'][strtolower($class)]) && count($GLOBALS['hook'][strtolower($class)])) {
         foreach($GLOBALS['hook'][strtolower($class)] as $hookclass) {
             $args[0]=$hookclass;
-            if($GLOBALS['C']['Debug']) {
-                $return=call_user_func_array('C', $args);
-            }else {
-                $return=@call_user_func_array('C', $args);
-            }
+            $return=call_user_func_array('C', $args);
             if(is_array($return) && isset($return[0]) && strtolower($return[0])==strtolower($class)) {
                 $args=$return;
             }elseif(is_array($return) && isset($return['class']) && strtolower($return['class'])==strtolower($class)) {
@@ -419,11 +415,7 @@ function C() {
     $GLOBALS['C']['runing_class'][]=$classhash;
     if(!isset($GLOBALS['class_config'][$classhash]) && $end_class!=='~') {
         if(!class_exists($classhash)) {
-            if($GLOBALS['C']['Debug']) {
-                include_once(classDir($classhash).$classhash.'.php');
-            }else {
-                @include_once(classDir($classhash).$classhash.'.php');
-            }
+            include_once(classDir($classhash).$classhash.'.php');
         }
         if(class_exists($classhash)) {
             $GLOBALS['class'][$classhash]=new $classhash();
@@ -442,11 +434,7 @@ function C() {
     }
     if(!isset($GLOBALS['class'][$classname]) && !empty($classfile) && $end_class!=='~') {
         if(!class_exists($classname)) {
-            if($GLOBALS['C']['Debug']) {
-                include_once(classDir($classhash).$classfile.'.php');
-            }else {
-                @include_once(classDir($classhash).$classfile.'.php');
-            }
+            include_once(classDir($classhash).$classfile.'.php');
         }
         if(class_exists($classname)) {
             $GLOBALS['class'][$classname]=new $classname();
@@ -467,11 +455,7 @@ function C() {
                 }
             }else {
                 if(method_exists($GLOBALS['class'][$classname],$classfunction)) {
-                    if($GLOBALS['C']['Debug']) {
-                        $return=call_user_func_array(array($GLOBALS['class'][$classname],$classfunction),$args);
-                    }else {
-                        $return=@call_user_func_array(array($GLOBALS['class'][$classname],$classfunction),$args);
-                    }
+                    $return=call_user_func_array(array($GLOBALS['class'][$classname],$classfunction),$args);
                 }else {
                     if(!isset($lastreturn)) {
                         $return=null;
@@ -487,11 +471,7 @@ function C() {
     }
     if($end_class!=='-' && isset($GLOBALS['hook'][strtolower($class).':=']) && count($GLOBALS['hook'][strtolower($class).':='])) {
         foreach($GLOBALS['hook'][strtolower($class).':='] as $watchclass) {
-            if($GLOBALS['C']['Debug']) {
-                $watchreturn=call_user_func_array('C',array($watchclass,$class,array_values($args),$return));
-            }else {
-                $watchreturn=@call_user_func_array('C',array($watchclass,$class,array_values($args),$return));
-            }
+            $watchreturn=call_user_func_array('C',array($watchclass,$class,array_values($args),$return));
             if($watchreturn!==null) {
                 $return=$watchreturn;
             }
@@ -554,14 +534,14 @@ function V($Temp_file,$Temp_var=array(),$Temp_classhash='') {
                 $C_template_config['file']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'].$C_template;
                 $C_template_config['filedir']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'];
                 $U_tempfile=include_template($C_template_config);
-                if($U_tempfile) {if($GLOBALS['C']['Debug']) {include($U_tempfile);}else {@include($U_tempfile);}}
+                if($U_tempfile) {include($U_tempfile);}
             }
         }
     }else {
         $C_template_config['filedir']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'];
         $C_template_config['code']=$Temp_file;
         $U_tempfile=include_template($C_template_config);
-        if($U_tempfile) {if($GLOBALS['C']['Debug']) {include($U_tempfile);}else {@include($U_tempfile);}}
+        if($U_tempfile) {include($U_tempfile);}
     }
     if(isset($GLOBALS['class_config'][$Temp_classhash]['template_class']) && $GLOBALS['class_config'][$Temp_classhash]['template_class']!=$Temp_classhash) {
         array_pop($GLOBALS['C']['runing_class']);
@@ -627,22 +607,14 @@ function class_getParameters($args) {
     $class=explode(':',$args['class']);
     if(count($class)>2) {
         if(!class_exists($classhash.'_'.$class[1])) {
-            if($GLOBALS['C']['Debug']) {
-                include_once(classDir($class[0]).$class[1].'.php');
-            }else {
-                @include_once(classDir($class[0]).$class[1].'.php');
-            }
+            include_once(classDir($class[0]).$class[1].'.php');
         }
         $classhash=$class[0];
         $classname=$classhash.'_'.$class[1];
         $functionname=$class[2];
     }else {
         if(!class_exists($class[0])) {
-            if($GLOBALS['C']['Debug']) {
-                include_once(classDir($class[0]).DIRECTORY_SEPARATOR.$class[0].'.php');
-            }else {
-                @include_once(classDir($class[0]).DIRECTORY_SEPARATOR.$class[0].'.php');
-            }
+            include_once(classDir($class[0]).DIRECTORY_SEPARATOR.$class[0].'.php');
         }
         $classname=$class[0];
         $functionname=$class[1];
@@ -1070,7 +1042,7 @@ function cms_template($template_config) {
                         $this_function_args=explode(',',$iffunction[1][0]);
                         $this_function_args_new=array();
                         if($function_key>0 && !in_array('this',$this_function_args)) {$this_function_args_new[]='this';}
-                        if(!empty($iffunction[1][0])) {
+                        if($iffunction[1][0]!=='') {
                             $this_function_args_new=array_merge($this_function_args_new,$this_function_args);
                         }
                         if($load_class) {
@@ -1156,7 +1128,7 @@ function cms_template($template_config) {
     Return $templatecontent;
 }
 function _stripslashes() {
-    if(version_compare(PHP_VERSION,'5.4','<')){if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()){if (isset($_GET)){$_GET=_stripslashes_deep($_GET);}if (isset($_POST)){$_POST=_stripslashes_deep($_POST);}if (isset($_COOKIE)){$_COOKIE=_stripslashes_deep($_COOKIE);}}}@header(str_replace('U','Class','X-Powered-By:UCMS'));
+    if(version_compare(PHP_VERSION,'5.4','<')){if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()){if (isset($_GET)){$_GET=_stripslashes_deep($_GET);}if (isset($_POST)){$_POST=_stripslashes_deep($_POST);}if (isset($_COOKIE)){$_COOKIE=_stripslashes_deep($_COOKIE);}}}if(!isset($GLOBALS['C']['PoweredBy']) || $GLOBALS['C']['PoweredBy']){@header(str_replace('U','Class','X-Powered-By:UCMS'));}
 }
 function _stripslashes_deep($value) {
     if (empty($value)){return $value;}else{return is_array($value) ? array_map('_stripslashes_deep', $value) : stripslashes($value);}
@@ -1329,6 +1301,7 @@ class cms_database {
         $db_info=$GLOBALS['C']['DbInfo'];
         $GLOBALS['C']['DbInfo']['querycount']=0;
         $this->kind=$db_info['kind'];
+        $this->connectError=false;
         if($db_info['kind']=='sqlitepdo'){
             $this->databaselink = new PDO('sqlite:' . $db_info['file']);
         }elseif($db_info['kind']=='mysqlpdo') {
@@ -1340,6 +1313,7 @@ class cms_database {
                 $this->query("SET NAMES ".$GLOBALS['C']['DbInfo']['charset']);
             }catch(Exception $errinfo){
                 $this->error('database connect error');
+                $this->connectError=true;
             }
         }elseif($db_info['kind']=='mysql'){
             @$this->databaselink = mysql_connect($db_info['host'],$db_info['user'],$db_info['password']);
@@ -1350,10 +1324,12 @@ class cms_database {
                 mysql_query("SET NAMES ".$GLOBALS['C']['DbInfo']['charset']);
             }else {
                 $this->error('database connect error');
+                $this->connectError=true;
             }
             
         }else{
             $this->error('database error');
+            $this->connectError=true;
         }
     }
     function disconnect(){
@@ -1370,6 +1346,7 @@ class cms_database {
         Return $GLOBALS['C']['DbInfo']['prefix'].$this->escape($table);
     }
     function query($sql){
+        if($this->connectError) {Return false;}
         @$GLOBALS['C']['DbInfo']['querycount']++;
         @$GLOBALS['C']['DbInfo']['sql'][]=$sql;
         if(!isset($this->databaselink) || $this->databaselink==null) {
@@ -2021,6 +1998,7 @@ class cms_database {
         Return $fields;
     }
     function fetchall(){
+        if($this->connectError) {Return array();}
         if($this->kind=='mysql')
         {
             $array=array();
@@ -2033,6 +2011,7 @@ class cms_database {
         }
     }
     function fetchone(){
+        if($this->connectError) {Return false;}
         if($this->kind=='mysql')
         {
             Return @mysql_fetch_assoc($this->Stmt);
@@ -2041,6 +2020,7 @@ class cms_database {
         }
     }
     function lastId(){
+        if($this->connectError) {Return false;}
         if($this->kind=='mysql')
         {
             return intval(mysql_insert_id());
@@ -2049,12 +2029,14 @@ class cms_database {
         }
     }
     function begin(){
+        if($this->connectError) {Return false;}
         if(!method_exists($this->databaselink,'inTransaction')) {
             return false;
         }
         return $this->databaselink->beginTransaction();
     }
     function commit(){
+        if($this->connectError) {Return false;}
         if(!method_exists($this->databaselink,'inTransaction')) {
             return false;
         }
@@ -2064,6 +2046,7 @@ class cms_database {
         return false;
     }
     function rollback(){
+        if($this->connectError) {Return false;}
         if(!method_exists($this->databaselink,'inTransaction')) {
             return false;
         }
@@ -2080,6 +2063,7 @@ class cms_database {
         }
     }
     function exec($sql){
+        if($this->connectError) {Return false;}
         if($this->kind=='mysql') {
             $this->query($sql);
             Return true;

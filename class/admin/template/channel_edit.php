@@ -68,7 +68,7 @@
                     <label class="layui-form-label">排序</label>
                     <div class="layui-input-right">
                     <div class="layui-input-block">
-                      <input type="text" name="channelorder" value="{if isset($channel.channelorder)}{$channel.channelorder}{else}1{/if}" lay-verify="number" class="layui-input"  lay-verify="required">
+                      <input type="text" name="channelorder" value="{if isset($channel.channelorder)}{$channel.channelorder}{else}1{/if}" class="layui-input" lay-verify="required|number">
                     </div>
                     <div class="layui-form-mid">排序从小到大</div>
                     </div>

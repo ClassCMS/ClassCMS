@@ -45,7 +45,7 @@
                             <label class="layui-form-label">标识</label>
                             <div class="layui-input-right">
                             <div class="layui-input-block">
-                              <input type="text" name="hash" value="{if isset($hash)}{$hash}{/if}"  lay-verify="hash" class="layui-input" lay-verify="required"{if isset($hash)} readonly{/if}>
+                              <input type="text" name="hash" value="{if isset($hash)}{$hash}{/if}" class="layui-input" lay-verify="required|hash"{if isset($hash)} readonly{/if}>
                             </div>
                             <div class="layui-form-mid">标识无法更改</div>
                             </div>

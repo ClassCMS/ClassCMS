@@ -109,18 +109,17 @@ class cms_article {
         if(isset($config['column'])) {$config['column']='id,cid,uid'.$config['column'];}else {$config['column']='*';}
         if(!isset($config['start'])) {$config['start']=0;}
         if(!isset($config['sql'])) {$config['sql']='';}
-        if(isset($config['cid'])) {
-            if(empty($config['sql'])) {
-                $config['sql'].='cid=\''.$config['cid'].'\'';
-            }else {
-                $config['sql'].=' and cid=\''.$config['cid'].'\'';
-            }
-        }
         if(isset($config['cids'])) {
             if(empty($config['sql'])) {
                 $config['sql'].=where(array('cid'=>$config['cids']));
             }else {
                 $config['sql'].=' and '.where(array('cid'=>$config['cids']));
+            }
+        }elseif(isset($config['cid'])) {
+            if(empty($config['sql'])) {
+                $config['sql'].='cid=\''.$config['cid'].'\'';
+            }else {
+                $config['sql'].=' and cid=\''.$config['cid'].'\'';
             }
         }
         if(isset($config['where'])) {
@@ -336,8 +335,13 @@ class cms_article {
                 Return false;
             }
         }
-        unset($GLOBALS['channel'][$channel['id']]);
-        Return C('this:config:set',C('this:article:varStr',$channel,$varhash),$value,0,$channel['classhash']);
+        if(!C('this:config:set',C('this:article:varStr',$channel,$varhash),$value,0,$channel['classhash'])) {
+            Return false;
+        }
+        if(isset($GLOBALS['channel'][$channel['id']])) {
+            $GLOBALS['channel'][$channel['id']][$varhash]=$value;
+        }
+        Return true;
     }
     function delVar($channel,$varhash) {
         if(!is_array($channel)) {
@@ -345,8 +349,13 @@ class cms_article {
                 Return false;
             }
         }
-        unset($GLOBALS['channel'][$channel['id']]);
-        Return C('this:config:del',C('this:article:varStr',$channel,$varhash),$channel['classhash']);
+        if(!C('this:config:del',C('this:article:varStr',$channel,$varhash),$channel['classhash'])) {
+            Return false;
+        }
+        if(isset($GLOBALS['channel'][$channel['id']][$varhash])) {
+            unset($GLOBALS['channel'][$channel['id']][$varhash]);
+        }
+        Return true;
     }
     function varStr($channel,$varhash) {
         Return $channel['classhash'].':'.$channel['id'].':article:var:'.$varhash;

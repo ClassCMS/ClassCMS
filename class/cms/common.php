@@ -60,13 +60,20 @@ class cms_common {
         if(!isset($_SESSION)) { session_start(); }
         if($value===null) {
             if(!isset($_SESSION[$hash])) {
-                Return null;
+                Return false;
             }
             Return $_SESSION[$hash];
         }else {
             $_SESSION[$hash]=$value;
         }
         Return true;
+    }
+    function filesizeString($size=0) {
+        if($size<1024){return $size.'Byte';}
+        if($size<1048576){return round($size/1024,2).'KB';}
+        if($size<1073741824){return round($size/1048576,2).'MB';}
+        if($size<1099511627776) {return round($size/1073741824,2).'GB';}
+        return round($size/1099511627776,2).'TB';
     }
     function randStr($length,$str='') {
         if(empty($str)) {
@@ -162,42 +169,47 @@ class cms_common {
             $file['name']=htmlspecialchars($file['name']);
             if(isset($file['size']) && $file['size']>$uploadSize) {$file['error']=1;}
             if(empty($file['name'])) {
-                $allfiles[$filekey]['message']='未知文件名';
+                $allfiles[$filekey]['message']='未知文件名.';
+                $allfiles[$filekey]['error']=7;
             }elseif($file['error']==1 || $file['error']==2) {
-                $allfiles[$filekey]['message']=$file['name'].' 超过系统允许的大小';
+                $allfiles[$filekey]['message']=$file['name'].' 文件太大.';
             }elseif($file['error']==3 || $file['error']==4 || $file['error']==5) {
-                $allfiles[$filekey]['message']=$file['name'].' 上传失败';
+                $allfiles[$filekey]['message']=$file['name'].' 上传失败.';
             }elseif($file['error']==0) {
                 
             }else {
-                $allfiles[$filekey]['message']=$file['name'].' 系统出错';
+                $allfiles[$filekey]['message']=$file['name'].' 未知错误.';
+                $allfiles[$filekey]['error']=8;
             }
             $temp_arr=explode(".", $file['name']);
             $file_ext=strtolower(array_pop($temp_arr));
             if(!in_array($file_ext,$uploadExt)) {
-                $allfiles[$filekey]['message']=$file['name'].' 不允许的文件类型';
+                $allfiles[$filekey]['message']=$file['name'].' 不允许的文件类型.';
+                $allfiles[$filekey]['error']=9;
             }
             $replace_value=array($file_ext,substr(md5(time().rand(1000000, 9999999).@$allfiles[$filekey]['tmp_name']),0,14),implode('.',$temp_arr),date('Y'),date('y'),date('m'),date('d'),date('H'),date('h'),date('i'),date('s'));
             $allfiles[$filekey]['save_path']=str_replace($replace_key,$replace_value,$path);
             $allfiles[$filekey]['save_name']=str_replace($replace_key,$replace_value,$filename);
             if(empty($allfiles[$filekey]['message'])) {
                 if (!$allfiles[$filekey]['url']=C('this:common:uploadMove',$file['tmp_name'],$allfiles[$filekey]['save_path'],$allfiles[$filekey]['save_name'])) {
-                    $allfiles[$filekey]['message']=$file['name'].' 系统出错';
+                    $allfiles[$filekey]['message']=$file['name'].' 系统出错.';
+                    $allfiles[$filekey]['error']=6;
+                    $allfiles[$filekey]['url']='';
                 }
             }
         }
-        $message='';
+        $allmessage='';
         $error=0;
         $urls=array();
-        foreach($allfiles as $filekey=>$file) {
-            if(!empty($file['message'])) {
-                $message.=$file['message'].' ';
+        foreach($allfiles as $file) {
+            if($file['error']) {
+                $allmessage.=$file['message'].' ';
                 $error=1;
             }else {
                 $urls[]=$file['url'];
             }
         }
-        Return array('error'=>$error,'message'=>$message,'file'=>$allfiles,'url'=>$urls);
+        Return array('error'=>$error,'message'=>$allmessage,'file'=>$allfiles,'url'=>$urls);
     }
     function uploadSize() {
         if($upload_max_filesize=@ini_get('upload_max_filesize')) {

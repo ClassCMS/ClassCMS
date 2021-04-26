@@ -12,6 +12,7 @@
 .ClassCms_install .layui-tab-brief>.layui-tab-more li.layui-this:after, .layui-tab-brief>.layui-tab-title .layui-this:after{border-color:#1E9FFF}
 .ClassCms_install .install_copyright{padding-top: 50px;text-align: center;}
 .ClassCms_install .cms-btn{width:50%;margin:0 25%;max-width:400px}
+.ClassCms_install .layui-icon-dir:before{content: "\e68e";}
 @media screen and (max-width: 460px) {.layui-show-lg-td{display:none!important}.layui-show-md-td{display:none!important}.layui-show-sm-td{display:none!important}.layui-show-xs-td{display:none!important}.layui-show-xss-td{display:table-cell!important}.layui-hide-xss{display:none!important}}
 @media screen and (min-width: 460px) {.layui-show-lg-td{display:none!important}.layui-show-md-td{display:none!important}.layui-show-sm-td{display:none!important}.layui-show-xss-td{display:table-cell!important}.layui-show-xs-td{display:table-cell!important}}
 @media screen and (min-width: 768px) {.layui-show-lg-td{display:none!important}.layui-show-md-td{display:none!important}.layui-show-sm-td{display:none!important}.layui-show-xss-td{display:table-cell!important}.layui-show-xs-td{display:table-cell!important}}

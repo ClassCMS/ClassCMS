@@ -92,10 +92,12 @@
                                     <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>
                                     <input type="password" name="mysql_password" value="{if isset($_SERVER['DbInfo_password'])}{$_SERVER['DbInfo_password']}{/if}" placeholder="数据库密码" class="layui-input">
                                 </div>
+                                <div class="layui-form-item">
+                                    <input type="checkbox" name="mysql_utf8mb4" lay-skin="primary" title="使用utf8mb4字符集,支持Emoji表情,Mysql版本需&gt;=5.5.3" checked>
+                                </div>
                             {else}
                                 服务器未开启pdo_mysql或Mysql组件,无法使用Mysql数据库
                             {/if}
-                            
                         </div>
                     </div>
                 </div> 
@@ -104,21 +106,28 @@
             <div class="layui-card">
                 <div class="layui-tab layui-tab-brief" lay-filter="user">
                     <ul class="layui-tab-title">
-                        <li class="layui-this">管理员账号</li>
+                        <li class="layui-this">管理信息</li>
                     </ul>
                     <div class="layui-tab-content layadmin-user-login-body">
                         <div class="layui-tab-item layui-show">
                             <div class="layui-form-item">
-                                <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="LAY-user-login-username"></label>
-                                <input type="text" name="userhash" placeholder="用户名" class="layui-input" lay-verify="hash" value="{if isset($_SERVER['admin_userhash'])}{$_SERVER['admin_userhash']}{/if}">
+                                <label class="layadmin-user-login-icon layui-icon layui-icon-dir"></label>
+                                <input type="text" name="admindir" value="{if isset($_SERVER['admin_dir'])}{$_SERVER['admin_dir']}{/if}" class="layui-input" lay-verify="hash" placeholder="自定义后台路径,如:admin">
                             </div>
                             <div class="layui-form-item">
-                                <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>
-                                <input type="password" name="passwd" placeholder="密码" class="layui-input" value="{if isset($_SERVER['admin_passwd'])}{$_SERVER['admin_passwd']}{/if}">
+                                <label class="layadmin-user-login-icon layui-icon layui-icon-username"></label>
+                                <input type="text" name="userhash" placeholder="管理员账号" class="layui-input" lay-verify="hash" value="{if isset($_SERVER['admin_userhash'])}{$_SERVER['admin_userhash']}{/if}">
                             </div>
                             <div class="layui-form-item">
-                                <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>
+                                <label class="layadmin-user-login-icon layui-icon layui-icon-password"></label>
+                                <input type="password" name="passwd" placeholder="管理员密码" class="layui-input" value="{if isset($_SERVER['admin_passwd'])}{$_SERVER['admin_passwd']}{/if}">
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layadmin-user-login-icon layui-icon layui-icon-password"></label>
                                 <input type="password" name="passwd2" placeholder="确认密码" class="layui-input" value="{if isset($_SERVER['admin_passwd'])}{$_SERVER['admin_passwd']}{/if}">
+                            </div>
+                            <div class="layui-form-item">
+                                <input type="checkbox" name="debug" lay-skin="primary" title="显示PHP错误信息,方便本地调试">
                             </div>
                         </div>
                     </div>
@@ -131,7 +140,7 @@
                     <button class="layui-btn layui-btn-fluid  layui-btn-disabled" style="color:red">配置错误,无法安装</button>
                 {/if}
             </div>
-        <div class="install_copyright"><p>© 2020 <a href="http://classcms.com" target="_blank">ClassCMS.com</a></p></div>
+        <div class="install_copyright"><p>© <a href="http://classcms.com" target="_blank">ClassCMS.com</a></p></div>
     </div>
 </div> 
 <div id="install_step" style="display:none">
@@ -239,6 +248,7 @@
                 msg=msg+"数据库地址:"+layui.$('input[name=mysql_host]').val()+"<br>";
                 msg=msg+"数据库名:"+layui.$('input[name=mysql_dbname]').val()+"<br>";
             }
+            msg=msg+"后台目录:"+layui.$('input[name=admindir]').val()+"<br>";
             layui.layer.confirm(msg, {
               btn: ['安装','取消'],title:'是否安装',shadeClose:false}, function(){
                 layui.$('#install_step tr').each(function(){
