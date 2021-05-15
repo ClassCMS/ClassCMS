@@ -214,8 +214,8 @@
                 }
                 if (layui.$('input[name=mysql_password]').val()=='')
                 {
-                    layui.view.error('请填写Mysql数据库密码');
-                    return;
+                    //layui.view.error('请填写Mysql数据库密码');
+                    //return;
                 }
             }
             if (layui.$('input[name=userhash]').val()=='')

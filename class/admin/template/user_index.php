@@ -9,11 +9,6 @@
 
         <div class="layui-card-header">
                 <div class="layui-row">
-                    <?php
-                        $breadcrumb=array(
-                            array('title'=>'用户管理')
-                        );
-                    ?>
                     <div id="cms-breadcrumb">{this:breadcrumb($breadcrumb)}</div>
                     <div id="cms-right-top-button">
                         {if P('user:add')}<a href="?do=admin:user:add" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-add-1"></i><b>增加</b></a>{/if}
@@ -43,9 +38,7 @@
             </thead>
             <tbody>
                 {loop $users as $user}
-                    {if !C('this:user:superAdmin',$nowuser['rolehash']) && C('this:user:superAdmin',$user['rolehash'])}
-                        {else}
-                        <tr rel="{$user.id}" data-hash="{$user.hash}">
+                    <tr rel="{$user.id}" data-hash="{$user.hash}">
                         <td>
                             <span{if $user.enabled==0} class="cms-text-disabled"{/if}>{$user.hash}</span>
                         </td>
@@ -71,8 +64,7 @@
                             {if $infobutton && P('user:info')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:user:info&id={$user.id}">属性</a>{/if}
                             {if P('user:del')}<a class="layui-btn layui-btn-sm layui-btn-primary  userdel">删除</a>{/if}
                         </td>
-                        </tr>
-                    {/if}
+                    </tr>
                 {/loop}
             </tbody>
           </table>

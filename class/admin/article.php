@@ -62,6 +62,9 @@ class admin_article {
                 unset($array['columns'][$key]);
             }
         }
+        if($listColumns=C('this:article:listColumns:~',$array['columns'])) {
+            $array['columns']=$listColumns;
+        }
         if(!C('cms:route:get','article',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash'])) {
             $array['viewbutton']=0;
         }
@@ -101,6 +104,7 @@ class admin_article {
         if(C('this:moduleAuth',$array['channel']['_module'],'var')) {$array['auth']['var']=1;}else {$array['auth']['var']=0;}
         if(C('this:moduleAuth',$array['channel']['_module'],'del')) {$array['auth']['del']=1;}else {$array['auth']['del']=0;}
         if(C('this:moduleAuth',$array['channel']['_module'],'edit')) {$array['auth']['edit']=1;}else {$array['auth']['edit']=0;}
+        if(C('this:moduleAuth',$array['channel']['_module'],'list')) {$array['auth']['list']=1;}else {$array['auth']['list']=0;}
         $array['varEnabled']=C('this:article:varEnabled',$array['channel']['_module']);
         $array['columns']=C('cms:form:all','column',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
         $array['columns']=C('cms:form:getColumnCreated',$array['columns'],$array['channel']['_module']['table']);
@@ -119,6 +123,15 @@ class admin_article {
                 }
             }else {
                 unset($array['columns'][$key]);
+            }
+        }
+        if($array['id']) {
+            if($editColumns=C('this:article:editColumns:~',$array['columns'])) {
+                $array['columns']=$editColumns;
+            }
+        }else {
+            if($addColumns=C('this:article:addColumns:~',$array['columns'])) {
+                $array['columns']=$addColumns;
             }
         }
         $array['tabs']=C('cms:form:getTabs',$array['columns']);
@@ -232,7 +245,6 @@ class admin_article {
                 }elseif(!$delreturn) {
                     Return C('this:ajax','删除失败',1);
                 }
-                
             }
         }
         Return C('this:ajax','删除成功');
@@ -276,6 +288,9 @@ class admin_article {
                 unset($array['vars'][$key]);
             }
             
+        }
+        if($varsColumns=C('this:article:varsColumns:~',$array['vars'])) {
+            $array['vars']=$varsColumns;
         }
         if(!count($array['vars'])) {
             Return C('this:error','无变量');

@@ -18,58 +18,54 @@
                 </div>
             </div>
           <div class="layui-card-body layui-form">
-
-{if count($articles)}
-            <table class="layui-table" lay-skin="line"  id="articles">
-            <colgroup>
-              <col>
-              <col>
-              <col>
-            </colgroup>
-            <thead>
-              <tr>
-                <th></th>
-                {loop $columns as $column}
-                <th rel="{$column.hash}">{$column.formname}</th>
-                {/loop}
-                <th></th>
-              </tr> 
-            </thead>
-            <tbody>
-                {loop $articles as $article}
-                    <tr rel="{$article.id}">
-                    <td style="width:20px"><input type="checkbox" name="check_article" lay-skin="primary" ></td>
+            {this:article:listTop:~()}
+            {if count($articles)}
+                <table class="layui-table" lay-skin="line"  id="articles">
+                <colgroup>
+                  <col>
+                  <col>
+                  <col>
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th></th>
                     {loop $columns as $column}
-                        <td rel="{$column.hash}">
+                    <th rel="{$column.hash}">{$column.formname}</th>
+                    {/loop}
+                    <th></th>
+                  </tr> 
+                </thead>
+                <tbody>
+                    {loop $articles as $article}
+                        <tr rel="{$article.id}">
+                        <td style="width:20px"><input type="checkbox" name="check_article" lay-skin="primary" ></td>
+                        {loop $columns as $column}
+                            <td rel="{$column.hash}">
                                 {if !isset($article[$column.hash])}{$article[$column.hash]=''}{/if}
                                 {$column.value=$article[$column.hash]}
                                 {$column.article=$article}
                                 {cms:input:view($column)}
+                            </td>
+                        {/loop}
+                        <td class="btn">
+                            {if $viewbutton && $channel.enabled && $channel._module.enabled}<a class="layui-btn layui-btn-sm layui-btn-primary{if !$article.link || $article.link=='#'} layui-btn-disabled{/if}"{if $article.link && $article.link!='#'} href="{$article.link}" target="_blank"{/if}>浏览</a>{/if}
+                            {if $auth.edit}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:article:edit&cid={$channel.id}&id={$article.id}">修改</a>{/if}
+                            {if $auth.del}<a class="layui-btn layui-btn-sm layui-btn-primary articledel">删除</a>{/if}
                         </td>
+                        </tr>
                     {/loop}
-                    <td class="btn">
-                        {if $viewbutton && $channel.enabled && $channel._module.enabled}<a class="layui-btn layui-btn-sm layui-btn-primary{if !$article.link || $article.link=='#'} layui-btn-disabled{/if}"{if $article.link && $article.link!='#'} href="{$article.link}" target="_blank"{/if}>浏览</a>{/if}
-                        {if $auth.edit}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:article:edit&cid={$channel.id}&id={$article.id}">修改</a>{/if}
-                        {if $auth.del}<a class="layui-btn layui-btn-sm layui-btn-primary articledel">删除</a>{/if}
-                    </td>
-                    </tr>
-                {/loop}
-            </tbody>
-          </table>
+                </tbody>
+              </table>
 
-            <div class="layui-row">
-                <div id="cms-left-bottom-button" class="layui-btn-container">
-                    <a class="layui-btn layui-btn-sm layui-btn-primary choseall">全选</a>
-                    <a class="layui-btn layui-btn-sm layui-btn-primary choseback">反选</a>
-                    {if $auth.del}<a class="layui-btn layui-btn-sm layui-btn-primary delchosed">删除</a>{/if}
+                <div class="layui-row">
+                    <div id="cms-left-bottom-button" class="layui-btn-container">
+                        <a class="layui-btn layui-btn-sm layui-btn-primary choseall">全选</a>
+                        <a class="layui-btn layui-btn-sm layui-btn-primary choseback">反选</a>
+                        {if $auth.del}<a class="layui-btn layui-btn-sm layui-btn-primary delchosed">删除</a>{/if}
+                    </div>
+                    <div id="cms-right-bottom-button" class="layui-btn-container">{this:pagelist()}</div>
                 </div>
-                <div id="cms-right-bottom-button" class="layui-btn-container">{this:pagelist()}</div>
-            </div>
-{else}
-    <blockquote class="layui-elem-quote layui-text">
-        尚未增加
-    </blockquote>
-{/if}
+            {/if}
           </div>
       </div>
     </div>

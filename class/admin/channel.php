@@ -124,8 +124,9 @@ class admin_channel {
         $channel_add_array['channelname']=trim($_POST['channelname']);
         $channel_add_array['fid']=@$_POST['fid'];
         $channel_add_array['modulehash']=$module['hash'];
-        $channel_add_array['channelorder']=intval($_POST['channelorder']);
         $channel_add_array['enabled']=C('cms:input:post',array('inputhash'=>'switch','name'=>'enabled'));
+        $channel_add_array['channelorder']=intval($_POST['channelorder']);
+        if($channel_add_array['channelorder']<0) {$channel_add_array['channelorder']=0;}
         $addreturn=C('cms:channel:add',$channel_add_array);
         if(is_numeric($addreturn)) {
             Return C('this:ajax','增加成功');
@@ -159,8 +160,9 @@ class admin_channel {
             $channel_edit_array['channelname']=trim($_POST['channelname']);
             $channel_edit_array['fid']=$_POST['fid'];
             $channel_edit_array['modulehash']=$module['hash'];
-            $channel_edit_array['channelorder']=intval($_POST['channelorder']);
             $channel_edit_array['enabled']=C('cms:input:post',array('inputhash'=>'switch','name'=>'enabled'));
+            $channel_edit_array['channelorder']=intval($_POST['channelorder']);
+            if($channel_edit_array['channelorder']<0) {$channel_edit_array['channelorder']=0;}
             $editreturn=C('cms:channel:edit',$channel_edit_array);
             if($editreturn===true) {
                 Return C('this:ajax','修改成功');

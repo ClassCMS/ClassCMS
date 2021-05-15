@@ -276,6 +276,9 @@ class admin {
                 $return=$args[0];
             }
         }
+        if(C('cms:common:echoJson',$return)) {
+            Return true;
+        }
         echo(json_encode($return));
         Return true;
     }
@@ -413,7 +416,7 @@ class admin {
         Return true;
     }
     function head($title='') {
-        $headhtml='<meta charset="utf-8"><title>'.$title.'</title><meta name="renderer" content="webkit">'.PHP_EOL;
+        $headhtml=PHP_EOL.'<meta charset="utf-8"><title>'.$title.'</title><meta name="renderer" content="webkit">'.PHP_EOL;
         $headhtml.='<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="referrer" content="origin-when-cross-origin">'.PHP_EOL;
         $headhtml.='<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">'.PHP_EOL;
         $headhtml.=C('layui:css').PHP_EOL;

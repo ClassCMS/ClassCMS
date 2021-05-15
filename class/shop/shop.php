@@ -276,6 +276,7 @@ class shop {
             curl_setopt($curl,CURLOPT_SSL_VERIFYHOST,FALSE);
             curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,10);
             curl_setopt($curl,CURLOPT_TIMEOUT,120);
+            curl_setopt($curl,CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
             $content=curl_exec($curl);
             $httpinfo=curl_getinfo($curl);
             curl_close($curl);
@@ -321,6 +322,7 @@ class shop {
         curl_setopt($curl,CURLOPT_TIMEOUT,300);
         curl_setopt($curl,CURLOPT_SSL_VERIFYPEER,FALSE);
         curl_setopt($curl,CURLOPT_SSL_VERIFYHOST,FALSE);
+        curl_setopt($curl,CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
         $info=curl_exec($curl);
         $httpinfo=curl_getinfo($curl);
         curl_close($curl);

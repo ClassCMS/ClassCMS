@@ -388,9 +388,9 @@ function C() {
         foreach($GLOBALS['hook'][strtolower($class)] as $hookclass) {
             $args[0]=$hookclass;
             $return=call_user_func_array('C', $args);
-            if(is_array($return) && isset($return[0]) && strtolower($return[0])==strtolower($class)) {
+            if(is_array($return) && isset($return[0]) && is_string($return[0]) && strtolower($return[0])==strtolower($class)) {
                 $args=$return;
-            }elseif(is_array($return) && isset($return['class']) && strtolower($return['class'])==strtolower($class)) {
+            }elseif(is_array($return) && isset($return['class']) && is_string($return['class']) && strtolower($return['class'])==strtolower($class)) {
                 $args=class_getParameters($return);
             }elseif($return!==null) {
                 if(isset($route_view)) {
@@ -1131,7 +1131,7 @@ function _stripslashes() {
     if(version_compare(PHP_VERSION,'5.4','<')){if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()){if (isset($_GET)){$_GET=_stripslashes_deep($_GET);}if (isset($_POST)){$_POST=_stripslashes_deep($_POST);}if (isset($_COOKIE)){$_COOKIE=_stripslashes_deep($_COOKIE);}}}if(!isset($GLOBALS['C']['PoweredBy']) || $GLOBALS['C']['PoweredBy']){@header(str_replace('U','Class','X-Powered-By:UCMS'));}
 }
 function _stripslashes_deep($value) {
-    if (empty($value)){return $value;}else{return is_array($value) ? array_map('_stripslashes_deep', $value) : stripslashes($value);}
+    if(is_array($value)){return array_map('_stripslashes_deep',$value);}elseif(empty($value)){return $value;}else {Return stripslashes($value);}
 }
 function is_hash($hash) {
     Return preg_match('/^[A-Za-z]{1}[A-Za-z0-9_]{0,31}$/',$hash);

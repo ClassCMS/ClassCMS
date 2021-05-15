@@ -18,6 +18,10 @@ class cms_common {
         if(@$_SERVER["REMOTE_ADDR"]=='::1') {$_SERVER["REMOTE_ADDR"]='127.0.0.1';}
         Return @$_SERVER["REMOTE_ADDR"];
     }
+    function echoJson($array=array()) {
+        echo(json_encode($array));
+        Return true;
+    }
     function text($html,$length=false,$ellipsis='') {
         if(!$length) {$length=strlen($html)*10;}
         $html=preg_replace("/(\<(.*)>)/Ui",'',$html);
@@ -68,12 +72,12 @@ class cms_common {
         }
         Return true;
     }
-    function filesizeString($size=0) {
+    function filesizeString($size=0,$precision=0) {
         if($size<1024){return $size.'Byte';}
-        if($size<1048576){return round($size/1024,2).'KB';}
-        if($size<1073741824){return round($size/1048576,2).'MB';}
-        if($size<1099511627776) {return round($size/1073741824,2).'GB';}
-        return round($size/1099511627776,2).'TB';
+        if($size<1048576){return round($size/1024,$precision).'KB';}
+        if($size<1073741824){return round($size/1048576,$precision).'MB';}
+        if($size<1099511627776) {return round($size/1073741824,$precision).'GB';}
+        return round($size/1099511627776,$precision).'TB';
     }
     function randStr($length,$str='') {
         if(empty($str)) {
@@ -192,7 +196,7 @@ class cms_common {
             $allfiles[$filekey]['save_name']=str_replace($replace_key,$replace_value,$filename);
             if(empty($allfiles[$filekey]['message'])) {
                 if (!$allfiles[$filekey]['url']=C('this:common:uploadMove',$file['tmp_name'],$allfiles[$filekey]['save_path'],$allfiles[$filekey]['save_name'])) {
-                    $allfiles[$filekey]['message']=$file['name'].' 系统出错.';
+                    $allfiles[$filekey]['message']=$file['name'].' 保存文件失败.';
                     $allfiles[$filekey]['error']=6;
                     $allfiles[$filekey]['url']='';
                 }
@@ -219,7 +223,7 @@ class cms_common {
         Return 104857600;
     }
     function uploadExt() {
-        Return array('gif','jpg','jpeg','png','bmp','blob','psd','webp','doc','docx','xls','xlsx','ppt','txt','zip','gz','bz2','pdf','rar','tar','torrent','apk','ipa','swf','flv','mp3','mp4','wav','wma','wmv','mid','avi','mpg','asf');
+        Return array('gif','jpg','jpeg','png','bmp','blob','psd','webp','doc','docx','xls','xlsx','ppt','txt','zip','7z','gz','bz2','pdf','rar','tar','torrent','exe','apk','ipa','swf','flv','mp3','mp4','wav','wma','wmv','mid','avi','mpg','asf');
     }
     function uploadMove($tempfile,$path='',$filename='') {
         if(!is_file($tempfile)) {
@@ -267,7 +271,14 @@ class cms_common {
         }
         Return false;
     }
-    function verify($str,$kind='') {
+    function uploadRemove($uploadfile){
+        $filepath=rtrim($GLOBALS['C']['SystemRoot'],DIRECTORY_SEPARATOR).str_replace('/',DIRECTORY_SEPARATOR,$uploadfile);
+        if(is_file($filepath) && unlink($filepath)) {
+            Return true;
+        }
+        Return false;
+    }
+    function verify($str,$kind=''){
         if($kind=='id') {
             Return preg_match("/^[1-9][0-9]*$/",$str);
         }
@@ -294,7 +305,7 @@ class cms_common {
         }
         Return false;
     }
-    function send($url,$data=array(),$post=false,$timeout=0) {
+    function send($url,$data=array(),$post=false,$timeout=0){
         if(empty($url)) {Return false;}
         if(!$post && is_array($data) && count($data)) {
             if(stripos($url,'?')===false) {$url.='?';}
@@ -313,6 +324,7 @@ class cms_common {
             }
             curl_setopt($curl,CURLOPT_SSL_VERIFYPEER,FALSE);
             curl_setopt($curl,CURLOPT_SSL_VERIFYHOST,FALSE);
+            curl_setopt($curl,CURLOPT_HTTP_VERSION,CURL_HTTP_VERSION_1_0);
             curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,$timeout);
             curl_setopt($curl,CURLOPT_TIMEOUT,$timeout);
             $content=curl_exec($curl);
@@ -329,7 +341,7 @@ class cms_common {
         }
         Return $content;
     }
-    function pinyin($_String) {
+    function pinyin($_String){
         $_DataKey = "a|ai|an|ang|ao|ba|bai|ban|bang|bao|bei|ben|beng|bi|bian|biao|bie|bin|bing|bo|bu|ca|cai|can|cang|cao|ce|ceng|cha".
         "|chai|chan|chang|chao|che|chen|cheng|chi|chong|chou|chu|chuai|chuan|chuang|chui|chun|chuo|ci|cong|cou|cu|".
         "cuan|cui|cun|cuo|da|dai|dan|dang|dao|de|deng|di|dian|diao|die|ding|diu|dong|dou|du|duan|dui|dun|duo|e|en|er".

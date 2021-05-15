@@ -20,41 +20,40 @@
                 <div id="cms-breadcrumb">{this:breadcrumb($breadcrumb)}</div>
                 <div id="cms-right-top-button">
                     {if ($id && $auth.del)}<a class="layui-btn layui-btn-sm layui-btn-danger articledel"><i class="layui-icon layui-icon-close"></i><b>删除</b></a>{/if}
-                    {if $varEnabled}<a href="?do=admin:article:varEdit&cid={$channel.id}" class="layui-btn layui-btn-sm layui-btn-danger">设置</a>{/if}
+                    {if !$auth.list && $varEnabled}<a href="?do=admin:article:varEdit&cid={$channel.id}" class="layui-btn layui-btn-sm layui-btn-danger">设置</a>{/if}
                 </div>
             </div>
         </div>
 
-
         <div class="layui-card-body clear">
-                  <div class="layui-tab" lay-filter="columntab">
-                        {if count($tabs)>1}
-                            <ul class="layui-tab-title" id="tablist">
-                            {loop $tabs as $key=>$tab}
-                                <li{if $key==0} class="layui-this"{/if} lay-id="tabsort_{$key}"><span>{$tab}</span></li>
-                            {/loop}
-                            </ul>
-                        {/if}
-                        <div class="layui-tab-content" id="columnitem">
-                            {loop $tabs as $key=>$tab}
-                                <div class="layui-tab-item{if $key==0} layui-show{/if}">
-                                    {loop $columns as $column}
-                                        {if $column.tabname==$tab}
-                                            <div class="layui-form-item layui-form-item-width-{$column.formwidth}">
-                                                <label class="layui-form-label{if !$column.auth.write} disabled{/if}">{$column.formname}</label>
-                                                <div class="layui-input-right">
-                                                <div class="layui-input-block">
-                                                    {cms:input:form($column)}
-                                                </div>
-                                                <div class="layui-form-mid">{$column.tips}</div>
-                                                </div>
+              <div class="layui-tab" lay-filter="columntab">
+                    {if count($tabs)>1}
+                        <ul class="layui-tab-title" id="tablist">
+                        {loop $tabs as $key=>$tab}
+                            <li{if $key==0} class="layui-this"{/if} lay-id="tabsort_{$key}"><span>{$tab}</span></li>
+                        {/loop}
+                        </ul>
+                    {/if}
+                    <div class="layui-tab-content" id="columnitem">
+                        {loop $tabs as $key=>$tab}
+                            <div class="layui-tab-item{if $key==0} layui-show{/if}">
+                                {loop $columns as $column}
+                                    {if $column.tabname==$tab}
+                                        <div class="layui-form-item layui-form-item-width-{$column.formwidth}">
+                                            <label class="layui-form-label{if !$column.auth.write} disabled{/if}">{$column.formname}</label>
+                                            <div class="layui-input-right">
+                                            <div class="layui-input-block">
+                                                {cms:input:form($column)}
                                             </div>
-                                        {/if}
-                                    {/loop}
-                                </div>
-                            {/loop}
-                        </div>
-                </div>
+                                            <div class="layui-form-mid">{$column.tips}</div>
+                                            </div>
+                                        </div>
+                                    {/if}
+                                {/loop}
+                            </div>
+                        {/loop}
+                    </div>
+            </div>
         </div>
     </div>
 

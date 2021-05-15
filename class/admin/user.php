@@ -14,13 +14,34 @@ class admin_user {
     }
     function index() {
         $array['nowuser']=C('cms:user:get',C('this:nowUser'));
+        $array['breadcrumb']=array(array('title'=>'用户管理','url'=>'?do=admin:user:index'));
         $user_query=array();
         $user_query['table']='user';
         $user_query['optimize']=true;
         $user_query['page']=page('pagesize',30);
-        $user_query_where=array();
-        if(isset($_GET['rolehash']) && !empty($_GET['rolehash'])) {
-            $user_query_where['rolehash%']=$_GET['rolehash'];
+        $user_query_where='';
+        if(isset($_GET['rolehash']) && P('user:roleIndex') && $role=C('cms:user:roleGet',$_GET['rolehash'])) {
+            $user_query_where.="(rolehash like '".$role['hash']."' or rolehash like '".$role['hash'].";%' or rolehash like '%;".$role['hash']."' or rolehash like '%;".$role['hash'].";%')";
+            $array['breadcrumb'][]=array('title'=>$role['rolename'].'['.$role['hash'].']');
+        }
+        if(!C('this:user:superAdmin',$array['nowuser']['rolehash'])) {
+            $roles=C('cms:user:roleAll');
+            $myrolehashs=explode(';',$array['nowuser']['rolehash']);
+            foreach($myrolehashs as $key=>$thismyrolehash) {
+                if(empty($thismyrolehash)) {
+                    unset($myrolehashs[$key]);
+                }
+            }
+            $role_where='';
+            foreach($roles as $key=>$thisrole) {
+                if(!in_array($thisrole['hash'],$myrolehashs)) {
+                    if(!empty($role_where)) {
+                        $role_where.=' and ';
+                    }
+                    $role_where.="rolehash not like '".$thisrole['hash']."' and rolehash not like '".$thisrole['hash'].";%' and rolehash not like '%;".$thisrole['hash']."' and rolehash not like '%;".$thisrole['hash'].";%'";
+                }
+            }
+            $user_query_where.=$role_where;
         }
         $user_query['where']=$user_query_where;
         $array['users']=all($user_query);
@@ -100,11 +121,11 @@ class admin_user {
     function edit() {
         if($array=C('cms:user:get',@$_GET['id'])){
             $array['nowuser']=C('cms:user:get',C('this:nowUser'));
-            if(!C('this:user:superAdmin',$array['nowuser']['rolehash'])) {
+            if(!C('this:user:superAdmin',$array['nowuser']['rolehash']) && !empty($array['rolehash'])) {
                 $my_role_array=explode(';',$array['nowuser']['rolehash']);
                 $user_rolehash_array=explode(';',$array['rolehash']);
                 foreach($user_rolehash_array as $this_role) {
-                    if(!in_array($this_role,$my_role_array)) {
+                    if(!in_array($this_role,$my_role_array) && !empty($this_role)) {
                         Return C('this:error','没有权限修改此账号');
                     }
                 }
@@ -139,11 +160,13 @@ class admin_user {
             $nowuser=C('cms:user:get',C('this:nowUser'));
             if(!C('this:user:superAdmin',$nowuser['rolehash'])) {
                 $user_edit_array['rolehash']=C('cms:input:post',array('inputhash'=>'rolecheckbox','name'=>'rolehash','showdisabled'=>1,'rolehash'=>$nowuser['rolehash']));
-                $my_role_array=explode(';',$nowuser['rolehash']);
-                $user_rolehash_array=explode(';',$user_edit_array['rolehash']);
-                foreach($user_rolehash_array as $this_role) {
-                    if(!in_array($this_role,$my_role_array)) {
-                        Return C('this:ajax','没有权限为此账号增加角色 ['.htmlspecialchars($this_role).']',1);
+                if(!empty($user_edit_array['rolehash'])) {
+                    $my_role_array=explode(';',$nowuser['rolehash']);
+                    $user_rolehash_array=explode(';',$user_edit_array['rolehash']);
+                    foreach($user_rolehash_array as $this_role) {
+                        if(!in_array($this_role,$my_role_array)) {
+                            Return C('this:ajax','没有权限为此账号增加角色 ['.htmlspecialchars($this_role).']',1);
+                        }
                     }
                 }
             }else {
@@ -180,11 +203,11 @@ class admin_user {
         if($nowuser['hash']==$del_user['hash']) {
             Return C('this:ajax','无法删除自身账号',1);
         }
-        if(!C('this:user:superAdmin',$nowuser['rolehash'])) {
+        if(!C('this:user:superAdmin',$nowuser['rolehash']) && !empty($del_user['rolehash'])) {
             $my_role_array=explode(';',$nowuser['rolehash']);
             $user_rolehash_array=explode(';',$del_user['rolehash']);
             foreach($user_rolehash_array as $this_role) {
-                if(!in_array($this_role,$my_role_array)) {
+                if(!in_array($this_role,$my_role_array) && !empty($this_role)) {
                     Return C('this:ajax','没有权限删除此账号',1);
                 }
             }
