@@ -89,11 +89,6 @@ class admin_class {
                 }
             }
             $array['roles']=C('cms:user:roleAll');
-            $array['modulecount']=0;
-            if($array['classinfo']['module']) {
-                $modules=C('cms:module:all',$array['classinfo']['hash']);
-                if(count($modules)) {$array['modulecount']=1;}
-            }
             V('class_config',$array);
         }else {
             Return C('this:error','应用不存在,或此应用已卸载');

@@ -18,7 +18,8 @@
                     $breadcrumb=array(
                         array('url'=>'?do=admin:user:index','title'=>'用户管理'),
                     );
-                    $breadcrumb[]=array('title'=>$user['username'].'['.$user['hash'].'] 属性');
+                    $breadcrumb[]=array('title'=>$user['username'].'['.$user['hash'].'] 管理','url'=>'?do=admin:user:edit&id='.$user['id']);
+                    $breadcrumb[]=array('title'=>'属性');
                 ?>
                 <div id="cms-breadcrumb">{this:breadcrumb($breadcrumb)}</div>
                 <div id="cms-right-top-button"></div>

@@ -473,6 +473,7 @@ class admin {
         }
         if(is_array($links)) {
             foreach($links as $key=>$val) {
+                if(is_string($val)){$val=array('title'=>$val);}
                 if(!isset($val['title'])) {
                     $val['title']='<i class="layui-icon layui-icon-align-left"></i>';
                 }

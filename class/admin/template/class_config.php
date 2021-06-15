@@ -200,7 +200,7 @@
 
         layui.$('#class_uninstall').click(function(){
             var classhash=layui.$(this).attr('rel');
-            layer.confirm('确定卸载此应用?<br>应用所属的数据将会被删除!!!{if !$filenotfound}<br>卸载后请手动删除应用文件夹.{/if}{if $modulecount}<br>卸载后请手动删除应用模型文章表.{/if}', {btn: ['卸载','取消'],title:'请确认',skin:'layer-danger',shadeClose:1}, function(){
+            layer.confirm('确定卸载此应用?<br>应用所属的数据将会被删除!!!{if $filenotfound}<br>强制卸载可能会有数据残留.{else}<br>卸载后请手动删除应用文件夹.{/if}', {btn: ['卸载','取消'],title:'请确认',skin:'layer-danger',shadeClose:1}, function(){
                 layui.admin.req({type:'post',url:"?do=admin:class:uninstall",data:{ hash: classhash},async:true,beforeSend:function(){
                     layui.admin.load('卸载中...');
                 },done: function(res){

@@ -126,7 +126,7 @@
     </tr>
 {/if}
 
-{if P('module:permission') && count($roles)>1}
+{if P('module:permission') && count($roles)>1 && count($actions)}
     <tr>
     <td align="right"><a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:module:permission&id={$module.id}">权限</a></td>
     <td>

@@ -171,6 +171,7 @@ class admin_module {
             $array['roles'][$key]['_editabled']=C('this:roleCheck','admin:module:permission',$thisrole['hash'],false);
         }
         $actions=C('this:article:articleAction');
+        $array['actions']=array();
         if(count($array['vars'])) {
             $array['actions']['var']=$actions['var'];
         }

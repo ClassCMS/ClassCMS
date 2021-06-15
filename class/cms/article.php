@@ -254,6 +254,21 @@ class cms_article {
         unset($config['id']);
         Return update($config);
     }
+    function move($cid,$ids,$targetcid) {
+        if(!$channel=C('this:channel:get',$cid)) {
+            Return false;
+        }
+        if(!$targetchannel=C('this:channel:get',$targetcid)) {
+            Return false;
+        }
+        if($channel['classhash']!=$targetchannel['classhash'] || $channel['modulehash']!=$targetchannel['modulehash']){
+            Return false;
+        }
+        if(!$module=C('this:module:get',$channel['modulehash'],$channel['classhash'])) {
+            Return false;
+        }
+        Return update(array('table'=>$module['table'],'cid'=>$targetchannel['id'],'where'=>array('id'=>explode(';',$ids))));
+    }
     function del($config) {
         if(!isset($config['cid'])) {
             Return false;

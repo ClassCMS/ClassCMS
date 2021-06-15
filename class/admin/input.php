@@ -24,7 +24,7 @@ class admin_input {
                 Return '';
             case 'view':
                 if(isset($config['titlelink']) && isset($config['article']['link']) && !empty($config['article']['link']) && $config['article']['link']!='#') {
-                    Return '<a style="color:#1E9FFF" target="_blank" href="'.$config['article']['link'].'">'.htmlspecialchars($config['value']).'</a>';
+                    Return '<a class="cmscolor" target="_blank" href="'.$config['article']['link'].'">'.htmlspecialchars($config['value']).'</a>';
                 }else {
                     Return false;
                 }

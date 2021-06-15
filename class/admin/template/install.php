@@ -49,8 +49,8 @@
                             <table class="layui-table" id="classlist">
                                 {loop $classlist as $key=>$classtitle}
                                 <tr rel="{$key}">
-                                    <td><input type="checkbox" lay-skin="primary" checked{if $key=='admin' ||  $key=='layui'} disabled{/if}></td>
-                                    <td>{$classtitle}</td>
+                                <td><input type="checkbox" checked lay-skin="primary" {if $key=='admin' || $key=='layui'}style="visibility:hidden" disabled lay-ignore{/if}></td>
+                                <td>{$classtitle}</td>
                                 </tr>
                                 {/loop}
                             </table>
@@ -135,9 +135,9 @@
             </div>
             <div class="layui-form-item" style="margin-top: 20px;">
                 {if $allow}
-                    <button class="layui-btn layui-btn-fluid cms-btn" lay-submit  lay-filter="install_submit">安  装</button>
+                    <button class="layui-btn layui-btn-fluid cms-btn" lay-submit lay-filter="install_submit">安  装</button>
                 {else}
-                    <button class="layui-btn layui-btn-fluid  layui-btn-disabled" style="color:red">配置错误,无法安装</button>
+                    <button class="layui-btn layui-btn-fluid layui-btn-disabled" style="color:red">配置错误,无法安装</button>
                 {/if}
             </div>
         <div class="install_copyright"><p>© <a href="http://classcms.com" target="_blank">ClassCMS.com</a></p></div>
@@ -299,6 +299,7 @@
         },error: function(){
                 {if $nginx}
                     layui.$('#rewrite').html('未开启,Nginx服务器必须开启伪静态,否则无法正常访问. [<a target="_blank" href="//classcms.com/class/cms/doc/10005.html" style="color:#1E9FFF">查看帮助</a>]');
+                    layui.$('button[lay-filter=install_submit]').text('请先配置伪静态规则').addClass('layui-btn-disabled').removeClass('cms-btn').css('color','red').removeAttr('lay-filter');
                 {else}
                     layui.$('#rewrite').html('未开启 [<a target="_blank" href="//classcms.com/class/cms/doc/10005.html" style="color:#1E9FFF">查看帮助</a>]');
                 {/if}

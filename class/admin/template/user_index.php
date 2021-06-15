@@ -60,8 +60,7 @@
                             </td>
                         {/loop}
                         <td class="btn">
-                            {if P('user:edit')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:user:edit&id={$user.id}">修改</a>{/if}
-                            {if $infobutton && P('user:info')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:user:info&id={$user.id}">属性</a>{/if}
+                            {if P('user:edit')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:user:edit&id={$user.id}">管理</a>{/if}
                             {if P('user:del')}<a class="layui-btn layui-btn-sm layui-btn-primary  userdel">删除</a>{/if}
                         </td>
                     </tr>

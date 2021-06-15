@@ -38,6 +38,7 @@
                                 <a class="layui-btn layui-btn-sm layui-btn-primary" layadmin-event="change_input" input-name="uri" add-text="page_(page)">分页</a>
                                 <a class="layui-btn layui-btn-sm layui-btn-primary" layadmin-event="change_input" input-name="uri" add-text="($id)">文章ID</a>
                                 <a class="layui-btn layui-btn-sm layui-btn-primary" layadmin-event="change_input" input-name="uri" add-text=".html">.html</a>
+                                <a class="layui-btn layui-btn-sm layui-btn-primary diyarg">自定义</a>
                                 <a class="layui-btn layui-btn-sm layui-btn-danger" layadmin-event="change_input" input-name="uri" set-text="">重置</a>
                             </div>
                         </div>
@@ -111,6 +112,12 @@
   </div>
   
 <script>layui.use(['index'],function(){
+    layui.$('.diyarg').click(function(){
+      layui.layer.prompt({title: '参数名', formType: 0}, function(arg, index){
+        if(arg){layui.$('input[name=uri]').val(layui.$('input[name=uri]').val()+'('+arg+')');}
+        layer.close(index);
+      });
+    });
     layui.form.on('submit(form-submit)', function(data){
         layui.$('button[lay-filter=form-submit]').blur();
         layui.admin.req({type:'post',url:"?do=admin:route:{if isset($route.id)}editPost{else}addPost{/if}",data:data.field,async:true,beforeSend:function(){

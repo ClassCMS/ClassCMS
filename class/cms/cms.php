@@ -261,7 +261,7 @@ function ClassCms_init() {
     }
     if(isset($GLOBALS['hook']['cms:ob_content'])) {ob_end_flush();}
 }
-function U($channel,$routehash='',$article='') {
+function U($channel,$routehash='',$article=array(),$args=array()) {
     if(!is_array($channel)) {
         if(is_numeric($channel)) {
             if($channel==0) {
@@ -298,6 +298,8 @@ function U($channel,$routehash='',$article='') {
             if(isset($article[$val])) {
                 $route['uri']=str_replace($getarray[0][$key],$article[$val],$route['uri']);
             }
+        }elseif(isset($args[$val])){
+            $route['uri']=str_replace($getarray[0][$key],$args[$val],$route['uri']);
         }
     }
     $route['uri']=rewriteUri($route['uri']);
@@ -393,6 +395,16 @@ function C() {
             }elseif(is_array($return) && isset($return['class']) && is_string($return['class']) && strtolower($return['class'])==strtolower($class)) {
                 $args=class_getParameters($return);
             }elseif($return!==null) {
+                if(isset($GLOBALS['hook'][strtolower($class).':=']) && count($GLOBALS['hook'][strtolower($class).':='])) {
+                    foreach($GLOBALS['hook'][strtolower($class).':='] as $watchclass) {
+                        $watchargs=$args;
+                        unset($watchargs[0]);
+                        $watchreturn=call_user_func_array('C',array($watchclass,$class,array_values($watchargs),$return));
+                        if($watchreturn!==null) {
+                            $return=$watchreturn;
+                        }
+                    }
+                }
                 if(isset($route_view)) {
                     if(isset($route_view_article) && is_array($return)) {
                         V($route_view,array_merge($route_view_article,$return),$classhash);
@@ -654,7 +666,10 @@ function rewriteUri($uri) {
         }
     }
 }
-function route($routehash,$classhash='') {
+function route($routehash,$args=array(),$classhash='') {
+    if(is_string($args)){
+        $classhash=$args;
+    }
     if(empty($classhash)) {
         $classhash=now_class();
     }
@@ -668,6 +683,11 @@ function route($routehash,$classhash='') {
     }
     if(!isset($route) || !$route) {Return '';}
     $route['uri']=rewriteUri($route['uri']);
+    if(is_array($args)){
+        foreach($args as $key=>$arg){
+            $route['uri']=str_replace('('.$key.')',$arg,$route['uri']);
+        }
+    }
     if(!isset($route['domain']) || empty($route['domain'])) {
         $route['domain']=$GLOBALS['C']['Domain'];
     }
@@ -699,8 +719,9 @@ function matchUri($uri) {
     if(count($getarray)>0) {
         $uri=str_replace(array('/','?','($id)','($.id)'),array('\\/','\?','([1-9][0-9]*)','([1-9][0-9]*)'),$uri);
         foreach($getarray[0] as $getkey=>$getval) {
-            $uri=str_replace($getval,'(.+?)',$uri);
+            $uri=str_replace($getval,'($+?)',$uri);
         }
+        $uri=str_replace(array('.','($+?)'),array('\.','(.+?)'),$uri);
         @preg_match_all('/class-cms-uri-start-'.$uri.'-class-cms-uri-end/','class-cms-uri-start-'.$GLOBALS['C']['uri'].'-class-cms-uri-end',$ifmatch);
         if(isset($ifmatch[1][0])) {
             foreach($getarray[1] as $getkey=>$getval) {
@@ -1376,7 +1397,7 @@ class cms_database {
             $args[0]=$new_args;
         }
         $sql='';
-        if(count($args[0])==0) {
+        if(!is_array($args[0]) || count($args[0])==0) {
             Return '';
         }
         foreach($args[0] as $name=>$val) {

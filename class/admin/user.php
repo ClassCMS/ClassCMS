@@ -45,16 +45,12 @@ class admin_user {
         }
         $user_query['where']=$user_query_where;
         $array['users']=all($user_query);
-        $array['infobutton']=0;
         $array['infos']=C('cms:form:all','info');
         $array['infos']=C('cms:form:getColumnCreated',$array['infos'],'user');
         foreach($array['infos'] as $key=>$column) {
             $array['infos'][$key]=C('cms:form:build',$column['id']);
             $array['infos'][$key]['source']='adminuserlist';
             $thisauth=C('this:formAuth',$column['id']);
-            if($thisauth['read']) {
-                $array['infobutton']=1;
-            }
             if($array['infos'][$key]['indexshow']) {
                 if(!$thisauth['read']) {
                     unset($array['infos'][$key]);
@@ -138,7 +134,17 @@ class admin_user {
                 $array['roleinput']['rolehash']=$array['nowuser']['rolehash'];
             }
             $array['passwdinput']=array('name'=>'passwd','inputhash'=>'password','checkold'=>0,'placeholder_new'=>'请输入新密码','placeholder_check'=>'请确认新密码');
-            $array['title']='['.$array['username'].'] 修改';
+            $array['title']='['.$array['username'].'] 管理';
+            $array['infos']=C('cms:form:all','info');
+            $array['infos']=C('cms:form:getColumnCreated',$array['infos'],'user');
+            foreach($array['infos'] as $key=>$column) {
+                $array['infos'][$key]=C('cms:form:build',$column['id']);
+                $array['infos'][$key]['source']='adminuseredit';
+                $thisauth=C('this:formAuth',$column['id']);
+                if(!$thisauth['read']) {
+                    unset($array['infos'][$key]);
+                }
+            }
             V('user_edit',$array);
         }else {
             C('this:error','用户不存在');

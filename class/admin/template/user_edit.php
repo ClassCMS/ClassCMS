@@ -17,13 +17,15 @@
                         array('url'=>'?do=admin:user:index','title'=>'用户管理'),
                     );
                     if(isset($username)) {
-                        $breadcrumb[]=array('title'=>$username.'['.$hash.'] 修改');
+                        $breadcrumb[]=array('title'=>$username.'['.$hash.'] 管理');
                     }else {
                         $breadcrumb[]=array('title'=>'增加');
                     }
                 ?>
                 <div id="cms-breadcrumb">{this:breadcrumb($breadcrumb)}</div>
-                <div id="cms-right-top-button"></div>
+                <div id="cms-right-top-button">
+                {if isset($id) && count($infos) && P('user:info')}<a href="?do=admin:user:info&id={$id}" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-table"></i><b>属性</b></a>{/if}
+                </div>
             </div>
         </div>
 

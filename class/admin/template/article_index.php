@@ -71,17 +71,17 @@
     </div>
   </div>
 <script>
+function chosedArticle(){
+    articles=new Array();
+    layui.$('#articles tbody input[name=check_article]').each(function(){
+        if (layui.$(this).prop("checked"))
+        {
+            articles.push(layui.$(this).parents('tr').attr('rel'));
+        }
+    });
+    return articles.join(';');
+}
 layui.use(['index','form'],function(){
-    function chosedArticle(){
-        articles=new Array();
-        layui.$('#articles tbody input[name=check_article]').each(function(){
-            if (layui.$(this).prop("checked"))
-            {
-                articles.push(layui.$(this).parents('tr').attr('rel'));
-            }
-        });
-        return articles.join(';');
-    }
     layui.$('.choseall').click(function(){
         layui.$('#articles tbody input[name=check_article]').prop("checked",true);
         layui.form.render('checkbox');
