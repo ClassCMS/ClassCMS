@@ -13,7 +13,7 @@
                     <?php
                         $breadcrumb=array(
                             array('url'=>'?do=admin:class:index','title'=>'应用管理'),
-                            array('url'=>'','title'=>$classinfo['classname'].''),
+                            array('url'=>'','title'=>$classinfo['classname']),
                         );
                     ?>
                     <div id="cms-breadcrumb">{this:breadcrumb($breadcrumb)}</div>
@@ -39,7 +39,7 @@
     <td align="right">版本:</td>
     <td>
         {$classinfo.classversion}&nbsp;
-        {if $classinfo.classversion && $classinfo.classversion<$new_version}
+        {if P('class:fileUpdate') && $classinfo.classversion && $classinfo.classversion<$new_version}
             <a id="class_update" rel="{$classinfo.hash}" old="{$classinfo.classversion}" new="{$new_version}" class="layui-btn layui-btn-sm layui-btn-normal">新版本:{$new_version}</a>
         {/if}
         {if $classinfo.classversion && $classinfo.classversion>$new_version}
@@ -71,9 +71,9 @@
     <td align="right">状态:</td>
     <td>
     {if $classinfo.enabled}
-        <input type="checkbox" name="{$classinfo.hash}" lay-filter="enabled" checked lay-skin="switch">
+        <input type="checkbox" name="{$classinfo.hash}" lay-filter="enabled" checked lay-skin="switch"{if !P('class:changeState')} disabled{/if}>
     {else}
-        <input type="checkbox" name="{$classinfo.hash}" lay-filter="enabled" lay-skin="switch">
+        <input type="checkbox" name="{$classinfo.hash}" lay-filter="enabled" lay-skin="switch"{if !P('class:changeState')} disabled{/if}>
     {/if}
     </td>
     </tr>
@@ -83,16 +83,16 @@
         <td align="right">设置:</td>
         <td>
             {if $classinfo.classorder>1}
-                <input type="checkbox" name="{$classinfo.hash}" title="置顶应用" lay-filter="classorder" checked lay-skin="primary">
+                <input type="checkbox" name="{$classinfo.hash}" title="置顶应用" lay-filter="classorder" checked lay-skin="primary"{if !P('class:order')} disabled{/if}>
             {else}
-                <input type="checkbox" name="{$classinfo.hash}" title="置顶应用" lay-filter="classorder" lay-skin="primary">
+                <input type="checkbox" name="{$classinfo.hash}" title="置顶应用" lay-filter="classorder" lay-skin="primary"{if !P('class:order')} disabled{/if}>
             {/if}
 
             {if $classinfo.hash!='admin'}
                 {if $classinfo.menu}
-                    <input type="checkbox" name="{$classinfo.hash}" title="后台菜单" lay-filter="menu" checked lay-skin="primary">
+                    <input type="checkbox" name="{$classinfo.hash}" title="后台菜单" lay-filter="menu" checked lay-skin="primary"{if !P('class:menu')} disabled{/if}>
                 {else}
-                    <input type="checkbox" name="{$classinfo.hash}" title="后台菜单" lay-filter="menu" lay-skin="primary">
+                    <input type="checkbox" name="{$classinfo.hash}" title="后台菜单" lay-filter="menu" lay-skin="primary"{if !P('class:menu')} disabled{/if}>
                 {/if}
             {else}
                 <input type="checkbox" name="{$classinfo.hash}" title="后台菜单" lay-filter="menu" checked lay-skin="primary" disabled>
@@ -117,11 +117,11 @@
                 {if P('channel:index')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:channel:index&classhash={$classinfo.hash}">栏目</a>{/if}
                 {if P('module:index')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:module:index&classhash={$classinfo.hash}">模型</a>{/if}
             {/if}
-            {if $classinfo.enabled && count($roles)>1 && $classinfo.auth}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:class:permission&hash={$classinfo.hash}">权限</a>{/if}
-            {if $setting && $classinfo.enabled}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:class:setting&hash={$classinfo.hash}">设置</a>{/if}
-            <a id="class_uninstall"  rel="{$classinfo.hash}" class="layui-btn layui-btn-sm layui-btn-primary">卸载</a>
+            {if $classinfo.enabled && count($roles)>1 && $classinfo.auth && P('class:permission')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:class:permission&hash={$classinfo.hash}">权限</a>{/if}
+            {if $setting && $classinfo.enabled && P('class:setting')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:class:setting&hash={$classinfo.hash}">设置</a>{/if}
+            {if P('class:uninstall')}<a id="class_uninstall"  rel="{$classinfo.hash}" class="layui-btn layui-btn-sm layui-btn-primary">卸载</a>{/if}
         {else}
-            <a id="class_install" rel="{$classinfo.hash}" class="layui-btn layui-btn-sm layui-btn-normal">安装</a>
+            {if P('class:install')}<a id="class_install" rel="{$classinfo.hash}" class="layui-btn layui-btn-sm layui-btn-normal">安装</a>{/if}
         {/if}
     {/if}
     </td>
@@ -148,6 +148,8 @@
 <script>
     layui.use(['index','form'],function(){
         var $ = layui.$;
+
+        {if P('class:changeState')}
         layui.form.on('switch(enabled)', function(obj){
             layui.admin.req({type:'post',url:"?do=admin:class:changeState",data:{ hash: obj.elem.name, state: obj.elem.checked},async:true,beforeSend:function(){
                 layui.admin.load('请稍等...');
@@ -155,7 +157,9 @@
                 configmsg(res);
             }});
         });
+        {/if}
 
+        {if P('class:order')}
         layui.form.on('checkbox(classorder)', function(obj){
             layui.admin.req({type:'post',url:"?do=admin:class:order",data:{ hash: obj.elem.name, state: obj.elem.checked},async:true,beforeSend:function(){
                 layui.admin.load('请稍等...');
@@ -163,7 +167,9 @@
                 configmsg(res);
             }});
         });
-
+        {/if}
+        
+        {if P('class:menu')}
         layui.form.on('checkbox(menu)', function(obj){
             layui.admin.req({type:'post',url:"?do=admin:class:menu",data:{ hash: obj.elem.name, state: obj.elem.checked},async:true,beforeSend:function(){
                 layui.admin.load('请稍等...');
@@ -171,26 +177,14 @@
                 configmsg(res);
             }});
         });
+        {/if}
 
+        {if P('class:install')}
         layui.$('#class_install').click(function(){
             var classhash=layui.$(this).attr('rel');
             layer.confirm('确定安装此应用?', {btn: ['安装','取消'],shadeClose:1}, function(){
                 layui.admin.req({type:'post',url:"?do=admin:class:install",data:{ hash: classhash},async:true,beforeSend:function(){
                     layui.admin.load('安装中...');
-                },done: function(res){
-                    configmsg(res);
-                }});
-            });
-            
-        });
-
-        layui.$('#class_update').click(function(){
-            var classhash=layui.$(this).attr('rel');
-            var old_version=layui.$(this).attr('old');
-            var new_version=layui.$(this).attr('new');
-            layer.confirm('检测到应用文件有变动,是否更新?', {btn: ['更新','取消'],shadeClose:1}, function(){
-                layui.admin.req({type:'post',url:"?do=admin:class:fileUpdate",data:{ hash: classhash,old_version:old_version,new_version:new_version},async:true,beforeSend:function(){
-                    layui.admin.load('更新中...');
                 },done: function(res){
                     configmsg(res);
                 }});
@@ -209,6 +203,23 @@
             });
             
         });
+        {/if}
+
+        {if P('class:fileUpdate')}
+        layui.$('#class_update').click(function(){
+            var classhash=layui.$(this).attr('rel');
+            var old_version=layui.$(this).attr('old');
+            var new_version=layui.$(this).attr('new');
+            layer.confirm('检测到应用文件有变动,是否更新?', {btn: ['更新','取消'],shadeClose:1}, function(){
+                layui.admin.req({type:'post',url:"?do=admin:class:fileUpdate",data:{ hash: classhash,old_version:old_version,new_version:new_version},async:true,beforeSend:function(){
+                    layui.admin.load('更新中...');
+                },done: function(res){
+                    configmsg(res);
+                }});
+            });
+            
+        });
+        {/if}
     });
     function configmsg(res){
         if (res.error==0)

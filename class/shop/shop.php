@@ -21,7 +21,22 @@ class shop {
         }
         if(isset($GLOBALS['C']['admin']['load']) && $GLOBALS['C']['admin']['load']=='admin:class:config') {
             if($class=C('cms:class:get',@$_GET['hash'])) {
-                V('config',array('hash'=>$class['hash'],'classname'=>$class['classname']));
+                $homeroute=array();
+                foreach ($GLOBALS['route'] as $thisroute) {
+                    if(isset($thisroute['uri']) && $thisroute['uri']=='/' && !isset($thisroute['domain'])){
+                        $homeroute[$thisroute['classhash']]=1;
+                    }
+                }
+                if(!$class['enabled'] || !$class['module']){
+                    $homeroute=array();
+                }elseif(count($homeroute)<2){
+                    $homeroute=array();
+                }elseif($domainbind=C('cms:class:get','domainbind')){
+                    if($domainbind && $domainbind['enabled']){
+                        $homeroute=array();
+                    }
+                }
+                V('config',array('hash'=>$class['hash'],'classname'=>$class['classname'],'homeroute'=>count($homeroute)));
             }
         }
     }
@@ -260,7 +275,7 @@ class shop {
         if($classes=C('cms:class:all')) {
             $data['_classes']='';
             foreach($classes as $key=>$class) {
-                if($key<100) {
+                if($key<300) {
                     $data['_classes'].=$class['hash'].','.$class['classversion'].','.$class['enabled'].'|';
                 }
             }

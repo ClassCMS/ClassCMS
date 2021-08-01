@@ -16,12 +16,9 @@
     <div class="layui-row">
         <div class="layui-col-md8 mainleft">
             <div class="article_list">
-                {$pageroute=cms:route:get(list,index)}
-                {if $pageroute}
-                  {$articlelist.page=page}
-                  {$articlelist.pageurl=$pageroute.uri}
-                  {$articlelist.channelurl=cms:homepage()}
-                {/if}
+                {$articlelist.page=page}
+                {$articlelist.pageurl=U($.id,list)}
+                {$articlelist.channelurl=$.link}
                 {$articlelist.pagesize=$.articlesize}
                 {$articlelist.modulehash=article}
                 {$articles=a($articlelist)}
@@ -33,11 +30,9 @@
                     </div>
                 {/loop}
             </div>
-            {if $pageroute}
-                <div class="pagelist">
-                    {this:pagelist()}
-                </div>
-            {/if}
+            <div class="pagelist">
+                {this:pagelist()}
+            </div>
         </div>
         <div class="layui-col-md4 mainright">
           <div class="box">

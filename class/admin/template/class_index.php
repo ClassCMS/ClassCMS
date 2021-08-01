@@ -35,9 +35,8 @@
             <thead>
               <tr>
                 <th>应用名</th>
-                <th class="layui-show-md-td">标识</th>
+                <th class="layui-hide-xss">标识</th>
                 <th class="layui-show-md-td">版本</th>
-                <th class="layui-hide-xss">状态</th>
                 <th></th>
               </tr> 
             </thead>
@@ -47,24 +46,16 @@
                     <td>
                         <i class="layui-icon {$class.ico}{if $class.enabled==1} cmscolor{/if}"></i>
                         {if P('class:config')}
-                            <a href="?do=admin:class:config&hash={$class.hash}">{$class.classname}</a>
+                        <a href="?do=admin:class:config&hash={$class.hash}"><span{if !$class.enabled} class="cms-text-disabled"{/if}>{$class.classname}</span></a>
                         {else}
-                            {$class.classname}
+                        <span{if !$class.enabled} class="cms-text-disabled"{/if}>{$class.classname}</span>
                         {/if}
                         {if $class.classorder>1} <i class="layui-icon layui-icon-rate" title="置顶应用"></i>{/if}
-                        {if $class.hash==$GLOBALS['C']['TemplateClass']} <i class="layui-icon layui-icon-home" title="默认应用"></i>{/if}
                     </td>
-                    <th class="layui-show-md-td">{$class.hash}</th>
+                    <th class="layui-hide-xss">{$class.hash}</th>
                     <th class="layui-show-md-td">{$class.classversion}</th>
-                    <td class="layui-hide-xss">
-                    {if $class.enabled==1}
-                        运行中
-                    {else}
-                        {if $class.installed==1}已停用{/if}
-                    {/if}
-                    </td>
                     <td class="btn">
-                        <a rel="{if !empty($class.adminpage)}?do={$class.hash}:{$class.adminpage}{/if}" {if !empty($class.adminpage) && $class.enabled && $class.installed}href="?do={$class.hash}:{$class.adminpage}"{/if} class="layui-btn layui-btn-sm layui-btn-primary{if empty($class.adminpage) || !$class.enabled || !$class.installed} layui-btn-disabled{/if}">主页</a>
+                        <a rel="{if !empty($class.adminpage)}?do={$class.hash}:{$class.adminpage}{/if}" {if !empty($class.adminpage) && $class.enabled}href="?do={$class.hash}:{$class.adminpage}"{/if} class="layui-btn layui-btn-sm layui-btn-primary{if empty($class.adminpage) || !$class.enabled} layui-btn-disabled{/if}">主页</a>
                         {if P('class:config')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:class:config&hash={$class.hash}" rel="{$class.hash}">管理</a>{/if}
                     </td>
                     </tr>

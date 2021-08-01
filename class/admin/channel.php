@@ -3,7 +3,7 @@ if(!defined('ClassCms')) {exit();}
 class admin_channel {
     function auth() {
         Return array(
-            'channel:index;channel:order;channel:jump;channel:jumpModule'=>'查看栏目',
+            'channel:index;channel:order;channel:jump;channel:jumpModule'=>'查看栏目列表',
             'channel:add;channel:addPost'=>'增加栏目',
             'channel:edit;channel:editPost'=>'修改栏目',
             'channel:del'=>'删除栏目',
@@ -20,24 +20,21 @@ class admin_channel {
     }
     function index() {
         if(isset($_GET['id'])) {
-            $channel=C('cms:channel:get',intval(@$_GET['id']));
+            if(!$channel=C('cms:channel:get',intval($_GET['id']))){
+                Return C('this:error','栏目不存在');
+            }
             $_GET['classhash']=$channel['classhash'];
             $array['fid']=$channel['id'];
             $array['breadcrumb']=C('this:channel:breadcrumb',$channel);
-        }else {
-            if(!isset($_GET['classhash'])) {
-                $_GET['classhash']=$GLOBALS['C']['TemplateClass'];
+        }else{
+            if(!isset($_GET['classhash']) && !$_GET['classhash']=C('cms:class:defaultClass')){
+                Return C('this:error','未安装模板应用');
             }
             $array['fid']=0;
             $array['breadcrumb']=C('this:channel:breadcrumb',false,$_GET['classhash']);
         }
-        if(!is_hash($_GET['classhash'])) {Return C('this:error','error');}
         if(!$array['classinfo']=C('cms:class:get',$_GET['classhash'])) {
-            if($GLOBALS['C']['TemplateClass']==$_GET['classhash']) {
-                Return C('this:error','默认应用['.$_GET['classhash'].']不存在,请修改配置文件');
-            }else {
-                Return C('this:error',$_GET['classhash'].' 应用不存在');
-            }
+            Return C('this:error','应用未安装');
         }
         if(!$array['classinfo']['installed']) {Return C('this:error',$_GET['classhash'].' 应用未安装');}
         if(!$array['classinfo']['module']) {Return C('this:error','此应用['.$_GET['classhash'].'] 未开启模型配置选项');}
@@ -182,6 +179,10 @@ class admin_channel {
         if(!$array['channel']['enabled']) {
             Return C('this:error','栏目已禁用');
         }
+        $class=C('cms:class:get',$array['channel']['classhash']);
+        if(!$class['enabled']){
+            Return C('this:error','应用未启用');
+        }
         if(!isset($array['channel']['link']) || empty($array['channel']['link']) || $array['channel']['link']=='#') {
             Return C('this:error','栏目页面未配置');
         }
@@ -229,19 +230,22 @@ class admin_channel {
             }
         }
         $breadcrumb=array();
-        if($GLOBALS['C']['TemplateClass']==$class['hash']) {
-            if(!$channel && empty($actionname) && P('class:index')) {
-                $breadcrumb[]=array('url'=>'?do=admin:channel:index','title'=>'栏目管理 默认应用['.$GLOBALS['C']['TemplateClass'].']');
-            }else {
-                $breadcrumb[]=array('url'=>'?do=admin:channel:index','title'=>'栏目管理');
+        if(P('class:index')) {
+            $breadcrumb[]=array('url'=>'?do=admin:class:index','title'=>'应用管理');
+            $classes=C('cms:class:all');
+            $classlist=array();
+            foreach ($classes as $thisclass) {
+                if($thisclass['installed'] && $thisclass['module']){
+                    if($thisclass['hash']==$classhash){
+                        $classlist[]=array('title'=>$thisclass['classname'],'url'=>'?do=admin:class:config&hash='.$thisclass['hash']);
+                    }else{
+                        $classlist[]=array('title'=>$thisclass['classname'],'url'=>'?do=admin:channel:index&classhash='.$thisclass['hash']);
+                    }
+                }
             }
-        }else {
-            if(P('class:index')) {
-                $breadcrumb[]=array('url'=>'?do=admin:class:index','title'=>'应用管理');
-                $breadcrumb[]=array('url'=>'?do=admin:class:config&hash='.$class['hash'],'title'=>$class['classname']);
-            }else {
-                $breadcrumb[]=array('url'=>'','title'=>$class['classname']);
-            }
+            $breadcrumb[]=array('url'=>'?do=admin:class:config&hash='.$class['hash'],'title'=>$class['classname'],'list'=>$classlist);
+        }
+        if(P('channel:index')) {
             $breadcrumb[]=array('url'=>'?do=admin:channel:index&classhash='.$class['hash'],'title'=>'栏目');
         }
         if(!$channel) {

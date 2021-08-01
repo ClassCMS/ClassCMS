@@ -1,8 +1,7 @@
 <?php if(!defined('ClassCms')) {exit();}?>
 <!DOCTYPE html>
 <html>
-<head>
-{this:head($title)}
+<head>{this:head($title)}
 <link rel="Shortcut Icon" href="{template}static/favicon.ico" type="image/x-icon"/>
 </head>
 <body class="layui-layout-body">

@@ -365,7 +365,7 @@ class admin_article {
         if(!$class['module']) {
             Return false;
         }
-        if(!P('class:changestate') && !$class['enabled']) {
+        if(!$class['enabled'] && !P('class:changestate')) {
             Return false;
         }
         Return $channel;
@@ -416,19 +416,27 @@ class admin_article {
     function breadcrumb($channel=0,$actionname='') {
         if(!$channel) {Return false;}
         $breadcrumb=array();
-        if(P('channel:index')) {
-            if($channel['classhash']!=$GLOBALS['C']['TemplateClass']) {
-                $class=C('cms:class:get',$channel['classhash']);
-                if(P('class:index')) {
-                    $breadcrumb[]=array('url'=>'?do=admin:class:index','title'=>'应用管理');
-                    $breadcrumb[]=array('url'=>'?do=admin:class:config&hash='.$class['hash'],'title'=>$class['classname']);
-                }else {
-                    $breadcrumb[]=array('url'=>'','title'=>$class['classname']);
+        if(P('class:index')) {
+            $class=C('cms:class:get',$channel['classhash']);
+            $breadcrumb[]=array('url'=>'?do=admin:class:index','title'=>'应用管理');
+            $classes=C('cms:class:all');
+            $classlist=array();
+            foreach ($classes as $thisclass) {
+                if(!$class['enabled'] && !P('class:changestate')) {
+                    $thisclass['installed']=0;
                 }
-                $breadcrumb[]=array('url'=>'?do=admin:channel:index&classhash='.$class['hash'],'title'=>'栏目');
-            }else {
-                $breadcrumb[]=array('url'=>'?do=admin:channel:index','title'=>'栏目管理');
+                if($thisclass['installed'] && $thisclass['module']){
+                    if($thisclass['hash']==$class['hash']){
+                        $classlist[]=array('title'=>$thisclass['classname'],'url'=>'?do=admin:class:config&hash='.$thisclass['hash']);
+                    }else{
+                        $classlist[]=array('title'=>$thisclass['classname'],'url'=>'?do=admin:channel:index&classhash='.$thisclass['hash']);
+                    }
+                }
             }
+            $breadcrumb[]=array('url'=>'?do=admin:class:config&hash='.$class['hash'],'title'=>$class['classname'],'list'=>$classlist);
+        }
+        if(P('channel:index')) {
+            $breadcrumb[]=array('url'=>'?do=admin:channel:index&classhash='.$channel['classhash'],'title'=>'栏目');
         }
         $navs=C('cms:channel:parents',$channel['id'],$channel['classhash']);
         foreach($navs as $this_nav) {

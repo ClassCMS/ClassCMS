@@ -124,6 +124,45 @@ class cms_route {
         $del_route_query['where']=$where;
         Return del($del_route_query);
     }
+    function url($routehash,$args=array(),$classhash='',$fullurl=false) {
+        if(is_string($args)){
+            $classhash=$args;
+        }
+        if(empty($classhash)) {
+            $classhash=last_class();
+        }
+        if(isset($GLOBALS['route'])) {
+            foreach($GLOBALS['route'] as $thisroute) {
+                if(isset($thisroute['classhash']) && isset($thisroute['modulehash']) && isset($thisroute['hash']) && empty($thisroute['modulehash']) && $thisroute['classhash']==$classhash && $thisroute['hash']==$routehash) {
+                    $route=$thisroute;
+                    break;
+                }
+            }
+        }
+        if(!isset($route) || !$route) {Return '';}
+        $route['uri']=rewriteUri($route['uri']);
+        if(is_array($args)){
+            foreach($args as $key=>$arg){
+                $route['uri']=str_replace('('.$key.')',$arg,$route['uri']);
+            }
+        }
+        if(!isset($route['domain'])) {$route['domain']='';}
+        if(!$fullurl && macthDomain($route['domain'])) {
+            Return $route['uri'];
+        }
+        $domains=explode(';',strtolower($route['domain']));
+        foreach($domains as $domain) {
+            if(stripos($domain,'*')===false) {
+                break;
+            }
+        }
+        if(empty($domain)){$domain=server_name();}
+        if((isset($route['HTTPS']) && $route['HTTPS']=='on') || (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"]=='on')){
+            Return 'https://'.$domain.server_port().$route['uri'];
+        }else{
+            Return 'http://'.$domain.server_port().$route['uri'];
+        }
+    }
     function allow($uri) {
         if(strpos($uri,';')!==false || strpos($uri,'#')!==false) {
             Return false;

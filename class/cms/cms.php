@@ -12,9 +12,6 @@ class cms {
     function initRoute($routekey) {
         $inited=false;
         $thisroute=$GLOBALS['route'][$routekey];
-        if(!isset($thisroute['classhash']) || empty($thisroute['classhash'])) {
-            $thisroute['classhash']=$GLOBALS['C']['TemplateClass'];
-        }
         if(!empty($thisroute['classfunction'])) {
             $thisroute['classfunction']=$thisroute['classhash'].':'.$thisroute['classfunction'];
         }else {
@@ -39,8 +36,6 @@ class cms {
                 }
                 if($matched && isset($channel['domain']) && !empty($channel['domain'])) {
                     $matched=macthDomain($channel['domain']);
-                }elseif(!empty($GLOBALS['C']['Domain'])) {
-                    $matched=macthDomain($GLOBALS['C']['Domain']);
                 }
                 $article_where=array();
                 if($matched) {
@@ -94,9 +89,6 @@ class cms {
             }
             Return false;
         }else {
-            if(!empty($GLOBALS['C']['Domain']) && !macthDomain($GLOBALS['C']['Domain'])) {
-                Return false;
-            }
             if(isset($thisroute['classview']) && !empty($thisroute['classview'])) {
                 $thisroute['classview']=C('this:nowView',$thisroute['classhash'],$thisroute['classview'],0);
                 $GLOBALS['C']['route_view'][$thisroute['classfunction']]=$thisroute['classview'];
@@ -160,9 +152,12 @@ class cms {
     function ob_content($content) {
         Return $content;
     }
+    function error($msg) {
+        if($GLOBALS['C']['Debug']) {echo($msg);}
+    }
     function homepage($class='') {
         if(empty($class)) {
-            $class=$GLOBALS['C']['TemplateClass'];
+            return $GLOBALS['C']['SystemDir'];
         }
         if(isset($GLOBALS['C']['homepage'][$class])) {
             Return $GLOBALS['C']['homepage'][$class];
@@ -171,19 +166,15 @@ class cms {
         if($home=C('cms:channel:home',$class)) {
             $GLOBALS['C']['homepage'][$class]=$home['link'];
         }else {
-            $GLOBALS['C']['homepage'][$class]='#';
+            $GLOBALS['C']['homepage'][$class]='';
         }
         Return $GLOBALS['C']['homepage'][$class];
-    }
-    function error($msg) {
-        if($GLOBALS['C']['Debug']) {echo($msg);}
     }
 }
 function ClassCms_init() {
     define('ClassCms',1);
     if(!isset($GLOBALS['C']['UrlRewrite'])) {$GLOBALS['C']['UrlRewrite']=1;}
     if(!isset($GLOBALS['C']['SiteHash'])) {$GLOBALS['C']['SiteHash']=md5(dirname(__FILE__));}
-    if(!isset($GLOBALS['C']['Domain'])) {$GLOBALS['C']['Domain']='';}
     if(!isset($GLOBALS['C']['ClassDir'])) {$GLOBALS['C']['ClassDir']='class';}
     if(!isset($GLOBALS['C']['UploadDir'])) {$GLOBALS['C']['UploadDir']='upload';}
     if(!isset($GLOBALS['C']['CacheDir'])) {$GLOBALS['C']['CacheDir']='cache';}
@@ -193,10 +184,12 @@ function ClassCms_init() {
     if(!isset($GLOBALS['C']['LoadHooks'])) {$GLOBALS['C']['LoadHooks']=true;}
     if(!isset($GLOBALS['C']['LoadRoutes'])) {$GLOBALS['C']['LoadRoutes']=true;}
     if(!isset($GLOBALS['C']['MatchUri'])) {$GLOBALS['C']['MatchUri']=true;}
-    if(!isset($GLOBALS['C']['TemplateClass'])) {$GLOBALS['C']['TemplateClass']='template';}
+    if(!isset($GLOBALS['C']['Domain'])) {$GLOBALS['C']['Domain']='';}
+    if(!isset($GLOBALS['C']['TemplateClass'])) {$GLOBALS['C']['TemplateClass']='';}
     $GLOBALS['C']['start_time']=microtime(true);
     $GLOBALS['C']['start_memory']=round(memory_get_usage()/1024/1024, 2).'MB';
     if($GLOBALS['C']['Debug']) {ini_set('display_errors','On');error_reporting(E_ALL);}else {ini_set('display_errors','Off');}
+    $GLOBALS['C']['DocumentRoot']=rtrim(@$_SERVER['DOCUMENT_ROOT'],DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
     $GLOBALS['C']['SystemRoot']=dirname(dirname(dirname(__FILE__))).DIRECTORY_SEPARATOR;
     $ScriptInfo=(pathinfo(@$_SERVER['SCRIPT_NAME']));
     if($ScriptInfo['dirname']==="\\" || $ScriptInfo['dirname']==='/') {$ScriptInfo['dirname']='';}
@@ -260,64 +253,6 @@ function ClassCms_init() {
         print_r($GLOBALS['C']);
     }
     if(isset($GLOBALS['hook']['cms:ob_content'])) {ob_end_flush();}
-}
-function U($channel,$routehash='',$article=array(),$args=array()) {
-    if(!is_array($channel)) {
-        if(is_numeric($channel)) {
-            if($channel==0) {
-                $channel=C('cms:channel:home');
-            }else {
-                $channel=C('cms:channel:get',$channel);
-            }
-        }else {
-            $channel=C('cms:channel:get',$channel,now_class());
-        }
-    }
-    if(!$channel) {Return '';}
-    if(empty($routehash)) {$routehash='channel';}
-    if(isset($channel['link']) && !empty($channel['link']) && $routehash=='channel') {Return $channel['link'];}
-    if(isset($article['link']) && !empty($article['link']) && $routehash=='article') {Return $article['link'];}
-    if(isset($GLOBALS['route'])) {
-        foreach($GLOBALS['route'] as $thisroute) {
-            if(isset($thisroute['classhash']) && isset($thisroute['modulehash']) && isset($thisroute['hash']) && $thisroute['classhash']==$channel['classhash'] && $thisroute['modulehash']==$channel['modulehash'] && $thisroute['hash']==$routehash) {
-                $route=$thisroute;
-                break;
-            }
-        }
-    }
-    if(!isset($route) || !$route) {Return '#';}
-    preg_match_all('/[{|\[|(](.*)[}|\]|)]/U',$route['uri'],$getarray);
-    foreach($getarray[1] as $key=>$val) {
-        if(substr($val,0,2)=='$.') {
-            $val=substr($val,2);
-            if(isset($channel[$val])) {
-                $route['uri']=str_replace($getarray[0][$key],$channel[$val],$route['uri']);
-            }
-        }elseif(substr($val,0,1)=='$') {
-            $val=substr($val,1);
-            if(isset($article[$val])) {
-                $route['uri']=str_replace($getarray[0][$key],$article[$val],$route['uri']);
-            }
-        }elseif(isset($args[$val])){
-            $route['uri']=str_replace($getarray[0][$key],$args[$val],$route['uri']);
-        }
-    }
-    $route['uri']=rewriteUri($route['uri']);
-    if(!isset($channel['domain']) || empty($channel['domain'])) {
-        $channel['domain']=$GLOBALS['C']['Domain'];
-    }elseif(isset($route['domain']) && !empty($route['domain'])) {
-        $channel['domain']=$route['domain'];
-    }
-    if(macthDomain($channel['domain'])) {
-        Return $route['uri'];
-    }
-    $domains=explode(';',strtolower($channel['domain']));
-    foreach($domains as $domain) {
-        if(stripos($domain,'*')===false) {
-            break;
-        }
-    }
-    Return '//'.$domain.server_port().$route['uri'];
 }
 function A($config=array()){
     $args=func_get_args();
@@ -615,40 +550,39 @@ function L($name,$language='',$classhash='') {
         Return false;
     }
 }
-function class_getParameters($args) {
-    $class=explode(':',$args['class']);
-    if(count($class)>2) {
-        if(!class_exists($classhash.'_'.$class[1])) {
-            include_once(classDir($class[0]).$class[1].'.php');
-        }
-        $classhash=$class[0];
-        $classname=$classhash.'_'.$class[1];
-        $functionname=$class[2];
+function U($channel,$routehash='',$article=array(),$args=array(),$fullurl=false) {
+    Return C('cms:channel:url',$channel,$routehash,$article,$args,$fullurl);
+}
+function route($routehash,$args=array(),$classhash='',$fullurl=false) {
+    Return C('cms:route:url',$routehash,$args,$classhash,$fullurl);
+}
+function config($hash,$value=false,$classhash='') {
+    if($value===false) {
+        Return C('cms:config:get',$hash,$classhash);
     }else {
-        if(!class_exists($class[0])) {
-            include_once(classDir($class[0]).DIRECTORY_SEPARATOR.$class[0].'.php');
-        }
-        $classname=$class[0];
-        $functionname=$class[1];
+        Return C('cms:config:set',$hash,$value,0,$classhash);
     }
-    $class_args=array();
-    if(method_exists($classname,$functionname)) {
-        $class_args[]='';
-        $p = new ReflectionMethod($classname, $functionname);
-        $Parameters=$p->getParameters();
-        foreach($Parameters as $key=>$val) {
-            if(isset($args[$val->name])) {
-                $class_args[]=$args[$val->name];
-            }else {
-                $class_args[]='';
-            }
-        }
-    }else {
-        foreach($args as $val) {
-            $class_args[]=$val;
-        }
-    }
-    Return $class_args;
+}
+function nav($cid=0,$size=999999,$classhash=''){
+    Return C('cms:channel:nav',$cid,$size,$classhash);
+}
+function bread($cid=0,$classhash=''){
+    Return C('cms:channel:bread',$cid,$classhash);
+}
+function text($html,$length=0,$ellipsis=''){
+    Return C('cms:common:text',$html,$length,$ellipsis);
+}
+function addlog($msg) {
+    Return C('cms:common:addlog',$msg);
+}
+function cms_createdir($path){
+    Return C('cms:common:createDir',$path);
+}
+function server_name() {
+    Return C('cms:common:serverName');
+}
+function server_port($colon=true) {
+    Return C('cms:common:serverPort',$colon);
 }
 function ob_content($content) {
     Return C('cms:ob_content',$content);
@@ -665,42 +599,6 @@ function rewriteUri($uri) {
             Return $GLOBALS['C']['SystemDir'].$GLOBALS['C']['Indexfile'].'/'.ltrim($uri,'/');
         }
     }
-}
-function route($routehash,$args=array(),$classhash='') {
-    if(is_string($args)){
-        $classhash=$args;
-    }
-    if(empty($classhash)) {
-        $classhash=now_class();
-    }
-    if(isset($GLOBALS['route'])) {
-        foreach($GLOBALS['route'] as $thisroute) {
-            if(isset($thisroute['classhash']) && isset($thisroute['modulehash']) && isset($thisroute['hash']) && empty($thisroute['modulehash']) && $thisroute['classhash']==$classhash && $thisroute['hash']==$routehash) {
-                $route=$thisroute;
-                break;
-            }
-        }
-    }
-    if(!isset($route) || !$route) {Return '';}
-    $route['uri']=rewriteUri($route['uri']);
-    if(is_array($args)){
-        foreach($args as $key=>$arg){
-            $route['uri']=str_replace('('.$key.')',$arg,$route['uri']);
-        }
-    }
-    if(!isset($route['domain']) || empty($route['domain'])) {
-        $route['domain']=$GLOBALS['C']['Domain'];
-    }
-    if(macthDomain($route['domain'])) {
-        Return $route['uri'];
-    }
-    $domains=explode(';',strtolower($route['domain']));
-    foreach($domains as $domain) {
-        if(stripos($domain,'*')===false) {
-            break;
-        }
-    }
-    Return '//'.$domain.server_port().$route['uri'];
 }
 function matchUri($uri) {
     unset($GLOBALS['C']['GET']);
@@ -755,6 +653,41 @@ function classDir($classhash='') {
         Return $GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR;
     }
     Return $GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$classhash.DIRECTORY_SEPARATOR;
+}
+function class_getParameters($args) {
+    $class=explode(':',$args['class']);
+    if(count($class)>2) {
+        if(!class_exists($classhash.'_'.$class[1])) {
+            include_once(classDir($class[0]).$class[1].'.php');
+        }
+        $classhash=$class[0];
+        $classname=$classhash.'_'.$class[1];
+        $functionname=$class[2];
+    }else {
+        if(!class_exists($class[0])) {
+            include_once(classDir($class[0]).DIRECTORY_SEPARATOR.$class[0].'.php');
+        }
+        $classname=$class[0];
+        $functionname=$class[1];
+    }
+    $class_args=array();
+    if(method_exists($classname,$functionname)) {
+        $class_args[]='';
+        $p = new ReflectionMethod($classname, $functionname);
+        $Parameters=$p->getParameters();
+        foreach($Parameters as $key=>$val) {
+            if(isset($args[$val->name])) {
+                $class_args[]=$args[$val->name];
+            }else {
+                $class_args[]='';
+            }
+        }
+    }else {
+        foreach($args as $val) {
+            $class_args[]=$val;
+        }
+    }
+    Return $class_args;
 }
 function uridecode($uri) {
     Return str_replace(array('%28','%29','%7B','%7D','%5B','%5D','%2F','%3F','%3D','%26','+','%25','%24'),array('(',')','{','}','[',']','/','?','=','&','%20','%','$'),$uri);
@@ -931,6 +864,7 @@ function cms_template($template_config) {
     if(!isset($GLOBALS['C']['template_var']['host'])) {$GLOBALS['C']['template_var']['host']=server_name();}
     if(!isset($GLOBALS['C']['template_var']['cmsdir'])) {$GLOBALS['C']['template_var']['cmsdir']=$GLOBALS['C']['SystemDir'];}
     if(!isset($GLOBALS['C']['template_var']['br'])) {$GLOBALS['C']['template_var']['br']=PHP_EOL;}
+    $GLOBALS['C']['template_var']['this']=$template_config['class'];
     $GLOBALS['C']['template_var']['template']=$template_config['httpdir'];
     $GLOBALS['C']['system_syntax'][1][]='else';
     $GLOBALS['C']['system_syntax'][2][]='}else{';
@@ -1170,75 +1104,6 @@ function error($msg='') {
     }
     Return C('cms:error',$msg);
 }
-function config($hash,$value=false,$classhash=false) {
-    if($classhash===false) {
-        $classhash=now_class();
-    }
-    if($value===false) {
-        Return C('cms:config:get',$hash,$classhash);
-    }else {
-        Return C('cms:config:set',$hash,$value,0,$classhash);
-    }
-}
-function nav($cid=0,$size=999999,$classhash=''){
-    if(empty($classhash)) {$classhash=now_class();}
-    if($cid) {
-        if(!$channel=C('cms:channel:get',$cid,$classhash)) {
-            Return array();
-        }
-        $cid=$channel['id'];
-    }
-    $channels=C('cms:channel:all',$cid,$classhash,$size,1,1);
-    $parents=array();
-    if(isset($GLOBALS['C']['channel']['id'])) {
-        $parents[]=$GLOBALS['C']['channel']['id'];
-        if(isset($GLOBALS['C']['channel']['fid']) && $GLOBALS['C']['channel']['fid']>0) {
-            $parents_channels=C('cms:channel:parents',$GLOBALS['C']['channel']['id'],$classhash);
-            foreach($parents_channels as $parents_channel) {
-                $parents[]=$parents_channel['id'];
-            }
-        }
-    }
-    foreach($channels as $key=>$channel) {
-        if(in_array($channel['id'],$parents)) {
-            $channels[$key]['active']=1;
-        }else {
-            $channels[$key]['active']=0;
-        }
-        
-    }
-    Return $channels;
-}
-function bread($cid=0,$classhash=''){
-    if(empty($classhash)) {
-        $classhash=now_class();
-    }
-    if(!$cid && isset($GLOBALS['C']['channel'])) {
-        $channel=$GLOBALS['C']['channel'];
-    }elseif($cid) {
-        if(!$channel=C('cms:channel:get',$cid,$classhash)) {
-            Return array();
-        }
-    }else {
-        Return array();
-    }
-    $channels=C('cms:channel:parents',$channel['id'],$classhash);
-    if($home=C('cms:channel:home',$classhash)) {
-        array_unshift($channels,$home);
-    }
-    foreach($channels as $key=>$this_channel) {
-        $channels[$key]['active']=0;
-    }
-    $channel['active']=1;
-    $channels[]=$channel;
-    Return $channels;
-}
-function text($html,$length=0,$ellipsis=''){
-    Return C('cms:common:text',$html,$length,$ellipsis);
-}
-function addlog($msg) {
-    Return C('cms:common:addlog',$msg);
-}
 function begin(){
     $args=func_get_args();
     Return C($GLOBALS['C']['DbClass'].':begin',$args);
@@ -1303,15 +1168,6 @@ function fetchone($query){
 }
 function fetchall($query){
     Return C($GLOBALS['C']['DbClass'].':fetchall',$query);
-}
-function cms_createdir($path){
-    Return C('cms:common:createDir',$path);
-}
-function server_name() {
-    Return C('cms:common:serverName');
-}
-function server_port($colon=true) {
-    Return C('cms:common:serverPort',$colon);
 }
 class cms_database {
     function __construct(){

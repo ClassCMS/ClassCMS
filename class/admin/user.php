@@ -3,7 +3,7 @@ if(!defined('ClassCms')) {exit();}
 class admin_user {
     function auth() {
         Return array(
-            'user:index'=>'查看用户',
+            'user:index'=>'查看用户列表',
             'user:add;user:addPost'=>'增加用户',
             'user:edit;user:editPost'=>'修改用户账号',
             'user:info;user:infoSave'=>'修改用户属性',

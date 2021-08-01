@@ -3,9 +3,12 @@ if(!defined('ClassCms')) {exit();}
 class admin_class {
     function auth() {
         Return array(
-            'class:index'=>'查看应用',
+            'class:index'=>'查看应用列表',
+            'class:config'=>'管理应用',
             'class:changeState'=>'启停应用',
-            'class:config;class:upload;class:install;class:uninstall;class:fileUpdate;class:order;class:menu;class:permission;class:permissionPost;class:setting;class:settingPost'=>'管理应用'
+            'class:install;class:uninstall;class:fileUpdate;class:upload'=>'安装卸载',
+            'class:permission;class:permissionPost'=>'权限设置',
+            'class:setting;class:settingPost;class:order;class:menu'=>'应用设置',
         );
     }
     function index() {
@@ -290,13 +293,13 @@ class admin_class {
             }
         }else {
             if(!C('cms:class:requires',$classhash)) {
-                Return C('this:ajax','启动失败.请先安装依赖应用');
+                Return C('this:ajax','启用失败.请先安装依赖应用');
             }
             $info=C('cms:class:start',$classhash);
             if($info===true) {
-                Return C('this:ajax','启动成功');
+                Return C('this:ajax','启用成功');
             }else {
-                Return C('this:ajax','启动失败.'.$info);
+                Return C('this:ajax','启用失败.'.$info);
             }
         }
     }

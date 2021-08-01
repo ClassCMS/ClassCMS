@@ -260,6 +260,7 @@ class cms_common {
             Return false;
         }
         $allpath=rtrim($allpath,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$filename;
+        if(version_compare(PHP_VERSION,'5.3.4','<') && stripos($allpath,chr(0))){Return false;}
         if(@copy($tempfile,$allpath)) {
             @unlink($tempfile);
             $url=$GLOBALS['C']['SystemDir'].str_replace('\\','/',$path).'/'.$filename;

@@ -7,6 +7,15 @@ class cms_class {
     function uri($classhash) {
         Return $GLOBALS['C']['SystemDir'].$GLOBALS['C']['ClassDir'].'/'.$classhash.'/';
     }
+    function defaultClass(){
+        $classlist=C('this:class:all',1);
+        foreach ($classlist as $class) {
+            if($class['module']){
+                Return $class['hash'];
+            }
+        }
+        Return false;
+    }
     function all($enabled=0) {
         $list_query=array();
         $list_query['table']='class';
@@ -86,6 +95,7 @@ class cms_class {
             if($requirecheck && !C('this:class:requires',$classhash)) {
                 Return false;
             }
+            C('this:class:installTable',$classhash);
             $installinfo=C($classhash.':install');
             if($installinfo===true || $installinfo===null) {
                 $new_class=array();
@@ -218,6 +228,18 @@ class cms_class {
         }
         Return true;
     }
+    function installTable($classhash) {
+        if($tables=C($classhash.':table')) {
+            if(is_array($tables)) {
+                foreach($tables as $tablename=>$table) {
+                    if(is_array($table)) {
+                        C($GLOBALS['C']['DbClass'].':createTable',$tablename,$table);
+                    }
+                }
+            }
+        }
+        Return true;
+    }
     function uninstall($classhash) {
         if(!is_hash($classhash)) {Return false;}
         if(is_file(classDir($classhash).$classhash.'.php')) {
@@ -319,6 +341,15 @@ class cms_class {
         $del_module['table']='module';
         $del_module['where']=array('classhash'=>$classhash);
         del($del_module);
+        if($tables=C($classhash.':table')) {
+            if(is_array($tables)) {
+                foreach($tables as $tablename=>$table) {
+                    if(is_array($table)) {
+                        C($GLOBALS['C']['DbClass'].':delTable',$tablename);
+                    }
+                }
+            }
+        }
         Return true;
     }
     function changeClassConfig($classhash,$enabled) {

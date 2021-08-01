@@ -65,6 +65,124 @@ class cms_channel {
             Return array_reverse($parents);
         }
     }
+    function url($channel,$routehash='',$article=array(),$args=array(),$fullurl=false) {
+        if(!is_array($channel)) {
+            if(is_numeric($channel)) {
+                if($channel==0) {
+                    $channel=C('cms:channel:home');
+                }else {
+                    $channel=C('cms:channel:get',$channel);
+                }
+            }else {
+                $channel=C('cms:channel:get',$channel,last_class());
+            }
+        }
+        if(!$channel) {Return '';}
+        if(empty($routehash)) {$routehash='channel';}
+        if(isset($channel['link']) && !empty($channel['link']) && $routehash=='channel') {Return $channel['link'];}
+        if(isset($article['link']) && !empty($article['link']) && $routehash=='article') {Return $article['link'];}
+        if(isset($GLOBALS['route'])) {
+            foreach($GLOBALS['route'] as $thisroute) {
+                if(isset($thisroute['classhash']) && isset($thisroute['modulehash']) && isset($thisroute['hash']) && $thisroute['classhash']==$channel['classhash'] && $thisroute['modulehash']==$channel['modulehash'] && $thisroute['hash']==$routehash) {
+                    $route=$thisroute;
+                    break;
+                }
+            }
+        }
+        if(!isset($route) || !$route) {Return '';}
+        preg_match_all('/[{|\[|(](.*)[}|\]|)]/U',$route['uri'],$getarray);
+        foreach($getarray[1] as $key=>$val) {
+            if(substr($val,0,2)=='$.') {
+                $val=substr($val,2);
+                if(isset($channel[$val])) {
+                    $route['uri']=str_replace($getarray[0][$key],$channel[$val],$route['uri']);
+                }
+            }elseif(substr($val,0,1)=='$') {
+                $val=substr($val,1);
+                if(isset($article[$val])) {
+                    $route['uri']=str_replace($getarray[0][$key],$article[$val],$route['uri']);
+                }
+            }elseif(isset($args[$val])){
+                $route['uri']=str_replace($getarray[0][$key],$args[$val],$route['uri']);
+            }
+        }
+        $route['uri']=rewriteUri($route['uri']);
+        if(isset($channel['domain']) && !empty($channel['domain'])) {
+            $route['domain']=$channel['domain'];
+        }elseif(!isset($route['domain'])){
+            $route['domain']='';
+        }
+        if(!$fullurl && macthDomain($route['domain'])) {
+            Return $route['uri'];
+        }
+        $domains=explode(';',strtolower($route['domain']));
+        foreach($domains as $domain) {
+            if(stripos($domain,'*')===false) {
+                break;
+            }
+        }
+        if(empty($domain)){$domain=server_name();}
+        if((isset($route['HTTPS']) && $route['HTTPS']=='on') || (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"]=='on')){
+            Return 'https://'.$domain.server_port().$route['uri'];
+        }else{
+            Return 'http://'.$domain.server_port().$route['uri'];
+        }
+    }
+    function nav($cid=0,$size=999999,$classhash=''){
+        if(empty($classhash)) {$classhash=last_class();}
+        if($cid) {
+            if(!$channel=C('cms:channel:get',$cid,$classhash)) {
+                Return array();
+            }
+            $cid=$channel['id'];
+        }
+        $channels=C('cms:channel:all',$cid,$classhash,$size,1,1);
+        $parents=array();
+        if(isset($GLOBALS['C']['channel']['id'])) {
+            $parents[]=$GLOBALS['C']['channel']['id'];
+            if(isset($GLOBALS['C']['channel']['fid']) && $GLOBALS['C']['channel']['fid']>0) {
+                $parents_channels=C('cms:channel:parents',$GLOBALS['C']['channel']['id'],$classhash);
+                foreach($parents_channels as $parents_channel) {
+                    $parents[]=$parents_channel['id'];
+                }
+            }
+        }
+        foreach($channels as $key=>$channel) {
+            if(in_array($channel['id'],$parents)) {
+                $channels[$key]['active']=1;
+            }else {
+                $channels[$key]['active']=0;
+            }
+            if(!isset($channel['link']) || empty($channel['link'])){
+                unset($channels[$key]);
+            }
+        }
+        Return array_merge($channels);
+    }
+    function bread($cid=0,$classhash=''){
+        if(empty($classhash)) {
+            $classhash=last_class();
+        }
+        if(!$cid && isset($GLOBALS['C']['channel'])) {
+            $channel=$GLOBALS['C']['channel'];
+        }elseif($cid) {
+            if(!$channel=C('cms:channel:get',$cid,$classhash)) {
+                Return array();
+            }
+        }else {
+            Return array();
+        }
+        $channels=C('cms:channel:parents',$channel['id'],$classhash);
+        if($home=C('cms:channel:home',$classhash)) {
+            array_unshift($channels,$home);
+        }
+        foreach($channels as $key=>$this_channel) {
+            $channels[$key]['active']=0;
+        }
+        $channel['active']=1;
+        $channels[]=$channel;
+        Return $channels;
+    }
     function top($cid=0,$classhash='',$times=0) {
         if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
         if(!$now_channel=C('this:channel:get',$cid,$classhash)) {

@@ -51,7 +51,7 @@ class cms_form {
             $where['hash']=$hash;
             if(!empty($classhash)) {$where['classhash']=$classhash;}
             if(!empty($modulehash)) {$where['modulehash']=$modulehash;}
-            $where['kind']=$kind;
+            if(!empty($kind)) {$where['kind']=$kind;}
         }
         $form_query['where']=$where;
         if($form=one($form_query)) {
@@ -372,7 +372,8 @@ class cms_form {
         Return $form;
     }
     function authStr($form,$action='') {
-        Return $form['classhash'].':_form:'.$form['modulehash'].':'.$form['kind'].':'.$form['hash'].':'.$action;
+        if(!empty($action)){ $action=':'.$action; }
+        Return $form['classhash'].':_form:'.$form['modulehash'].':'.$form['kind'].':'.$form['hash'].$action;
     }
     function configStr($form,$configname) {
         Return $form['classhash'].':_form:'.$form['modulehash'].':'.$form['kind'].':'.$form['hash'].':'.$configname;

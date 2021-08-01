@@ -45,9 +45,6 @@ class cms_install {
                     $config['AdminDir']='admin';
                 }
                 $config['SiteHash']=substr(md5(rand(10000000,99999999).time().rand(10000000,99999999)),0,16);
-                if(!isset($GLOBALS['C']['TemplateClass']) || $GLOBALS['C']['TemplateClass']=='template') {
-                    $config['TemplateClass']='template';
-                }
                 $config['DbInfo']=$createDatabase;
                 $writeConfig=C('this:install:writeConfig',$config);
                 if($writeConfig!==true) {

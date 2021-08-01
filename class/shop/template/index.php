@@ -30,7 +30,6 @@
 {else}
 {$content}
 {/if}
-
 {admin:body:~()}
 </body>
 </html>

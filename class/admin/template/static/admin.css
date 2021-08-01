@@ -93,6 +93,8 @@ ul.layui-rate li.layui-inline,ul.layui-rate+span.layui-inline{margin-bottom:0;ma
 .layui-card-header{height:auto}
 .layui-breadcrumb a:hover {color: #1E9FFF!important;}
 #cms-breadcrumb{float:left}
+#cms-breadcrumb ._classlist input[type=text]{height:28px}
+#cms-breadcrumb ._classlist .layui-form-select dl{top:30px}
 #cms-right-top-button{float:right;text-align:right}
 #cms-left-bottom-button{float:left;margin-top:20px}
 #cms-right-bottom-button{float:right;text-align:right;margin-top:20px}

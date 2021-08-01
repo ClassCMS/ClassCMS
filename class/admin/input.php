@@ -2215,7 +2215,7 @@ class admin_input {
                 Return '';
             case 'post':
                 if(empty($_POST[$config['name']])) {
-                    Return '';
+                    Return 0;
                 }
                 if(!$channel=C('cms:channel:get',intval(@$_POST[$config['name']]))) {
                     Return false;

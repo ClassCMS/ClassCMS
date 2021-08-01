@@ -37,13 +37,14 @@ class cms_article {
             }
             if($config['all']===1) {$channel=$cids_channel;}
             $config['modulehash']=$cids_channel['modulehash'];
+            $config['classhash']=$cids_channel['classhash'];
         }
         if(isset($config['cid'])) {
             if(!C('this:common:verify',$config['cid'],'id') && $config['cid']!==0) {
                 if(!$channel=C('this:channel:get',$config['cid'],$config['classhash'])) {
                     Return array();
                 }
-                $config['cid']=$channel['cid'];
+                $config['cid']=$channel['id'];
             }
         }elseif(isset($config['modulehash'])) {
             if(!isset($config['cids'])) {
@@ -106,7 +107,7 @@ class cms_article {
             }
         }
         if(!$config['pagesize']) {$config['pagesize']=99999999;}
-        if(isset($config['column'])) {$config['column']='id,cid,uid'.$config['column'];}else {$config['column']='*';}
+        if(isset($config['column']) && !empty($config['column'])) {$config['column']='id,cid,uid,'.$config['column'];}else {$config['column']='*';}
         if(!isset($config['start'])) {$config['start']=0;}
         if(!isset($config['sql'])) {$config['sql']='';}
         if(isset($config['cids'])) {
@@ -173,6 +174,7 @@ class cms_article {
         }
         $GLOBALS['C']['article_query']=$config;
         if(!isset($config['route']) || empty($config['route'])) {$config['route']='article';}
+        if(!isset($config['fullurl'])) {$config['fullurl']=false;}
         $article_query=array();
         $article_query['table']=$config['table'];
         $article_query['where']=$config['sql'];
@@ -198,7 +200,7 @@ class cms_article {
                 }
             }
             if(!isset($articles[$key]['link']) || empty($articles[$key]['link'])) {
-                $articles[$key]['link']=U($this_channel,$config['route'],$article);
+                $articles[$key]['link']=U($this_channel,$config['route'],$article,array(),$config['fullurl']);
             }
             if(!isset($articles[$key]['key'])) {
                 $articles[$key]['key']=$key;

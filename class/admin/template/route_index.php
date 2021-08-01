@@ -40,7 +40,7 @@
               <tr>
                 <th>标识</th>
                 <th>网址</th>
-                <th class="layui-hide-xs">函数</th>
+                <th class="layui-hide-xs">方法</th>
                 <th class="layui-hide-xs">模板</th>
                 <th></th>
               </tr> 

@@ -3,7 +3,7 @@ if(!defined('ClassCms')) {exit();}
 class admin_module {
     function auth() {
         Return array(
-            'module:index;module:order;'=>'查看模型',
+            'module:index;module:order;'=>'查看模型列表',
             'module:add;module:addPost'=>'增加模型',
             'module:config;module:edit;module:editPost'=>'修改模型',
             'module:del'=>'删除模型',
@@ -14,22 +14,14 @@ class admin_module {
         );
     }
     function index() {
-        if(!isset($_GET['classhash'])) {
-            $_GET['classhash']=$GLOBALS['C']['TemplateClass'];
-        }
-        
-        if(!is_hash($_GET['classhash'])) {
-            Return C('this:error','error');
+        if(!isset($_GET['classhash']) && !$_GET['classhash']=C('cms:class:defaultClass')) {
+            Return C('this:error','未安装模板应用');
         }
         if(!$class=C('cms:class:get',$_GET['classhash'])) {
-            if($GLOBALS['C']['TemplateClass']==$_GET['classhash']) {
-                Return C('this:error','默认应用['.$_GET['classhash'].']不存在,请修改配置文件');
-            }else {
-                Return C('this:error',$_GET['classhash'].' 应用不存在');
-            }
+            Return C('this:error',$_GET['classhash'].' 应用未安装');
         }
         if(!$class['installed']) {Return C('this:error',$_GET['classhash'].' 应用未安装');}
-        if(!$class['module']) {Return C('this:error','此应用['.$class['hash'].'] 未开启模型配置选项');}
+        if(!$class['module']) {Return C('this:error','此应用['.$_GET['classhash'].'] 未开启模型配置选项');}
         $array['modulelist']=C('cms:module:all',$_GET['classhash']);
         $array['classhash']=$class['hash'];
         $array['classname']=$class['classname'];
@@ -38,7 +30,7 @@ class admin_module {
         V('module_index',$array);
     }
     function order() {
-        if(!is_hash(@$_POST['classhash'])) {Return false;}
+        if(!is_hash(@$_POST['classhash'])) {Return C('this:ajax','error');}
         $modulesarray=explode('|',$_POST['modulesarray']);
         foreach($modulesarray as $key=>$moduleid) {
             if(!empty($moduleid)) {
@@ -277,7 +269,7 @@ class admin_module {
         }
         $roles=C('cms:user:roleAll');
         foreach($roles as $role) {
-            $authkind='module_'.$module['hash'];
+            $authkind=$module['classhash'].':_module:'.$module['hash'];
             C('cms:user:authDelAll',array('rolehash'=>$role['hash'],'authkind'=>$authkind));
             if(isset($_POST[$role['hash'].'_role']) && is_array($_POST[$role['hash'].'_role'])) {
                 foreach($_POST[$role['hash'].'_role'] as $thiskey=>$thisval) {
@@ -293,22 +285,22 @@ class admin_module {
             Return array();
         }
         $breadcrumb=array();
-        if($GLOBALS['C']['TemplateClass']==$class['hash']) {
-            if(empty($module) && empty($action)) {
-                $nowuser=C('cms:user:get',C('this:nowUser'));
-                if(C('this:user:superAdmin',$nowuser['rolehash'])) {
-                    $breadcrumb[]=array('url'=>'?do=admin:module:index','title'=>'模型管理 默认应用['.$GLOBALS['C']['TemplateClass'].']');
-                }else {
-                    $breadcrumb[]=array('url'=>'?do=admin:module:index','title'=>'模型管理');
-                }
-            }else {
-                $breadcrumb[]=array('url'=>'?do=admin:module:index','title'=>'模型管理');
-            }
-        }else {
+        if(P('class:index')) {
             $breadcrumb[]=array('url'=>'?do=admin:class:index','title'=>'应用管理');
-            $breadcrumb[]=array('url'=>'?do=admin:class:config&hash='.$class['hash'],'title'=>$class['classname']);
-            $breadcrumb[]=array('url'=>'?do=admin:module:index&classhash='.$class['hash'],'title'=>'模型');
+            $classes=C('cms:class:all');
+            $classlist=array();
+            foreach ($classes as $thisclass) {
+                if($thisclass['installed'] && $thisclass['module']){
+                    if($thisclass['hash']==$class['hash']){
+                        $classlist[]=array('title'=>$thisclass['classname'],'url'=>'?do=admin:class:config&hash='.$thisclass['hash']);
+                    }else{
+                        $classlist[]=array('title'=>$thisclass['classname'],'url'=>'?do=admin:module:index&classhash='.$thisclass['hash']);
+                    }
+                }
+            }
+            $breadcrumb[]=array('url'=>'?do=admin:class:config&hash='.$class['hash'],'title'=>$class['classname'],'list'=>$classlist);
         }
+        $breadcrumb[]=array('url'=>'?do=admin:module:index&classhash='.$class['hash'],'title'=>'模型');
         if(!empty($module)) {
             $breadcrumb[]=array('url'=>'?do=admin:module:config&id='.$module['id'],'title'=>$module['modulename']);
         }

@@ -42,13 +42,19 @@ class admin {
             C('cms:input:add','this:input:databasetree');
             update(array('table'=>'input','where'=>array('hash'=>'databasetree'),'inputorder'=>5));
         }
+        if(version_compare($old_version,'2.0','<')) {
+            $auths=all('table','auth','where',where('hash%',':_module:'));
+            foreach($auths as $auth) {
+                update('table','auth','where',where('id',$auth['id']),'authkind',$auth['classhash'].':_'.str_replace('_',':',$auth['authkind']));
+            }
+        }
     }
     function auth() {
         $auth=array();
         $auth['基础权限']=C('this:my:auth');
         $auth['应用管理']=C('this:class:auth');
-        $auth['栏目管理']=C('this:channel:auth');
         $auth['模型管理']=C('this:module:auth');
+        $auth['栏目管理']=C('this:channel:auth');
         $auth['用户管理']=C('this:user:auth');
         Return $auth;
     }
@@ -403,9 +409,14 @@ class admin {
         Return $menu;
     }
     function jumpHome() {
-        $homepage=C('cms:homepage');
-        if(empty($homepage) || $homepage=='#') {
-            $homepage=$GLOBALS['C']['SystemDir'];
+        $homepage=$GLOBALS['C']['SystemDir'];
+        $classes=C('cms:class:all');
+        foreach ($classes as $thisclass) {
+            if($thisclass['enabled'] && $thisclass['module']){
+                if($homepage=C('cms:homepage',$thisclass['hash'])){
+                    break;
+                }
+            }
         }
         echo('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">');
         echo("<meta name='referrer' content='never'><meta http-equiv=refresh content='0;url=".$homepage."'>");
@@ -465,7 +476,8 @@ class admin {
         Return $items;
     }
     function breadcrumb($links='',$home='') {
-        $html='<span class="layui-breadcrumb" lay-separator="&gt;">';
+        $html='';
+        $isLayuiForm=false;
         if(empty($home)) {
             $html.='<a href="'.C('this:defaultPage').'"><i class="layui-icon layui-icon-home"></i></a>';
         }else {
@@ -480,14 +492,31 @@ class admin {
                 if(($key+1)==count($links)) {
                     $val['url']='';
                 }
-                if(isset($val['url']) && !empty($val['url'])) {
+                if(isset($val['list']) && count($val['list'])>1){
+                    $isLayuiForm=true;
+                    $html.='<a><div class="layui-inline _classlist"><div class="layui-input-inline"><select lay-filter="breadcrumb_'.$key.'">';
+                    foreach ($val['list'] as $thislist) {
+                        if(!isset($thislist['url'])){$thislist['url']='';}
+                        if(!isset($thislist['title'])){$thislist['title']='';}
+                        if($thislist['url']==$val['url']){
+                            $html.='<option value="'.$thislist['url'].'" selected>'.$thislist['title'].'</option>';
+                        }else{
+                            $html.='<option value="'.$thislist['url'].'">'.$thislist['title'].'</option>';
+                        }
+                    }
+                    $html.='</select></div></div></a><script>layui.use([\'form\'],function(){layui.form.on(\'select(breadcrumb_'.$key.')\', function(data){window.location.href=data.value;});});</script>';
+                }elseif(isset($val['url']) && !empty($val['url'])) {
                     $html.='<a href="'.$val['url'].'">'.$val['title'].'</a>';
                 }else {
                     $html.='<a><cite>'.$val['title'].'</cite></a>';
                 }
             }
         }
-        $html.='</span>';
+        if($isLayuiForm){
+            $html='<span class="layui-breadcrumb layui-form" lay-separator="&gt;">'.$html.'</span>';
+        }else{
+            $html='<span class="layui-breadcrumb" lay-separator="&gt;">'.$html.'</span>';
+        }
         Return $html;
     }
     function pagelist() {
