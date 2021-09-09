@@ -12,7 +12,7 @@ class cms_hook {
         Return $hooks;
     }
     function get($hookname,$hookedfunction,$classhash='') {
-        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         $hook_query=array();
         $hook_query['table']='hook';
         $hook_query['where']=array('hookname'=>$hookname,'hookedfunction'=>$hookedfunction,'classhash'=>$classhash);
@@ -20,7 +20,7 @@ class cms_hook {
     }
     function add($hook_add_query) {
         if(!isset($hook_add_query['classhash'])) {
-            $hook_add_query['classhash']=last_class();
+            $hook_add_query['classhash']=I(-1);
         }
         if(!isset($hook_add_query['hookname']) || empty($hook_add_query['hookname'])) {
             Return false;
@@ -68,14 +68,14 @@ class cms_hook {
         Return update($hook_edit_query);
     }
     function del($hookname,$hookedfunction,$classhash='') {
-        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         $del_hook_query=array();
         $del_hook_query['table']='hook';
         $del_hook_query['where']=array('hookname'=>$hookname,'hookedfunction'=>$hookedfunction,'classhash'=>$classhash);
         Return del($del_hook_query);
     }
     function unhook($classhash,$hookname='') {
-        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         if(isset($GLOBALS['hook']) && is_array($GLOBALS['hook'])) {
             foreach($GLOBALS['hook'] as $key=>$classhooks) {
                 if(is_array($classhooks)) {

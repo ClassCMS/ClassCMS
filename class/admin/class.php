@@ -91,6 +91,30 @@ class admin_class {
                     $array['phpcheck']='无法使用,当前服务器PHP版本为:'.PHP_VERSION.',当前应用需要PHP版本为:'.C('cms:class:config',$classhash,'php');
                 }
             }
+            $requiredClasses=array();
+            if($classes=C('cms:class:all')) {
+                foreach($classes as $thisclass) {
+                    if(!empty($thisclass['requires']) && $thisclass['installed']){
+                        $requires=explode(';',$thisclass['requires']);
+                        foreach ($requires as $require) {
+                            @preg_match_all('/\[.*?\]/',$require,$requireversions);
+                            if(isset($requireversions[0][0]) && rtrim($require,$requireversions[0][0])==$classhash){
+                                $requiredClasses[$thisclass['id']]=$thisclass;
+                            }elseif($require==$classhash){
+                                $requiredClasses[$thisclass['id']]=$thisclass;
+                            }
+                        }
+                    }
+                }
+            }
+            if(count($requiredClasses)){
+                $array['required_tips']='<br><br>此应用被其它应用所依赖<br>卸载后会造成这些应用无法正常运行!!!<br>';
+                foreach ($requiredClasses as $requiredClass) {
+                    $array['required_tips'].=' '.$requiredClass['classname'].'['.$requiredClass['hash'].']<br>';
+                }
+            }else{
+                $array['required_tips']='';
+            }
             $array['roles']=C('cms:user:roleAll');
             V('class_config',$array);
         }else {
@@ -164,6 +188,9 @@ class admin_class {
                     }
                     $array['configs'][$key]['source']='admin_class_setting';
                     $array['configs'][$key]['value']=config($config['hash'],false,$array['classinfo']['hash']);
+                    if(empty($array['configs'][$key]['tabname'])){
+                        $array['configs'][$key]['tabname']='默认分组';
+                    }
                 }else {
                     unset($array['configs'][$key]);
                 }
@@ -172,9 +199,6 @@ class admin_class {
                 Return C('this:error','应用不存在设置选项');
             }
             $array['tabs']=C('cms:form:getTabs',$array['configs']);
-            if(count($array['tabs'])==0) {
-                $array['tabs']=array('默认分组');
-            }
             $array['title']=$array['classinfo']['classname'].' 设置';
             V('class_setting',$array);
         }else {
@@ -273,6 +297,9 @@ class admin_class {
         $classhash=@$_POST['hash'];
         $old_version=@$_POST['old_version'];
         $new_version=@$_POST['new_version'];
+        if(!C('cms:class:requires',$classhash)) {
+            Return C('this:ajax','更新失败.请先安装依赖应用',1);
+        }
         $info=C('cms:class:upgrade',$classhash);
         if($info===true) {
             Return C('this:ajax','更新成功');

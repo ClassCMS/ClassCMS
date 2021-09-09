@@ -50,7 +50,7 @@ class cms_input {
         $input_add_query=array();
         $functions=explode(':',$inputfunction);
         if($functions[0]=='this') {
-            $functions[0]=last_class();
+            $functions[0]=I(-1);
         }
         $inputfunction=implode(':',$functions);
         $input_add_query['classhash']=$functions[0];

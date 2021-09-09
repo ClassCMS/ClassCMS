@@ -13,7 +13,7 @@ class cms_article {
         if(!is_array($config)) {
             Return array();
         }
-        if(!isset($config['classhash'])) {$config['classhash']=last_class();}
+        if(!isset($config['classhash'])) {$config['classhash']=I(-1);}
         if(!isset($config['all'])) {$config['all']=0;}elseif($config['all']==='1') {$config['all']=1;}
         if(!isset($config['enabled'])) {$config['enabled']=1;}
         if($config['all'] && !isset($config['cids'])) {
@@ -294,7 +294,7 @@ class cms_article {
         Return del($config);
     }
     function allCid($cid,$classhash='',$all=1,$cids=array(),$enabled=1) {
-        if(empty($classhash)) {$classhash=last_class();}
+        if(empty($classhash)) {$classhash=I(-1);}
         if($all) {
             if(!$channel=C('this:channel:get',$cid,$classhash)) {
                 Return array();

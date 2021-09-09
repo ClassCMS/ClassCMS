@@ -2,7 +2,7 @@
 if(!defined('ClassCms')) {exit();}
 class cms_route {
     function all($modulehash='',$classhash='') {
-        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         if(!is_hash($modulehash)) {Return array();}
         $list_query=array();
         $list_query['table']='route';
@@ -23,7 +23,7 @@ class cms_route {
         }else {
             if(!is_hash($hash)) {Return false;}
             $where['hash']=$hash;
-            if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+            if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
             $where['classhash']=$classhash;
             if(!empty($modulehash)) {
                 if(!is_hash($modulehash)) {Return false;}
@@ -39,7 +39,7 @@ class cms_route {
             Return false;
         }
         if(!isset($route_add_query['classhash'])) {
-            $route_add_query['classhash']=last_class();
+            $route_add_query['classhash']=I(-1);
         }
         $route_add_query['moduleorder']=1;
         if(isset($route_add_query['modulehash'])) {
@@ -129,7 +129,7 @@ class cms_route {
             $classhash=$args;
         }
         if(empty($classhash)) {
-            $classhash=last_class();
+            $classhash=I(-1);
         }
         if(isset($GLOBALS['route'])) {
             foreach($GLOBALS['route'] as $thisroute) {

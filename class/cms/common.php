@@ -30,6 +30,8 @@ class cms_common {
         $html=str_replace('&emsp;','',$html);
         $html=str_replace('&nbsp;','',$html);
         $html=str_replace("\t",'',$html);
+        $html=str_replace("\r\n",' ',$html);
+        $html=str_replace("\n",' ',$html);
         while(1==1) {
             if(stripos($html,'  ')===false) {
                 break;
@@ -227,7 +229,7 @@ class cms_common {
     }
     function uploadMove($tempfile,$path='',$filename='') {
         if(!is_file($tempfile)) {
-            if(is_file($_FILES[$tempfile]['tmp_name'])) {
+            if(isset($_FILES[$tempfile]['tmp_name']) && is_file($_FILES[$tempfile]['tmp_name'])) {
                 $tempfile=$_FILES[$tempfile]['tmp_name'];
             }else {
                 Return false;

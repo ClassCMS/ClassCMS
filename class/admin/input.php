@@ -427,6 +427,9 @@ class admin_input {
                 Return '';
             case 'post':
                 if(!isset($_POST[$config['name']])) {Return false;}
+                if(isset($config['kind']) && $config['kind']=='column' && !strlen($_POST[$config['name']])){
+                    Return array('error'=>'格式不正确');
+                }
                 if(strlen($config['min']) && $_POST[$config['name']]<$config['min']) {
                     Return array('error'=>'最小为'.$config['min']);
                 }

@@ -16,9 +16,6 @@ class admin_var {
         if(!$array['classinfo']['module']) {Return C('this:error',$array['classinfo']['classname'].' 应用无法配置模型');}
         $array['vars']=C('cms:form:all','var',$array['hash'],$array['classhash']);
         $array['tabs']=C('cms:form:getTabs',$array['vars']);
-        if(count($array['tabs'])==0) {
-            $array['tabs']=array('默认分组');
-        }
         $array['breadcrumb']=C('this:module:breadcrumb',$array['classinfo'],$array,'变量');
         $array['title']=$array['modulename'].' 变量';
         V('var_index',$array);

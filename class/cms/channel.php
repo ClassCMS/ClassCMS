@@ -4,7 +4,7 @@ class cms_channel {
     function all($fid=0,$classhash='',$size=99999999,$var=false,$enabled=0) {
         $channel_list_query=array();
         $channel_list_query['table']='channel';
-        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         $channel_list_query['where']=array('fid'=>$fid,'classhash'=>$classhash);
         if($enabled) {$channel_list_query['where']['enabled']=1;}
         if($size) {$channel_list_query['limit']=$size;}
@@ -18,7 +18,7 @@ class cms_channel {
         Return $channel_list;
     }
     function home($classhash='') {
-        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         if(isset($GLOBALS['C']['homechannel'][$classhash])) {
             Return $GLOBALS['C']['homechannel'][$classhash];
         }
@@ -34,7 +34,7 @@ class cms_channel {
         Return $GLOBALS['C']['homechannel'][$classhash];
     }
     function tree($cid=0,$classhash='',$return=array(),$channels='',$times=0) {
-        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         if(!is_array($channels)) {
             $list_query=array();
             $list_query['table']='channel';
@@ -52,7 +52,7 @@ class cms_channel {
         Return $return;
     }
     function parents($cid=0,$classhash='',$parents=array(),$times=0) {
-        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         if(!$channel=C('this:channel:get',$cid,$classhash)) {
             unset($parents[0]);
             Return array_reverse($parents);
@@ -74,7 +74,7 @@ class cms_channel {
                     $channel=C('cms:channel:get',$channel);
                 }
             }else {
-                $channel=C('cms:channel:get',$channel,last_class());
+                $channel=C('cms:channel:get',$channel,I(-1));
             }
         }
         if(!$channel) {Return '';}
@@ -129,7 +129,7 @@ class cms_channel {
         }
     }
     function nav($cid=0,$size=999999,$classhash=''){
-        if(empty($classhash)) {$classhash=last_class();}
+        if(empty($classhash)) {$classhash=I(-1);}
         if($cid) {
             if(!$channel=C('cms:channel:get',$cid,$classhash)) {
                 Return array();
@@ -161,7 +161,7 @@ class cms_channel {
     }
     function bread($cid=0,$classhash=''){
         if(empty($classhash)) {
-            $classhash=last_class();
+            $classhash=I(-1);
         }
         if(!$cid && isset($GLOBALS['C']['channel'])) {
             $channel=$GLOBALS['C']['channel'];
@@ -184,7 +184,7 @@ class cms_channel {
         Return $channels;
     }
     function top($cid=0,$classhash='',$times=0) {
-        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         if(!$now_channel=C('this:channel:get',$cid,$classhash)) {
             Return false;
         }
@@ -210,7 +210,7 @@ class cms_channel {
                     Return $GLOBALS['channel'][$cid];
                 }
             }else {
-                if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+                if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
                 $where['channelname']=$cid;
                 $where['classhash']=$classhash;
             }
@@ -240,7 +240,7 @@ class cms_channel {
             Return false;
         }
         if(!isset($channel_add_query['classhash'])) {
-            $channel_add_query['classhash']=last_class();
+            $channel_add_query['classhash']=I(-1);
         }
         if(!is_hash($channel_add_query['classhash'])) {Return false;}
         if(!isset($channel_add_query['channelorder'])) {
@@ -314,7 +314,7 @@ class cms_channel {
         Return update($channel_edit_query);
     }
     function del($id,$classhash='') {
-        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         if(!$channel=C('this:channel:get',$id,$classhash)) {
             Return false;
         }

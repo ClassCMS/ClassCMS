@@ -4,7 +4,7 @@ class cms_config {
     function get($hash,$classhash='') {
         $config_query=array();
         $config_query['table']='config';
-        if(empty($classhash)) {$classhash=last_class();}
+        if(empty($classhash)) {$classhash=I(-1);}
         if(!is_hash($classhash)) {Return false;}
         $config_query['where']=array('hash'=>$hash,'classhash'=>$classhash);
         $config_query['order']='id desc';
@@ -23,7 +23,7 @@ class cms_config {
         }
         $config_query=array();
         $config_query['table']='config';
-        if(empty($classhash)) {$classhash=last_class();}
+        if(empty($classhash)) {$classhash=I(-1);}
         if(!is_hash($classhash)) {Return false;}
         $config_query['where']=array('hash'=>$hashs,'classhash'=>$classhash);
         $config_query['order']='id desc';
@@ -47,7 +47,7 @@ class cms_config {
         Return $values;
     }
     function set($hash,$value='',$overtime=0,$classhash='') {
-        if(empty($classhash)) {$classhash=last_class();}
+        if(empty($classhash)) {$classhash=I(-1);}
         if(!is_hash($classhash)) {Return false;}
         $config_query=array();
         $config_query['table']='config';
@@ -75,7 +75,7 @@ class cms_config {
         }
     }
     function del($hash,$classhash='') {
-        if(empty($classhash)) {$classhash=last_class();}
+        if(empty($classhash)) {$classhash=I(-1);}
         if(!is_hash($classhash)) {Return false;}
         $del_config_query['table']='config';
         $del_config_query['where']=array('hash'=>$hash,'classhash'=>$classhash);

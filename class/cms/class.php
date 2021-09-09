@@ -125,10 +125,46 @@ class cms_class {
             Return false;
         }
         if(count($requires)) {
-            foreach($requires as $key=>$require) {
+            foreach($requires as $require) {
                 $installed=false;
+                @preg_match_all('/\[.*?\]/',$require,$requireversions);
+                if(isset($requireversions[0][0])){
+                    $requireclasshash=rtrim($require,$requireversions[0][0]);
+                }else{
+                    $requireclasshash=$require;
+                }
                 foreach($classes as $thisclass) {
-                    if($thisclass['hash']==$require && $thisclass['installed']) {
+                    if($thisclass['hash']==$requireclasshash && $thisclass['installed']) {
+                        if(isset($requireversions[0][0])){
+                            $thisversions=explode(',',rtrim(ltrim($requireversions[0][0],'['),']'));
+                            foreach ($thisversions as $thisversion) {
+                                if(!empty($thisversion)){
+                                    if(substr($thisversion,0,2)=='<='){
+                                        if(!version_compare($thisclass['classversion'],substr($thisversion,2),'<=')){
+                                            Return false;
+                                        }
+                                    }elseif(substr($thisversion,0,2)=='>='){
+                                        if(!version_compare($thisclass['classversion'],substr($thisversion,2),'>=')){
+                                            Return false;
+                                        }
+                                    }elseif(substr($thisversion,0,1)=='<'){
+                                        if(!version_compare($thisclass['classversion'],substr($thisversion,1),'<')){
+                                            Return false;
+                                        }
+                                    }elseif(substr($thisversion,0,1)=='>'){
+                                        if(!version_compare($thisclass['classversion'],substr($thisversion,1),'>')){
+                                            Return false;
+                                        }
+                                    }elseif(substr($thisversion,0,1)=='='){
+                                        if(!version_compare($thisclass['classversion'],substr($thisversion,1),'=')){
+                                            Return false;
+                                        }
+                                    }elseif(!version_compare($thisclass['classversion'],$thisversion,'=')){
+                                        Return false;
+                                    }
+                                }
+                            }
+                        }
                         $installed=true;
                     }
                 }
@@ -279,6 +315,9 @@ class cms_class {
         if(!C('this:class:phpCheck',$classhash)) {
             Return false;
         }
+        if(!C('this:class:requires',$classhash)) {
+            Return false;
+        }
         if($class['installed']) {
             $updateinfo=C($classhash.':upgrade',$old_version);
         }else {
@@ -341,11 +380,14 @@ class cms_class {
         $del_module['table']='module';
         $del_module['where']=array('classhash'=>$classhash);
         del($del_module);
-        if($tables=C($classhash.':table')) {
-            if(is_array($tables)) {
-                foreach($tables as $tablename=>$table) {
-                    if(is_array($table)) {
-                        C($GLOBALS['C']['DbClass'].':delTable',$tablename);
+        if(is_file(classDir($classhash).$classhash.'.php')) {
+            if($tables=C($classhash.':table')) {
+                $systemTable=C('this:install:defaultTable');
+                if(is_array($tables)) {
+                    foreach($tables as $tablename=>$table) {
+                        if(is_array($table) && !isset($systemTable[$tablename])) {
+                            C($GLOBALS['C']['DbClass'].':delTable',$tablename);
+                        }
                     }
                 }
             }

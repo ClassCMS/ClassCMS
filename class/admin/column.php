@@ -16,9 +16,6 @@ class admin_column {
         if(!$array['classinfo']['module']) {Return C('this:error',$array['classinfo']['classname'].' 应用无法配置模型');}
         $array['columns']=C('cms:form:all','column',$array['hash'],$array['classhash']);
         $array['tabs']=C('cms:form:getTabs',$array['columns']);
-        if(count($array['tabs'])==0) {
-            $array['tabs']=array('默认分组');
-        }
         $table_fields=C($GLOBALS['C']['DbClass'].':getfields',$array['table']);
         foreach($array['columns'] as $key=>$column) {
             if(isset($table_fields[$column['hash']])) {

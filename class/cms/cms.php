@@ -65,7 +65,6 @@ class cms {
                     }
                     $GLOBALS['C']['channel']=C('this:nowChannel',$thisroute['classhash'],$channel);
                     if(isset($thisroute['classview']) && !empty($thisroute['classview'])) {
-                        $thisroute['classview']=C('this:nowView',$thisroute['classhash'],$thisroute['classview'],1);
                         $GLOBALS['C']['route_view'][$thisroute['classfunction']]=$thisroute['classview'];
                         if(isset($article) && $article) {
                             $GLOBALS['C']['route_view_article'][$thisroute['classfunction']]=C('this:nowArticle',$GLOBALS['C']['channel'],$article);
@@ -90,7 +89,6 @@ class cms {
             Return false;
         }else {
             if(isset($thisroute['classview']) && !empty($thisroute['classview'])) {
-                $thisroute['classview']=C('this:nowView',$thisroute['classhash'],$thisroute['classview'],0);
                 $GLOBALS['C']['route_view'][$thisroute['classfunction']]=$thisroute['classview'];
                 $inited=true;
             }
@@ -118,8 +116,43 @@ class cms {
     function nowArticle($channel,$article) {
         Return $article;
     }
-    function nowView($classhash,$view,$module=1) {
-        Return $view;
+    function nowView($file,$vars=array(),$classhash='') {
+        if(empty($classhash)) {$classhash=i(-1);}
+        $GLOBALS['C']['running_class'][]=$classhash;
+        if(!isset($GLOBALS['class_template'][$classhash])) {C($classhash);}
+        $C_template_config=$GLOBALS['class_template'][$classhash];
+        if(isset($GLOBALS['class_config'][$classhash]['template_class']) && $GLOBALS['class_config'][$classhash]['template_class']!=$classhash) {
+            $GLOBALS['C']['running_class'][]=$GLOBALS['class_config'][$classhash]['template_class'];
+        }
+        if(is_array($vars)) {
+            foreach($vars as $Temp_key=>$Temp_val) {
+                if(!is_int($Temp_key)) {
+                    $$Temp_key=$Temp_val;
+                }
+            }
+        }
+        if(stripos($file,'}')===false) {
+            $C_templates=explode(';',$file);
+            foreach($C_templates as $C_template) {
+                if(!empty($C_template)) {
+                    $C_template_config['template']=$C_template;
+                    $C_template_config['file']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'].$C_template;
+                    $C_template_config['filedir']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'];
+                    $U_tempfile=include_template($C_template_config);
+                    if($U_tempfile) {include($U_tempfile);}
+                }
+            }
+        }else {
+            $C_template_config['filedir']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'];
+            $C_template_config['code']=$file;
+            $U_tempfile=include_template($C_template_config);
+            if($U_tempfile) {include($U_tempfile);}
+        }
+        if(isset($GLOBALS['class_config'][$classhash]['template_class']) && $GLOBALS['class_config'][$classhash]['template_class']!=$classhash) {
+            array_pop($GLOBALS['C']['running_class']);
+        }
+        array_pop($GLOBALS['C']['running_class']);
+        Return true;
     }
     function nowUri() {
         if(isset($GLOBALS['C']['uri'])) {
@@ -189,7 +222,7 @@ function ClassCms_init() {
     $GLOBALS['C']['start_time']=microtime(true);
     $GLOBALS['C']['start_memory']=round(memory_get_usage()/1024/1024, 2).'MB';
     if($GLOBALS['C']['Debug']) {ini_set('display_errors','On');error_reporting(E_ALL);}else {ini_set('display_errors','Off');}
-    $GLOBALS['C']['DocumentRoot']=rtrim(@$_SERVER['DOCUMENT_ROOT'],DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+    $GLOBALS['C']['DocumentRoot']=rtrim(rtrim(@$_SERVER['DOCUMENT_ROOT'],'/'),'\\').DIRECTORY_SEPARATOR;
     $GLOBALS['C']['SystemRoot']=dirname(dirname(dirname(__FILE__))).DIRECTORY_SEPARATOR;
     $ScriptInfo=(pathinfo(@$_SERVER['SCRIPT_NAME']));
     if($ScriptInfo['dirname']==="\\" || $ScriptInfo['dirname']==='/') {$ScriptInfo['dirname']='';}
@@ -277,7 +310,7 @@ function C() {
     $explode_class=explode(':',$class);
     $classhash=$explode_class[0];
     if($classhash=='this') {
-        $classhash=now_class();
+        $classhash=I();
         $explode_class[0]=$classhash;
         $class=$classhash.substr($class,4);
     }
@@ -359,7 +392,7 @@ function C() {
     }
     unset($args[0]);
     $return=false;
-    $GLOBALS['C']['runing_class'][]=$classhash;
+    $GLOBALS['C']['running_class'][]=$classhash;
     if(!isset($GLOBALS['class_config'][$classhash]) && $end_class!=='~') {
         if(!class_exists($classhash)) {
             include_once(classDir($classhash).$classhash.'.php');
@@ -433,79 +466,48 @@ function C() {
             V($route_view,$return,$classhash);
         }
     }
-    array_pop($GLOBALS['C']['runing_class']);
+    array_pop($GLOBALS['C']['running_class']);
     if($end_class==='~' && isset($lastreturn)) {
         Return $lastreturn;
     }
     Return $return;
 }
+function I($level=0){
+    if($level===0){
+        Return @end($GLOBALS['C']['running_class']);
+    }elseif($level===-1){
+        if(!isset($GLOBALS['C']['running_class']) || !is_array($GLOBALS['C']['running_class'])) {
+            Return false;
+        }
+        $running_class_count=count($GLOBALS['C']['running_class']);
+        if($running_class_count==1) {
+            Return $GLOBALS['C']['running_class'][0];
+        }
+        foreach($GLOBALS['C']['running_class'] as $key=>$classhash) {
+            if($GLOBALS['C']['running_class'][$running_class_count-$key-1]!=$GLOBALS['C']['running_class'][$running_class_count-1]) {
+                Return $GLOBALS['C']['running_class'][$running_class_count-$key-1];
+            }
+        }
+        Return $GLOBALS['C']['running_class'][$running_class_count-1];
+    }
+    Return false;
+}
 function now_class() {
-    Return @end($GLOBALS['C']['runing_class']);
+    Return I();
 }
 function last_class() {
-    if(!isset($GLOBALS['C']['runing_class']) || !is_array($GLOBALS['C']['runing_class'])) {
-        Return false;
-    }
-    $runing_class_count=count($GLOBALS['C']['runing_class']);
-    if($runing_class_count==1) {
-        Return $GLOBALS['C']['runing_class'][0];
-    }
-    $now_class=$GLOBALS['C']['runing_class'][$runing_class_count-1];
-    foreach($GLOBALS['C']['runing_class'] as $key=>$classhash) {
-        if($GLOBALS['C']['runing_class'][$runing_class_count-$key-1]!=$now_class) {
-            Return $GLOBALS['C']['runing_class'][$runing_class_count-$key-1];
-        }
-    }
-    Return $now_class;
+    Return I(-1);
 }
-function V($Temp_file,$Temp_var=array(),$Temp_classhash='') {
-    if(empty($Temp_classhash)) {$Temp_classhash=now_class();}
-    $GLOBALS['C']['runing_class'][]=$Temp_classhash;
-    if(!isset($GLOBALS['class_template'][$Temp_classhash])) {C($Temp_classhash);}
-    $C_template_config=$GLOBALS['class_template'][$Temp_classhash];
-    if(isset($GLOBALS['class_config'][$Temp_classhash]['template_class']) && $GLOBALS['class_config'][$Temp_classhash]['template_class']!=$Temp_classhash) {
-        $GLOBALS['C']['runing_class'][]=$GLOBALS['class_config'][$Temp_classhash]['template_class'];
-    }
-    if(is_array($Temp_var)) {
-        foreach($Temp_var as $Temp_key=>$Temp_val) {
-            if(!is_int($Temp_key)) {
-                $$Temp_key=$Temp_val;
-            }
-        }
-    }
-    if(stripos($Temp_file,'}')===false) {
-        $C_templates=explode(';',$Temp_file);
-        foreach($C_templates as $C_template) {
-            if(!empty($C_template)) {
-                $C_template_config['template']=$C_template;
-                $C_template_config['file']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'].$C_template;
-                $C_template_config['filedir']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'];
-                $U_tempfile=include_template($C_template_config);
-                if($U_tempfile) {include($U_tempfile);}
-            }
-        }
-    }else {
-        $C_template_config['filedir']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'];
-        $C_template_config['code']=$Temp_file;
-        $U_tempfile=include_template($C_template_config);
-        if($U_tempfile) {include($U_tempfile);}
-    }
-    if(isset($GLOBALS['class_config'][$Temp_classhash]['template_class']) && $GLOBALS['class_config'][$Temp_classhash]['template_class']!=$Temp_classhash) {
-        array_pop($GLOBALS['C']['runing_class']);
-    }
-    array_pop($GLOBALS['C']['runing_class']);
-    Return true;
+function V($file,$vars=array(),$classhash='') {
+    if(empty($classhash)) {$classhash=I();}
+    return C('cms:nowView',$file,$vars,$classhash);
 }
 function P($do,$classhash=false,$userid=false) {
-    if($classhash) {
-        $do=$classhash.':'.$do;
-    }else {
-        $do=now_class().':'.$do;
-    }
-    Return C('admin:check',$do,$userid);
+    if(!$classhash) {$classhash=I();}
+    Return C('admin:check',$classhash.':'.$do,$userid);
 }
 function L($name,$language='',$classhash='') {
-    if(empty($classhash)) {$classhash=now_class();}
+    if(empty($classhash)) {$classhash=I();}
     if(empty($language) && isset($_COOKIE['u_language_'.$classhash])) {
         $language=$_COOKIE['u_language_'.$classhash];
     }
@@ -552,6 +554,17 @@ function L($name,$language='',$classhash='') {
 }
 function U($channel,$routehash='',$article=array(),$args=array(),$fullurl=false) {
     Return C('cms:channel:url',$channel,$routehash,$article,$args,$fullurl);
+}
+function G($hash,$val=null,$classhash=''){
+    if(empty($classhash)) {$classhash=I();}
+    if($val==null){
+        if(isset($GLOBALS['running_data'][$classhash][$hash])){
+            return $GLOBALS['running_data'][$classhash][$hash];
+        }
+        return null;
+    }
+    $GLOBALS['running_data'][$classhash][$hash]=$val;
+    return true;
 }
 function route($routehash,$args=array(),$classhash='',$fullurl=false) {
     Return C('cms:route:url',$routehash,$args,$classhash,$fullurl);
@@ -647,7 +660,7 @@ function macthDomain($domains) {
 }
 function classDir($classhash='') {
     if($classhash=='this') {
-        $classhash=now_class();
+        $classhash=I();
     }
     if(empty($classhash)) {
         Return $GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR;
@@ -657,7 +670,7 @@ function classDir($classhash='') {
 function class_getParameters($args) {
     $class=explode(':',$args['class']);
     if(count($class)>2) {
-        if(!class_exists($classhash.'_'.$class[1])) {
+        if(!class_exists($class[0].'_'.$class[1])) {
             include_once(classDir($class[0]).$class[1].'.php');
         }
         $classhash=$class[0];
@@ -694,7 +707,7 @@ function uridecode($uri) {
 }
 function template_url($classhash='') {
     if(empty($classhash)) {
-        $classhash=now_class();
+        $classhash=I();
     }
     $template_config=template_config($classhash);
     if(isset($template_config['httpdir'])) {

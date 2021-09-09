@@ -44,6 +44,7 @@ class admin_article {
         if(count($array['columns'])==0) {
             Return C('this:error','未配置模型字段');
         }
+        $GLOBALS['admin']['articleAction']='index';
         $array['viewbutton']=1;
         foreach($array['columns'] as $key=>$column) {
             $array['columns'][$key]=C('cms:form:build',$column['id']);
@@ -85,6 +86,7 @@ class admin_article {
             Return C('this:error','栏目不存在或无法访问');
         }
         if(C('cms:common:verify',@$_GET['id'],'id')) {
+            $GLOBALS['admin']['articleAction']='edit';
             $array['breadcrumb']=C('this:article:breadcrumb',$array['channel'],'修改');
             $array['id']=$_GET['id'];
             if(!$article=C('this:article:editEnabled',$array['channel']['id'],$array['id'])) {
@@ -92,6 +94,7 @@ class admin_article {
             }
             $array['title']=$array['channel']['channelname'].' 修改';
         }else {
+            $GLOBALS['admin']['articleAction']='add';
             $array['id']=false;
             if(!C('this:moduleAuth',$array['channel']['_module'],'add')) {Return C('this:error','无权限');}
             if(C('this:moduleAuth',$array['channel']['_module'],'list')) {
@@ -135,9 +138,6 @@ class admin_article {
             }
         }
         $array['tabs']=C('cms:form:getTabs',$array['columns']);
-        if(count($array['tabs'])==0) {
-            $array['tabs']=array('默认分组');
-        }
         V('article_edit',$array);
     }
     function editSave() {
@@ -256,6 +256,7 @@ class admin_article {
         if(!C('this:moduleAuth',$array['channel']['_module'],'var')) {
             Return C('this:error','无权限');
         }
+        $GLOBALS['admin']['articleAction']='var';
         $array['columns']=C('cms:form:all','column',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
         $array['columns']=C('cms:form:getColumnCreated',$array['columns'],$array['channel']['_module']['table']);
         foreach($array['columns'] as $key=>$column) {
@@ -296,9 +297,6 @@ class admin_article {
             Return C('this:error','无变量');
         }
         $array['tabs']=C('cms:form:getTabs',$array['vars']);
-        if(count($array['tabs'])==0) {
-            $array['tabs']=array('默认分组');
-        }
         V('article_var',$array);
     }
     function varSave() {

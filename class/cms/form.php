@@ -35,6 +35,9 @@ class cms_form {
                 $tabs[]=$form['tabname'];
             }
         }
+        if(!count($tabs)){
+            return array('默认分组');
+        }
         Return $tabs;
     }
     function get($hash='',$kind='',$modulehash='',$classhash='') {
@@ -47,7 +50,7 @@ class cms_form {
                 Return $GLOBALS['C']['form'][$hash];
             }
         }else {
-            if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+            if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
             $where['hash']=$hash;
             if(!empty($classhash)) {$where['classhash']=$classhash;}
             if(!empty($modulehash)) {$where['modulehash']=$modulehash;}
@@ -99,7 +102,7 @@ class cms_form {
             $form_add_query['modulehash']='';
         }
         if(!isset($form_add_query['classhash'])) {
-            $form_add_query['classhash']=last_class();
+            $form_add_query['classhash']=I(-1);
         }
         if(!isset($form_add_query['kind']) || !is_hash($form_add_query['kind'])) {
             Return false;
@@ -198,6 +201,9 @@ class cms_form {
             unset($form_edit_query['config']);
             $form_edit_query['defaultvalue']='';
             C('this:form:configDel',$form_edit_query['id']);
+        }
+        if(isset($form_edit_query['tabname']) && empty($form_edit_query['tabname'])) {
+            $form_edit_query['tabname']='默认分组';
         }
         $form_config=array();
         if(isset($form_edit_query['config']) && is_array($form_edit_query['config'])) {

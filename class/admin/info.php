@@ -10,9 +10,6 @@ class admin_info {
     function index() {
         $array['infos']=C('cms:form:all','info');
         $array['tabs']=C('cms:form:getTabs',$array['infos']);
-        if(count($array['tabs'])==0) {
-            $array['tabs']=array('默认分组');
-        }
         $table_fields=C($GLOBALS['C']['DbClass'].':getfields','user');
         foreach($array['infos'] as $key=>$info) {
             if(isset($table_fields[$info['hash']])) {

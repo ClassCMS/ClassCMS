@@ -5,7 +5,7 @@ class cms_module {
         $list_query=array();
         $list_query['table']='module';
         $where=array();
-        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         $where['classhash']=$classhash;
         $list_query['where']=$where;
         $list_query['order']='moduleorder desc,id asc';
@@ -21,7 +21,7 @@ class cms_module {
         }else {
             if(!is_hash($hash)) {Return false;}
             $where['hash']=$hash;
-            if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+            if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
             $where['classhash']=$classhash;
         }
         $module_query['where']=$where;
@@ -45,7 +45,7 @@ class cms_module {
             Return false;
         }
         if(!isset($module_add_query['classhash'])) {
-            $module_add_query['classhash']=last_class();
+            $module_add_query['classhash']=I(-1);
         }
         if(!is_hash($module_add_query['classhash'])) {Return false;}
         $where=array();
@@ -104,7 +104,7 @@ class cms_module {
         Return false;
     }
     function del($hash=0,$classhash='') {
-        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         if(!$module=C('this:module:get',$hash,$classhash)) {
             Return false;
         }
@@ -143,7 +143,7 @@ class cms_module {
         Return true;
     }
     function reload($hash=0,$classhash='') {
-        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         if(!$module=C('this:module:get',$hash,$classhash)) {
             Return false;
         }
@@ -154,7 +154,7 @@ class cms_module {
         Return update($route_edit_query);
     }
     function tableCreate($hash=0,$classhash='') {
-        if(empty($classhash) || !is_hash($classhash)) {$classhash=last_class();}
+        if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         if(!$module=C('this:module:get',$hash,$classhash)) {
             Return false;
         }

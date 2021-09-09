@@ -82,9 +82,6 @@ class admin_my {
             Return C('this:error','无任何属性权限');
         }
         $array['tabs']=C('cms:form:getTabs',$array['infos']);
-        if(count($array['tabs'])==0) {
-            $array['tabs']=array('默认分组');
-        }
         V('my_info',$array);
     }
     function infoPost() {
