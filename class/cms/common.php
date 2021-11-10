@@ -308,7 +308,7 @@ class cms_common {
         }
         Return false;
     }
-    function send($url,$data=array(),$post=false,$timeout=0){
+    function send($url,$data=array(),$post=false,$timeout=0,$args=array()){
         if(empty($url)) {Return false;}
         if(!$post && is_array($data) && count($data)) {
             if(stripos($url,'?')===false) {$url.='?';}
@@ -330,11 +330,17 @@ class cms_common {
             curl_setopt($curl,CURLOPT_HTTP_VERSION,CURL_HTTP_VERSION_1_0);
             curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,$timeout);
             curl_setopt($curl,CURLOPT_TIMEOUT,$timeout);
+            foreach ($args as $key=>$arg) {
+                curl_setopt($curl,constant($key),$arg);
+            }
             $content=curl_exec($curl);
             $httpinfo=curl_getinfo($curl);
             curl_close($curl);
             if($httpinfo['http_code']>=300) {$content=false;}
         }else{
+            if(count($args)){
+                return false;
+            }
             if($post) {
                 $options['http']=array('timeout'=>$timeout,'method' => 'POST','header' => 'Content-type:application/x-www-form-urlencoded','content' =>http_build_query($data));
             }else {
@@ -343,6 +349,21 @@ class cms_common {
             $content=@file_get_contents($url, false, stream_context_create($options));
         }
         Return $content;
+    }
+    function download($url,$path,$timeout=999){
+        $removefile=!@is_file($path);
+        if(!$fp = @fopen($path, "w+")){
+            return false;
+        }
+        if(C('this:common:send',$url,array(),false,$timeout,array('CURLOPT_FILE'=>$fp))){
+            @fclose($fp);
+            return true;
+        }
+        @fclose($fp);
+        if($removefile){
+            @unlink($path);
+        }
+        return false;
     }
     function pinyin($_String){
         $_DataKey = "a|ai|an|ang|ao|ba|bai|ban|bang|bao|bei|ben|beng|bi|bian|biao|bie|bin|bing|bo|bu|ca|cai|can|cang|cao|ce|ceng|cha".

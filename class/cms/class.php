@@ -96,6 +96,7 @@ class cms_class {
                 Return false;
             }
             C('this:class:installTable',$classhash);
+            C('this:class:installData',$classhash);
             $installinfo=C($classhash.':install');
             if($installinfo===true || $installinfo===null) {
                 $new_class=array();
@@ -244,10 +245,12 @@ class cms_class {
                 foreach($hooks as $hook) {
                     if(is_array($hook) && isset($hook['hookname']) && isset($hook['hookedfunction'])) {
                         if(!isset($hook['enabled'])) {$hook['enabled']=1;}
+                        if(!isset($hook['requires'])) {$hook['requires']='';}
                         $newhook=array();
                         $newhook['hookname']=$hook['hookname'];
                         $newhook['classhash']=$classhash;
                         $newhook['hookedfunction']=$hook['hookedfunction'];
+                        $newhook['requires']=$hook['requires'];
                         $newhook['enabled']=$hook['enabled'];
                         if($thishook=C('this:hook:get',$newhook['hookname'],$newhook['hookedfunction'],$classhash)) {
                             $newhook['id']=$thishook['id'];
@@ -276,6 +279,34 @@ class cms_class {
         }
         Return true;
     }
+    function installData($classhash,$datafile=''){
+        if(!is_hash($classhash)) {Return false;}
+        if(empty($datafile)){
+            $datafile=classDir($classhash).$classhash.'.data.php';
+        }
+        if(is_file($datafile)) {
+            $content=file_get_contents($datafile);
+            $content=str_replace("<?php if(!defined('ClassCms')) {exit();}?>","",$content);
+            $tables=json_decode($content,1);
+            if(is_array($tables)){
+                C('this:class:installTable',$classhash);
+                foreach ($tables as $key => $table) {
+                    foreach ($table as $data) {
+                        if($key!='channel'){
+                            unset($data['id']);
+                        }
+                        if($key=='form'){
+                            C('cms:form:add',$data);
+                        }else{
+                            $data['table']=$key;
+                            insert($data);
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }    
     function uninstall($classhash) {
         if(!is_hash($classhash)) {Return false;}
         if(is_file(classDir($classhash).$classhash.'.php')) {

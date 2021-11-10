@@ -11,35 +11,33 @@ class shop {
     }
     function hook() {
         $hooks=array();
-        $hooks[]=array('hookname'=>'show','hookedfunction'=>'admin:body','enabled'=>1);
+        $hooks[]=array('hookname'=>'show','hookedfunction'=>'admin:body','enabled'=>1,'requires'=>'GLOBALS.C.admin.load=admin:class:index;p.index');
+        $hooks[]=array('hookname'=>'configShow','hookedfunction'=>'admin:body','enabled'=>1,'requires'=>'GLOBALS.C.admin.load=admin:class:config;p.index');
         Return $hooks;
     }
     function show() {
-        if(!P('index')) {Return ;}
-        if(isset($GLOBALS['C']['admin']['load']) && $GLOBALS['C']['admin']['load']=='admin:class:index') {
-            echo('<script>layui.use([\'index\'],function(){layui.$(\'#cms-right-top-button\').append(\'<a href="?do=shop:index" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-cart-simple"></i><b>应用商店</b></a>\');});</script>');
-        }
-        if(isset($GLOBALS['C']['admin']['load']) && $GLOBALS['C']['admin']['load']=='admin:class:config') {
-            if($class=C('cms:class:get',@$_GET['hash'])) {
-                $homeroute=array();
-                foreach ($GLOBALS['route'] as $thisroute) {
-                    if(isset($thisroute['uri']) && $thisroute['uri']=='/' && !isset($thisroute['domain'])){
-                        $homeroute[$thisroute['classhash']]=1;
-                    }
-                }
-                if(!$class['enabled'] || !$class['module']){
-                    $homeroute=array();
-                }elseif(count($homeroute)<2){
-                    $homeroute=array();
-                }elseif($domainbind=C('cms:class:get','domainbind')){
-                    if($domainbind && $domainbind['enabled']){
-                        $homeroute=array();
-                    }
-                }
-                V('config',array('hash'=>$class['hash'],'classname'=>$class['classname'],'homeroute'=>count($homeroute)));
-            }
-        }
+        echo('<script>layui.use([\'index\'],function(){layui.$(\'#cms-right-top-button\').append(\'<a href="?do=shop:index" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-cart-simple"></i><b>应用商店</b></a>\');});</script>');
     }
+    function configShow() {
+        if($class=C('cms:class:get',@$_GET['hash'])) {
+            $homeroute=array();
+            foreach ($GLOBALS['route'] as $thisroute) {
+                if(isset($thisroute['uri']) && $thisroute['uri']=='/' && !isset($thisroute['domain'])){
+                    $homeroute[$thisroute['classhash']]=1;
+                }
+            }
+            if(!$class['enabled'] || !$class['module']){
+                $homeroute=array();
+            }elseif(count($homeroute)<2){
+                $homeroute=array();
+            }elseif($domainbind=C('cms:class:get','domainbind')){
+                if($domainbind && $domainbind['enabled']){
+                    $homeroute=array();
+                }
+            }
+            V('config',array('hash'=>$class['hash'],'classname'=>$class['classname'],'homeroute'=>count($homeroute)));
+        }
+    }    
     function index() {
         if(!function_exists("curl_init") || !ini_get('allow_url_fopen')) {
             echo('您的主机不支持Curl组件,无法访问应用商店');
@@ -106,7 +104,7 @@ class shop {
             }
         }else{
             @unlink($classfile);
-            Return C('cms:common:echoJson',array('msg'=>"安装包解压失败,请重试",'error'=>1));
+            Return C('cms:common:echoJson',array('msg'=>"安装包解压失败,请检查应用目录权限",'error'=>1));
         }
         Return ;
     }
@@ -150,7 +148,7 @@ class shop {
             Return C('cms:common:echoJson',array('msg'=>"下载完成"));
         }else{
             @unlink($classfile);
-            Return C('cms:common:echoJson',array('msg'=>"安装包解压失败,请重试",'error'=>1));
+            Return C('cms:common:echoJson',array('msg'=>"安装包解压失败,请检查应用目录权限",'error'=>1));
         }
         Return ;
     }

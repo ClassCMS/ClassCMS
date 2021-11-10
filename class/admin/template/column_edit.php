@@ -285,7 +285,7 @@
                     },
                     function(){
                         layui.admin.events.back();
-                    },
+                    }
                 );
             }
         }});

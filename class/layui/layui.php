@@ -7,13 +7,19 @@ class layui {
     function uninstall() {
         Return '无法卸载';
     }
-    function css() {
+    function css($check=1) {
+        if($check && G('css')){return '';}
+        G('css',1);
         Return '<link rel="stylesheet" href="'.template_url().'css/layui.css" media="all">';
     }
-    function js() {
+    function js($check=1) {
+        if($check && G('js')){return '';}
+        G('js',1);
         Return '<script src="'.template_url().'layui.js"></script>';
     }
-    function js_all() {
+    function js_all($check=1) {
+        if($check && G('js_all')){return '';}
+        G('js_all',1);
         Return '<script src="'.template_url().'layui.all.js"></script>';
     }
     function icon_list() {

@@ -157,35 +157,62 @@ class cms_install {
         if(!$array['sqlite'] && !$array['pdo_mysql'] && !$array['mysql']) {
             $array['allow']=false;
         }
-        $array['classlist']=array();
-        if(function_exists('scandir')) {
-            $array['classlist']['cms']='';
-            $array['classlist']['admin']='';
-            $array['classlist']['layui']='';
-            if($classdirslist=@scandir(classDir())) {
-                foreach($classdirslist as $dir) {
-                    if(stripos($dir,'.')===false && !isset($array['classlist'][$dir])) {
-                        if(is_file(classDir($dir).$dir.'.php')) {
-                            $array['classlist'][$dir]='';
-                        }
-                    }
-                }
-                unset($array['classlist']['cms']);
-                foreach($array['classlist'] as $key=>$title) {
-                    if($array['classlist'][$key]=C('this:class:config',$key,'name')) {
-                        $array['classlist'][$key]=$array['classlist'][$key].'['.$key.']';
-                    }else {
-                        $array['classlist'][$key]=$key;
-                    }
-                }
-            }else {
-                $array['allow']=false;
-            }
+        $array['classlist']=C('this:install:classList');
+        if(!$array['classlist']){
+            $array['allow']=false;
         }
         if(isset($_SERVER['DbInfo_prefix']) && $_SERVER['DbInfo_prefix']=='rand') {
             $_SERVER['DbInfo_prefix']='c'.date('md').rand(1000,9999).'_';
         }
         V('install',$array);
+    }
+    function classList(){
+        if(!function_exists('scandir')) {
+            return false;
+        }
+        if($classdirslist=@scandir(classDir())) {
+            $classlist=array();
+            foreach($classdirslist as $dir) {
+                if(stripos($dir,'.')===false && !isset($classlist[$dir])) {
+                    if(is_file(classDir($dir).$dir.'.php')) {
+                        $classlist[$dir]='';
+                    }
+                }
+            }
+            foreach($classlist as $classhash=>$thisclass) {
+                if($classlist[$classhash]=C('this:class:config',$classhash,'name')) {
+                    $classlist[$classhash]=$classlist[$classhash].'['.$classhash.']';
+                }else {
+                    $classlist[$classhash]=$classhash;
+                }
+            }
+            foreach($classlist as $classhash=>$thisclass) {
+                $requires=explode(';',C('this:class:config',$classhash,'requires'));
+                foreach ($requires as $require) {
+                    $thisrequire=explode('[',$require);
+                    $thisrequire=$thisrequire[0];
+                    if(is_hash($thisrequire)){
+                        $classlist=C('this:install:changeOrder',$classlist,$classhash,$thisrequire);
+                    }
+                }
+            }
+            unset($classlist['cms']);
+            return $classlist;
+        }else {
+            return false;
+        }
+    }
+    function changeOrder($classlist,$classhash,$require){
+        $newClasslist=array('cms'=>'','admin'=>'','layui'=>'');
+        foreach ($classlist as $key => $class) {
+            if($key==$classhash && isset($classlist[$require]) && !isset($newClasslist[$require])){
+                $newClasslist[$require]=$classlist[$require];
+                $newClasslist[$classhash]=$classlist[$classhash];
+            }else{
+                $newClasslist[$key]=$class;
+            }
+        }
+        return $newClasslist;
     }
     function rewrite() {
         echo(json_encode(array('test'=>'ok')));
@@ -503,7 +530,8 @@ class cms_install {
             'hookedfunction'=>'varchar(255)',
             'classhash'=>'varchar(32)',
             'classenabled'=>'int(1)',
-            'classorder'=>'int(11)'
+            'classorder'=>'int(11)',
+            'requires'=>'varchar(255)'
         );
         $tables['input']=array(
             'inputname'=>'varchar(32)',

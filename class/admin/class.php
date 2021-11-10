@@ -6,7 +6,7 @@ class admin_class {
             'class:index'=>'查看应用列表',
             'class:config'=>'管理应用',
             'class:changeState'=>'启停应用',
-            'class:install;class:uninstall;class:fileUpdate;class:upload'=>'安装卸载',
+            'class:install;class:uninstall;class:fileUpdate'=>'安装卸载',
             'class:permission;class:permissionPost'=>'权限设置',
             'class:setting;class:settingPost;class:order;class:menu'=>'应用设置',
         );
@@ -160,6 +160,9 @@ class admin_class {
     }
     function setting() {
         if($array['classinfo']=C('cms:class:get',@$_GET['hash'])) {
+            if(!$array['classinfo']['enabled']){
+                Return C('this:error','应用未启用');
+            }
             C('cms:class:installConfig',$array['classinfo']['hash']);
             $configs=C($array['classinfo']['hash'].':config');
             if(!is_array($configs)) {
@@ -207,9 +210,12 @@ class admin_class {
     }
     function settingPost() {
         if($array['classinfo']=C('cms:class:get',@$_POST['classcms_classhash_'])) {
+            if(!$array['classinfo']['enabled']){
+                Return C('this:ajax','应用未启用');
+            }
              $configs=C($array['classinfo']['hash'].':config');
             if(!is_array($configs)) {
-                Return C('this:error','应用不存在设置选项');
+                Return C('this:ajax','应用不存在设置选项');
             }
             $new_configs=array();
             $configs_configs=array();
@@ -370,34 +376,5 @@ class admin_class {
             Return C('this:ajax','置顶应用成功');
         }
         Return C('this:ajax','置顶应用失败');
-    }
-    function upload() {
-        if(!$GLOBALS['C']['Debug']) {
-            Return C('this:ajax','未开启Debug模式,无法上传安装包',1);
-        }
-        if(!isset($_FILES['zipfile'])) {
-            Return C('this:ajax','未上传',1);
-        }
-        $classhashs=explode('.',$_FILES['zipfile']['name']);
-        $classhash=$classhashs[0];
-        if(!is_hash($classhash)) {
-            Return C('this:ajax',$classhash." 安装包文件名不合法,格式为:xxx.zip或xxx.1.0.zip",1);
-        }
-        if(!function_exists('zip_open') || !class_exists('ZipArchive')) {
-            Return C('this:ajax',"未安装ZIP组件,请解压安装包,将文件夹上传至应用目录",1);
-        }
-        $classdir=classDir($classhash);
-        if(is_dir($classdir)) {
-            Return C('this:ajax',$classhash." 已存在,请先删除该目录",1);
-        }
-        if(C('cms:class:unzip',$_FILES['zipfile']['tmp_name'],$classdir)) {
-            if(C('cms:class:refresh',$classhash)) {
-                Return C('this:ajax',$classhash." 上传成功,请刷新页面");
-            }else {
-                Return C('this:ajax',$classhash." 上传失败,请检查安装包格式是否正确",1);
-            }
-        }else{
-            Return C('this:ajax',$classhash."安装包解压失败,请重试",1);
-        }
     }
 }

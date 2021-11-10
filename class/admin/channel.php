@@ -38,6 +38,7 @@ class admin_channel {
         }
         if(!$array['classinfo']['installed']) {Return C('this:error',$_GET['classhash'].' 应用未安装');}
         if(!$array['classinfo']['module']) {Return C('this:error','此应用['.$_GET['classhash'].'] 未开启模型配置选项');}
+        $array['channel_edit']=P('channel:edit');
         if($maxshow=C('this:channel:maxshow',$array['classinfo']['hash'])) {
             $array['showpage']=1;
             $channel_list_query=array();

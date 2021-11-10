@@ -182,11 +182,6 @@ class cms_route {
         }
         $uri=str_replace("\\","/",$uri);
         $uri=str_replace("//","/",$uri);
-        $uris=explode('/',$uri);
-        $lasturi=$uris[count($uris)-1];
-        if(!empty($lasturi) && substr_count($lasturi,'$.')>=substr_count($lasturi,'.')) {
-            $uri=$uri.'/';
-        }
         Return $uri;
     }
 }

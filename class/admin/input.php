@@ -1089,7 +1089,7 @@ class admin_input {
                     Return false;
                 }
                 foreach($values as $thisvalue) {
-                    if($_POST[$config['name']]==$thisvalue[0]  && $thisvalue[2]!='disabled') {
+                    if($_POST[$config['name']]==$thisvalue[0] && $thisvalue[2]!='disabled') {
                         Return $thisvalue[0];
                     }
                 }
@@ -1450,7 +1450,7 @@ class admin_input {
                         }else {
                             $lastclass=$config['classhash'];
                         }
-                        $config['choseinput']=array('inputhash'=>'classselect','name'=>$config['name'].'_classselect','value'=>$lastclass);
+                        $config['choseinput']=array('inputhash'=>'classselect','module'=>1,'name'=>$config['name'].'_classselect','value'=>$lastclass);
                         $channels=C('cms:channel:tree',0,$lastclass);
                         $config['chosehtml'].='<select lay-filter="'.$config['name'].'_channelchose">';
                         if(count($channels)) {
@@ -1604,6 +1604,9 @@ class admin_input {
                 if($config['multiple']) {
                     Return ';'.implode(';',$values).';';
                 }else {
+                    if($config['savetype']==1 && !count($values)){
+                        return 0;
+                    }
                     Return implode(';',$values);
                 }
             case 'auth':
@@ -1611,7 +1614,7 @@ class admin_input {
             case 'config':
                 Return array(
                         array('configname'=>'来源栏目','hash'=>'channel','inputhash'=>'classchannel','tips'=>'文章来源栏目,不选择来源栏目则手动选择.更改来源会丢失数据,请提前选择'),
-                        array('configname'=>'来源应用','hash'=>'class','inputhash'=>'classselect','tips'=>'如未选择来源栏目,则手动选择来源应用内的栏目'),
+                        array('configname'=>'来源应用','hash'=>'class','inputhash'=>'classselect','tips'=>'如未选择来源栏目,则手动选择来源应用内的栏目','module'=>1),
                         array('configname'=>'来源模型','hash'=>'module','inputhash'=>'classmodule','tips'=>'如未选择来源栏目,则手动选择来源模型内的文章'),
                         array('configname'=>'多选','hash'=>'multiple','inputhash'=>'switch','tips'=>'更改单选多选会丢失数据,请提前确认保存类型'),
                         array('configname'=>'保存类型','hash'=>'savetype','inputhash'=>'radio','tips'=>'切换类型会丢失信息,请提前确认保存类型.如您未选择来源栏目或来源模型,则只能保存为CID+ID格式','defaultvalue'=>'1','values'=>"1:ID\n2:CID+ID",'savetype'=>1),
@@ -1688,7 +1691,11 @@ class admin_input {
                 Return C('cms:input:view',$config);
             case 'post':
                 $config['inputhash']='radio';
-                Return C('cms:input:post',$config);
+                $postvalue=C('cms:input:post',$config);
+                if(!strlen($postvalue) && $config['savetype']==1){
+                    $postvalue=0;
+                }
+                Return $postvalue;
             case 'auth':
                 Return array('nolimit'=>'关闭鉴权');
             case 'config':
@@ -1841,7 +1848,11 @@ class admin_input {
                 Return C('cms:input:view',$config);
             case 'post':
                 $config['inputhash']='select';
-                Return C('cms:input:post',$config);
+                $postvalue=C('cms:input:post',$config);
+                if(!strlen($postvalue) && $config['savetype']==1){
+                    $postvalue=0;
+                }
+                Return $postvalue;
             case 'auth':
                 Return array('nolimit'=>'关闭鉴权');
             case 'config':
@@ -1946,10 +1957,12 @@ class admin_input {
             $config['selectvalue']='';
             $config['values']=array();
             foreach($classes as $class) {
-                if(isset($config['showhash']) && $config['showhash']) {
-                    $config['values'][]=implode(':',array($class['hash'],$class['classname'].'['.$class['hash'].']'));
-                }else {
-                    $config['values'][]=implode(':',array($class['hash'],$class['classname']));
+                if(!$config['module'] || ($config['module'] && $class['module'])){
+                    if(isset($config['showhash']) && $config['showhash']) {
+                        $config['values'][]=implode(':',array($class['hash'],$class['classname'].'['.$class['hash'].']'));
+                    }else {
+                        $config['values'][]=implode(':',array($class['hash'],$class['classname']));
+                    }
                 }
             }
         }
@@ -1975,6 +1988,7 @@ class admin_input {
             case 'config':
                 Return array(
                         array('configname'=>'多选','hash'=>'multiple','inputhash'=>'switch','tips'=>'允许选择多个应用,切换多选项会丢失信息,请提前确认'),
+                        array('configname'=>'模型','hash'=>'module','inputhash'=>'switch','tips'=>'仅显示有模型栏目功能的应用'),
                         array('configname'=>'标识','hash'=>'showhash','inputhash'=>'switch','tips'=>'显示应用标识,选项标题中显示为:应用名[应用标识]')
                     );
         }
@@ -2022,7 +2036,7 @@ class admin_input {
                 Return C('cms:input:post',$config);
             case 'config':
                 Return array(
-                            array('configname'=>'应用','hash'=>'otherclasshash','inputhash'=>'classselect','tips'=>'显示此应用下的模型'),
+                            array('configname'=>'应用','hash'=>'otherclasshash','inputhash'=>'classselect','tips'=>'显示此应用下的模型','module'=>1),
                             array('configname'=>'多选','hash'=>'multiple','inputhash'=>'switch','tips'=>'允许选择多个模型,切换多选项会丢失信息,请提前确认'),
                             array('configname'=>'标识','hash'=>'showhash','inputhash'=>'switch','tips'=>'显示模型标识,选项标题中显示为:模型名[模型标识]')
                         );
@@ -2085,7 +2099,7 @@ class admin_input {
                     }
                     $config['chosemodule'].='</select>';
                 }
-                $config['classinput']=array('inputhash'=>'classselect','name'=>$config['name'].'_classselect','value'=>$config['value_class']);
+                $config['classinput']=array('inputhash'=>'classselect','module'=>1,'name'=>$config['name'].'_classselect','value'=>$config['value_class']);
                 V('input/classmodule',$config);
                 Return '';
             case 'view':
@@ -2146,10 +2160,14 @@ class admin_input {
                 Return C('cms:input:view',$config);
             case 'post':
                 $config['inputhash']='select';
-                Return C('cms:input:post',$config);
+                $postvalue=C('cms:input:post',$config);
+                if(!strlen($postvalue)){
+                    $postvalue=0;
+                }
+                Return $postvalue;
             case 'config':
                 Return array(
-                            array('configname'=>'应用','hash'=>'otherclasshash','inputhash'=>'classselect','tips'=>'显示此应用下的栏目')
+                            array('configname'=>'应用','hash'=>'otherclasshash','inputhash'=>'classselect','tips'=>'显示此应用下的栏目','module'=>1)
                         );
         }
         Return false;
@@ -2204,7 +2222,7 @@ class admin_input {
                     }
                     $config['chosechannel'].='</select>';
                 }
-                $config['classinput']=array('inputhash'=>'classselect','name'=>$config['name'].'_classselect','value'=>$config['classhash']);
+                $config['classinput']=array('inputhash'=>'classselect','module'=>1,'name'=>$config['name'].'_classselect','value'=>$config['classhash']);
                 V('input/classchannel',$config);
                 Return '';
             case 'view':
@@ -2226,7 +2244,7 @@ class admin_input {
                 Return $channel['id'];
             case 'config':
                 Return array(
-                            array('configname'=>'默认应用','hash'=>'defaultclasshash','inputhash'=>'classselect','tips'=>'默认显示此应用下的栏目')
+                            array('configname'=>'默认应用','module'=>1,'hash'=>'defaultclasshash','inputhash'=>'classselect','tips'=>'默认显示此应用下的栏目')
                         );
         }
         Return false;
@@ -2311,7 +2329,11 @@ class admin_input {
                 Return C('cms:input:view',$config);
             case 'post':
                 $config['inputhash']='select';
-                Return C('cms:input:post',$config);
+                $postvalue=C('cms:input:post',$config);
+                if(!strlen($postvalue)){
+                    $postvalue=0;
+                }
+                Return $postvalue;
             case 'config':
                 Return array(
                             array('configname'=>'显示格式','hash'=>'showtype','inputhash'=>'radio','tips'=>'','defaultvalue'=>'1','values'=>"1:昵称\n2:账号\n3:昵称+账号",'savetype'=>1),
@@ -2682,7 +2704,9 @@ class admin_input {
                 echo(implode(';',$titles));
                 Return '';
             case 'post':
-                if(!isset($_POST[$config['name']])) {Return '';}
+                if(!isset($_POST[$config['name']])) {
+                    Return '';
+                }
                 $_POST[$config['name']]=str_replace('\\;','---colon---',$_POST[$config['name']]);
                 $values=explode(';',trim($_POST[$config['name']],';'));
                 $articles=array();
@@ -2726,6 +2750,9 @@ class admin_input {
                     Return $values[0];
                 }elseif($config['multiple']) {
                     Return implode(';',$values);
+                }
+                if($config['idtype']==1 && !$config['multiple']){
+                    Return 0;
                 }
                 Return '';
             case 'config':
@@ -2809,7 +2836,11 @@ class admin_input {
                 Return C('cms:input:view',$config);
             case 'post':
                 $config['inputhash']='radio';
-                Return C('cms:input:post',$config);
+                $postvalue=C('cms:input:post',$config);
+                if(!strlen($postvalue) && $config['idtype']==1){
+                    $postvalue=0;
+                }
+                Return $postvalue;
             case 'config':
                 Return array(
                         array('configname'=>'表名','hash'=>'table','inputhash'=>'text','tips'=>'选项来源的数据库表名,系统会自动加表名前缀.如不需要加前缀,则使用no_perfix_表名'),
@@ -2957,7 +2988,11 @@ class admin_input {
                 Return C('cms:input:view',$config);
             case 'post':
                 $config['inputhash']='select';
-                Return C('cms:input:post',$config);
+                $postvalue=C('cms:input:post',$config);
+                if(!strlen($postvalue) && $config['idtype']==1){
+                    $postvalue=0;
+                }
+                Return $postvalue;
             case 'config':
                 Return array(
                     array('configname'=>'表名','hash'=>'table','inputhash'=>'text','tips'=>'选项来源的数据库表名,系统会自动加表名前缀.如不需要加前缀,则使用no_perfix_表名'),
@@ -3474,7 +3509,11 @@ class admin_input {
                 Return C('cms:input:view',$config);
             case 'post':
                 $config['inputhash']='select';
-                Return C('cms:input:post',$config);
+                $postvalue=C('cms:input:post',$config);
+                if(!strlen($postvalue) && $config['idtype']==1){
+                    $postvalue=0;
+                }
+                Return $postvalue;
             case 'config':
                 Return array(
                     array('configname'=>'表名','hash'=>'table','inputhash'=>'text','tips'=>'选项来源的数据库表名,系统会自动加表名前缀.如不需要加前缀,则使用no_perfix_表名'),

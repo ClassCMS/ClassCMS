@@ -48,6 +48,7 @@ class cms_module {
             $module_add_query['classhash']=I(-1);
         }
         if(!is_hash($module_add_query['classhash'])) {Return false;}
+        if(!isset($module_add_query['modulename'])) {Return false;}
         $where=array();
         $where['classhash']=$module_add_query['classhash'];
         $where['modulename']=$module_add_query['modulename'];

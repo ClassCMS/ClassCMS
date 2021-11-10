@@ -116,23 +116,23 @@ class cms {
     function nowArticle($channel,$article) {
         Return $article;
     }
-    function nowView($file,$vars=array(),$classhash='') {
-        if(empty($classhash)) {$classhash=i(-1);}
-        $GLOBALS['C']['running_class'][]=$classhash;
-        if(!isset($GLOBALS['class_template'][$classhash])) {C($classhash);}
-        $C_template_config=$GLOBALS['class_template'][$classhash];
-        if(isset($GLOBALS['class_config'][$classhash]['template_class']) && $GLOBALS['class_config'][$classhash]['template_class']!=$classhash) {
-            $GLOBALS['C']['running_class'][]=$GLOBALS['class_config'][$classhash]['template_class'];
+    function nowView($_file,$_vars=array(),$_classhash='') {
+        if(empty($_classhash)) {$_classhash=i(-1);}
+        $GLOBALS['C']['running_class'][]=$_classhash;
+        if(!isset($GLOBALS['class_template'][$_classhash])) {C($_classhash);}
+        $C_template_config=$GLOBALS['class_template'][$_classhash];
+        if(isset($GLOBALS['class_config'][$_classhash]['template_class']) && $GLOBALS['class_config'][$_classhash]['template_class']!=$_classhash) {
+            $GLOBALS['C']['running_class'][]=$GLOBALS['class_config'][$_classhash]['template_class'];
         }
-        if(is_array($vars)) {
-            foreach($vars as $Temp_key=>$Temp_val) {
-                if(!is_int($Temp_key)) {
-                    $$Temp_key=$Temp_val;
+        if(is_array($_vars)) {
+            foreach($_vars as $_Temp_key=>$_Temp_val) {
+                if(!is_int($_Temp_key)) {
+                    $$_Temp_key=$_Temp_val;
                 }
             }
         }
-        if(stripos($file,'}')===false) {
-            $C_templates=explode(';',$file);
+        if(stripos($_file,'}')===false) {
+            $C_templates=explode(';',$_file);
             foreach($C_templates as $C_template) {
                 if(!empty($C_template)) {
                     $C_template_config['template']=$C_template;
@@ -144,11 +144,11 @@ class cms {
             }
         }else {
             $C_template_config['filedir']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'];
-            $C_template_config['code']=$file;
+            $C_template_config['code']=$_file;
             $U_tempfile=include_template($C_template_config);
             if($U_tempfile) {include($U_tempfile);}
         }
-        if(isset($GLOBALS['class_config'][$classhash]['template_class']) && $GLOBALS['class_config'][$classhash]['template_class']!=$classhash) {
+        if(isset($GLOBALS['class_config'][$_classhash]['template_class']) && $GLOBALS['class_config'][$_classhash]['template_class']!=$_classhash) {
             array_pop($GLOBALS['C']['running_class']);
         }
         array_pop($GLOBALS['C']['running_class']);
@@ -203,6 +203,11 @@ class cms {
         }
         Return $GLOBALS['C']['homepage'][$class];
     }
+    function upgrade($old_version) {
+        if(version_compare($old_version,'2.2','<')) {
+            C($GLOBALS['C']['DbClass'].':addField','hook','requires','varchar(255)');
+        }
+    }
 }
 function ClassCms_init() {
     define('ClassCms',1);
@@ -240,7 +245,7 @@ function ClassCms_init() {
             foreach($hooks as $hook) {
                 $hook['hookedfunction']=strtolower($hook['hookedfunction']);
                 if(!empty($hook['hookedfunction']) && !isset($GLOBALS['hook'][$hook['hookedfunction']][$hook['classhash'].':'.$hook['hookname']])) {
-                    $GLOBALS['hook'][$hook['hookedfunction']][$hook['classhash'].':'.$hook['hookname']]=$hook['classhash'].':'.$hook['hookname'];
+                    $GLOBALS['hook'][$hook['hookedfunction']][$hook['classhash'].':'.$hook['hookname']]=@$hook['requires'];
                 }
             }
         }
@@ -270,7 +275,7 @@ function ClassCms_init() {
             if($ifmatch==false || (isset($route['uri']) && matchUri($route['uri'])===false)) {
             }else {
                 if(C('cms:initRoute',$routekey)!==false) {
-                    $GLOBALS['C']['route_matched']=true;
+                    $GLOBALS['C']['route_matched']=$route;
                     break;
                 }
             }
@@ -355,39 +360,43 @@ function C() {
         Return false;
     }
     if($end_class!=='-' && isset($GLOBALS['hook'][strtolower($class)]) && count($GLOBALS['hook'][strtolower($class)])) {
-        foreach($GLOBALS['hook'][strtolower($class)] as $hookclass) {
+        foreach($GLOBALS['hook'][strtolower($class)] as $hookclass=>$hookrequires) {
             $args[0]=$hookclass;
-            $return=call_user_func_array('C', $args);
-            if(is_array($return) && isset($return[0]) && is_string($return[0]) && strtolower($return[0])==strtolower($class)) {
-                $args=$return;
-            }elseif(is_array($return) && isset($return['class']) && is_string($return['class']) && strtolower($return['class'])==strtolower($class)) {
-                $args=class_getParameters($return);
-            }elseif($return!==null) {
-                if(isset($GLOBALS['hook'][strtolower($class).':=']) && count($GLOBALS['hook'][strtolower($class).':='])) {
-                    foreach($GLOBALS['hook'][strtolower($class).':='] as $watchclass) {
-                        $watchargs=$args;
-                        unset($watchargs[0]);
-                        $watchreturn=call_user_func_array('C',array($watchclass,$class,array_values($watchargs),$return));
-                        if($watchreturn!==null) {
-                            $return=$watchreturn;
+            if(hook_requires($args,$hookrequires)){
+                $return=call_user_func_array('C', $args);
+                if(is_array($return) && isset($return[0]) && is_string($return[0]) && strtolower($return[0])==strtolower($class)) {
+                    $args=$return;
+                }elseif(is_array($return) && isset($return['class']) && is_string($return['class']) && strtolower($return['class'])==strtolower($class)) {
+                    $args=class_getParameters($return);
+                }elseif($return!==null) {
+                    if(isset($GLOBALS['hook'][strtolower($class).':=']) && count($GLOBALS['hook'][strtolower($class).':='])) {
+                        foreach($GLOBALS['hook'][strtolower($class).':='] as $watchclass=>$hookrequires) {
+                            $watchargs=$args;
+                            unset($watchargs[0]);
+                            if(hook_requires(array($watchclass,$class,array_values($watchargs),$return),$hookrequires)){
+                                $watchreturn=call_user_func_array('C',array($watchclass,$class,array_values($watchargs),$return));
+                                if($watchreturn!==null) {
+                                    $return=$watchreturn;
+                                }
+                            }
                         }
                     }
-                }
-                if(isset($route_view)) {
-                    if(isset($route_view_article) && is_array($return)) {
-                        V($route_view,array_merge($route_view_article,$return),$classhash);
-                    }elseif(isset($route_view_article)) {
-                        V($route_view,array_merge($route_view_article),$classhash);
-                    }else {
-                        V($route_view,$return,$classhash);
+                    if(isset($route_view)) {
+                        if(isset($route_view_article) && is_array($return)) {
+                            V($route_view,array_merge($route_view_article,$return),$classhash);
+                        }elseif(isset($route_view_article)) {
+                            V($route_view,array_merge($route_view_article),$classhash);
+                        }else {
+                            V($route_view,$return,$classhash);
+                        }
                     }
+                    Return $return;
                 }
-                Return $return;
+                $lastreturn=$args;
+                if($return===null && $end_class==='~') {
+                    $lastreturn=false;
+                }
             }
-            $lastreturn=$args;
-        }
-        if($return===null && $end_class==='~') {
-            $lastreturn=false;
         }
     }
     unset($args[0]);
@@ -450,10 +459,12 @@ function C() {
         }
     }
     if($end_class!=='-' && isset($GLOBALS['hook'][strtolower($class).':=']) && count($GLOBALS['hook'][strtolower($class).':='])) {
-        foreach($GLOBALS['hook'][strtolower($class).':='] as $watchclass) {
-            $watchreturn=call_user_func_array('C',array($watchclass,$class,array_values($args),$return));
-            if($watchreturn!==null) {
-                $return=$watchreturn;
+        foreach($GLOBALS['hook'][strtolower($class).':='] as $watchclass=>$hookrequires) {
+            if(hook_requires(array($watchclass,$class,array_values($args),$return),$hookrequires)){
+                $watchreturn=call_user_func_array('C',array($watchclass,$class,array_values($args),$return));
+                if($watchreturn!==null) {
+                    $return=$watchreturn;
+                }
             }
         }
     }
@@ -667,6 +678,12 @@ function classDir($classhash='') {
     }
     Return $GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$classhash.DIRECTORY_SEPARATOR;
 }
+function cacheDir($path='') {
+    if(empty($path)) {
+        Return $GLOBALS['C']['SystemRoot'].$GLOBALS['C']['CacheDir'].DIRECTORY_SEPARATOR;
+    }
+    Return $GLOBALS['C']['SystemRoot'].$GLOBALS['C']['CacheDir'].DIRECTORY_SEPARATOR.$path.DIRECTORY_SEPARATOR;
+}
 function class_getParameters($args) {
     $class=explode(':',$args['class']);
     if(count($class)>2) {
@@ -701,6 +718,53 @@ function class_getParameters($args) {
         }
     }
     Return $class_args;
+}
+function hook_requires($args,$requires) {
+    if(empty($requires)){return true;}
+    if(!isset($args[0])){return true;}
+    $classfunction=explode(':',$args[0]);
+    $classhash=$classfunction[0];
+    $requires=explode(';',$requires);
+    foreach ($requires as $require) {
+        $thisrequire=explode('=',$require);
+        $names=explode('.',$thisrequire[0]);
+        $names[0]=strtolower($names[0]);
+        if(isset($thisrequire[1])){$value=$thisrequire[1];}else{$value=null;}
+        if($names[0]=='get'){
+            if(!isset($names[1]) || !isset($_GET[$names[1]])){return false;}
+            if($value!==null && $_GET[$names[1]]!=$value){return false;}
+        }elseif($names[0]=='post'){
+            if(!isset($names[1]) || !isset($_POST[$names[1]])){return false;}
+            if($value!==null && $_POST[$names[1]]!=$value){return false;}
+        }elseif($names[0]=='p'){
+            if(!isset($names[1])){return false;}
+            if($value===null){if(!P($names[1],$classhash)){return false;}}elseif($value==0){if(P($names[1],$classhash)){return false;}}else{if(!P($names[1],$classhash)){return false;}}
+        }elseif($names[0]=='config'){
+            if(!isset($names[1])){return false;}
+            if($value!==null){if(config($names[1],false,$classhash)!=$value){return false;}}elseif(!config($names[1],false,$classhash)){return false;}
+        }elseif($names[0]=='globals'){
+            if(count($names)==2){
+                if($value===null){if(!isset($GLOBALS[$names[1]])){return false;}}elseif(!isset($GLOBALS[$names[1]]) || $GLOBALS[$names[1]]!=$value){return false;}
+            }elseif(count($names)==3){
+                if($value===null){if(!isset($GLOBALS[$names[1]][$names[2]])){return false;}}elseif(!isset($GLOBALS[$names[1]][$names[2]]) || $GLOBALS[$names[1]][$names[2]]!=$value){return false;}
+            }elseif(count($names)==4){
+                if($value===null){if(!isset($GLOBALS[$names[1]][$names[2]][$names[3]])){return false;}}elseif(!isset($GLOBALS[$names[1]][$names[2]][$names[3]]) || $GLOBALS[$names[1]][$names[2]][$names[3]]!=$value){return false;}
+            }elseif(count($names)==5){
+                if($value===null){if(!isset($GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]])){return false;}}elseif(!isset($GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]) || $GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]!=$value){return false;}
+            }
+        }elseif($names[0]=='args'){
+            if(count($names)==2){
+                if($value===null){if(!isset($args[$names[1]]) || $args[$names[1]]===false){return false;}}elseif(!isset($args[$names[1]]) || $args[$names[1]]!=$value){return false;}
+            }elseif(count($names)==3){
+                if($value===null){if(!isset($args[$names[1]][$names[2]]) || $args[$names[1]][$names[2]]===false){return false;}}elseif(!isset($args[$names[1]][$names[2]]) || $args[$names[1]][$names[2]]!=$value){return false;}
+            }elseif(count($names)==4){
+                if($value===null){if(!isset($args[$names[1]][$names[2]][$names[3]]) || $args[$names[1]][$names[2]][$names[3]]===false){return false;}}elseif(!isset($args[$names[1]][$names[2]][$names[3]]) || $args[$names[1]][$names[2]][$names[3]]!=$value){return false;}
+            }elseif(count($names)==5){
+                if($value===null){if(!isset($args[$names[1]][$names[2]][$names[3]][$names[4]]) || $args[$names[1]][$names[2]][$names[3]][$names[4]]===false){return false;}}elseif(!isset($args[$names[1]][$names[2]][$names[3]][$names[4]]) || $args[$names[1]][$names[2]][$names[3]][$names[4]]!=$value){return false;}
+            }
+        }
+    }
+    return true;
 }
 function uridecode($uri) {
     Return str_replace(array('%28','%29','%7B','%7D','%5B','%5D','%2F','%3F','%3D','%26','+','%25','%24'),array('(',')','{','}','[',']','/','?','=','&','%20','%','$'),$uri);

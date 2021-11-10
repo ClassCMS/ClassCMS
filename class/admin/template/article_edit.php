@@ -93,7 +93,7 @@
                       layui.layer.close(confirm);
                     });
                 {else}
-                    var confirm=layer.confirm(res.msg, {btn: ['好的','返回'],shadeClose:1},function(){layui.layer.close(confirm);},function(){
+                    var confirm=layer.confirm(res.msg, {btn: ['好的','返回'],shadeClose:1},function(){layui.admin.events.reload();},function(){
                       layui.admin.events.back();
                       layui.layer.close(confirm);
                     });

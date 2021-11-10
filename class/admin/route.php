@@ -49,6 +49,9 @@ class admin_route {
         if(!C('cms:route:allow',@$_POST['uri'])) {
             Return C('this:ajax','网址中不允许包含特殊字符',1);
         }
+        if(substr(@$_POST['uri'],0,1)!='/'){
+            Return C('this:ajax','网址必须以 / 开头',1);
+        }
         if(!is_hash(@$_POST['hash'])) {
             Return C('this:ajax','标识错误',1);
         }
@@ -82,6 +85,9 @@ class admin_route {
         }
         if(!C('cms:route:allow',@$_POST['uri'])) {
             Return C('this:ajax','网址中不允许包含特殊字符',1);
+        }
+        if(substr(@$_POST['uri'],0,1)!='/'){
+            Return C('this:ajax','网址必须以 / 开头',1);
         }
         if(empty($_POST['classfunction']) && empty($_POST['classview'])) {
             Return C('this:ajax','函数名或模板文件,请填写其中一项',1);

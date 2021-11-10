@@ -403,20 +403,24 @@ class admin {
         }
         $menu['child']=array();
         $menu['child'][]=array('title'=>'应用管理','function'=>'class:index','ico'=>'layui-icon-app',);
-        $menu['child'][]=array('title'=>'模型管理','function'=>'module:index','ico'=>'layui-icon-template',);
-        $menu['child'][]=array('title'=>'栏目管理','function'=>'channel:index','ico'=>'layui-icon-tabs',);
+        if(C('cms:class:defaultClass')){
+            $menu['child'][]=array('title'=>'模型管理','function'=>'module:index','ico'=>'layui-icon-template',);
+            $menu['child'][]=array('title'=>'栏目管理','function'=>'channel:index','ico'=>'layui-icon-tabs',);
+        }
         $menu['child'][]=array('title'=>'用户管理','function'=>'user:index','ico'=>'layui-icon-username',);
         Return $menu;
     }
     function jumpHome() {
-        $homepage=$GLOBALS['C']['SystemDir'];
-        $classes=C('cms:class:all');
+        $classes=C('cms:class:all',1);
         foreach ($classes as $thisclass) {
-            if($thisclass['enabled'] && $thisclass['module']){
+            if($thisclass['module']){
                 if($homepage=C('cms:homepage',$thisclass['hash'])){
                     break;
                 }
             }
+        }
+        if(!isset($homepage) || !$homepage){
+            $homepage=$GLOBALS['C']['SystemDir'];
         }
         echo('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">');
         echo("<meta name='referrer' content='never'><meta http-equiv=refresh content='0;url=".$homepage."'>");
@@ -437,7 +441,9 @@ class admin {
         $headhtml.='<script>layui.config({base: \''.template_url().'static/\'}).extend({index: \'lib/index\'}).use([\'index\',\'form\'],function(){});</script>'.PHP_EOL;
         Return $headhtml;
     }
-    function css() {
+    function css($check=1) {
+        if($check && G('css')){return '';}
+        G('css',1);
         Return '<link rel="stylesheet" href="'.template_url().'static/admin.css" media="all">'.PHP_EOL;
     }
     function icoNav() {

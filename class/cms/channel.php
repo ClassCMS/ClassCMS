@@ -252,6 +252,9 @@ class cms_channel {
         if(!isset($channel_add_query['enabled'])) {
             $channel_add_query['enabled']=1;
         }
+        if(!isset($channel_add_query['id'])){
+            $channel_add_query['id']=C('this:channel:randId',$channel_add_query['classhash']);
+        }
         if(isset($channel_add_query['fid']) && $channel_add_query['fid']) {
             if(!C('this:channel:get',$channel_add_query['fid'],$channel_add_query['classhash'])){
                 Return false;
@@ -338,5 +341,29 @@ class cms_channel {
         $channel_del_query['where']=array('id'=>$channel['id']);
         unset($GLOBALS['channel'][$channel['id']]);
         Return del($channel_del_query);
+    }
+    function randId($classhash){
+        if($lastChannel=one('table','channel','order','id desc','where',where('classhash',$classhash))){
+            $id=$lastChannel['id']+1;
+        }else{
+            $md5str=md5($classhash);
+            $hash='';
+            for ($i=0; $i<31; $i++) {
+                if(is_numeric(substr($md5str,$i,1))){
+                    $hash.=substr($md5str,$i,1);
+                    if(strlen($hash)>4){
+                        break;
+                    }
+                }
+            }
+            $datehash=date('Y')-2020;
+            if($datehash>0){
+                $datehash=$datehash*10000000;
+            }else{
+                $datehash=0;
+            }
+            $id=$datehash+intval($hash)*100+1;
+        }
+        return $id;
     }
 }

@@ -52,8 +52,8 @@
                         {/if}
                         {if $class.classorder>1} <i class="layui-icon layui-icon-rate" title="置顶应用"></i>{/if}
                     </td>
-                    <th class="layui-hide-xss">{$class.hash}</th>
-                    <th class="layui-show-md-td">{$class.classversion}</th>
+                    <td class="layui-hide-xss">{$class.hash}</td>
+                    <td class="layui-show-md-td">{$class.classversion}</td>
                     <td class="btn">
                         <a rel="{if !empty($class.adminpage)}?do={$class.hash}:{$class.adminpage}{/if}" {if !empty($class.adminpage) && $class.enabled}href="?do={$class.hash}:{$class.adminpage}"{/if} class="layui-btn layui-btn-sm layui-btn-primary{if empty($class.adminpage) || !$class.enabled} layui-btn-disabled{/if}">主页</a>
                         {if P('class:config')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:class:config&hash={$class.hash}" rel="{$class.hash}">管理</a>{/if}
@@ -64,9 +64,7 @@
           </table>
 
 <div class="layui-row">
-    <div id="cms-left-bottom-button" class="layui-btn-container">
-        {if P('class:upload') && $GLOBALS['C']['Debug']}<button type="button" class="layui-btn layui-btn-sm layui-btn-normal" id="uploadclass"><i class="layui-icon"></i>上传安装包</button>{/if}
-    </div>
+    <div id="cms-left-bottom-button" class="layui-btn-container"></div>
     <div id="cms-right-bottom-button" class="layui-btn-container">
     </div>
 </div>
@@ -74,38 +72,6 @@
         </div>
     </div>
   </div>
-<script>
-layui.use(['index','form','upload'],function(){
-    var $ = layui.$;
-    layui.upload.render({
-        elem: '#uploadclass'
-        ,url: '?do=admin:class:upload'
-        ,field:'zipfile'
-        ,accept: 'file'
-        ,data:{csrf:'{this:csrfForm()}'}
-        ,acceptMime:'application/zip'
-        ,exts:'zip'
-        ,before:function(){
-            layui.admin.load('上传中...');
-        }
-        ,done: function(res){
-            layui.admin.loaded();
-            if (res.error==0)
-            {
-                layer.confirm(res.msg, {
-                        btn: ['刷新','取消'],
-                        shadeClose:1
-                    }, function(){
-                      layui.admin.events.reload();
-                    }, function(){
-                    });
-            }else{
-                layui.admin.popup({content: res.msg,area: '300px',offset: '15px'});
-            }
-        }
-    });
-});
-</script>
 {this:body:~()}
 </body>
 </html>

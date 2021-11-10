@@ -22,8 +22,8 @@
 <table class="layui-table" lay-skin="line"  lay-size1="sm">
          <thead>
           <tr>
-            <th class="layui-hide-xs">ID</th>
             <th>栏目名</th>
+            {if $channel_edit}<th class="layui-hide-xs">栏目ID</th>{/if}
             {if P('module:config')}<th class="layui-hide-xs">模型标识</th>{/if}
             <th class="layui-hide-xs">排序</th>
             <th ></th>
@@ -32,13 +32,11 @@
         <tbody id="channel">
             {loop $channels as $channel}
             <tr rel="{$channel.id}" data-name="{$channel.channelname}">
-                <td class="layui-hide-xs">
-                    {$channel.id}
-                </td>
                 <td>
                     {if isset($channel.ex)}{$channel.ex}{/if}
                     <a href="?do=admin:article:home&cid={$channel.id}"><span{if $channel.enabled==0} class="cms-text-disabled"{/if}>{$channel.channelname}</span></a>
                 </td>
+                {if $channel_edit}<td class="layui-hide-xs">{$channel.id}</td>{/if}
                 {if P('module:config')}
                     <td class="layui-hide-xs">
                         <a href="?do=admin:channel:jumpModule&id={$channel.id}">{$channel.modulehash}</a>
@@ -51,7 +49,7 @@
                     <a class="layui-btn layui-btn-sm  layui-btn-primary{if $channel.enabled==0} layui-btn-disabled{/if}"{if $channel.enabled} target="_blank" href="?do=admin:channel:jump&id={$channel.id}"{/if}>访问</a>
                     {if $showpage}<a class="layui-btn layui-btn-sm  layui-btn-primary" href="?do=admin:channel:index&classhash={$classinfo.hash}&id={$channel.id}">栏目</a>{/if}
                     <a class="layui-btn layui-btn-sm  layui-btn-primary" href="?do=admin:article:home&cid={$channel.id}">管理</a>
-                    {if P('channel:edit')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:channel:edit&id={$channel.id}">修改</a>{/if}
+                    {if $channel_edit}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:channel:edit&id={$channel.id}">修改</a>{/if}
                     {if P('channel:del')}<a class="layui-btn layui-btn-sm layui-btn-primary channeldel">删除</a>{/if}
                 </td>
             </tr>

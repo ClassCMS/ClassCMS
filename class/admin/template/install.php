@@ -127,7 +127,7 @@
                                 <input type="password" name="passwd2" placeholder="确认密码" class="layui-input" value="{if isset($_SERVER['admin_passwd'])}{$_SERVER['admin_passwd']}{/if}">
                             </div>
                             <div class="layui-form-item">
-                                <input type="checkbox" name="debug" lay-skin="primary" title="显示PHP错误信息,方便本地调试">
+                                <input type="checkbox" name="debug" lay-skin="primary" title="显示报错信息,方便本地调试">
                             </div>
                         </div>
                     </div>

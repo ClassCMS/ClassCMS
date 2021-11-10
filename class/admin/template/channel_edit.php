@@ -44,7 +44,7 @@
                                 {$channelselect_config.inputhash=channelselect}
                                 {cms:input:form($channelselect_config)}
                             </div>
-                            <div class="layui-form-mid"></div>
+                            <div class="layui-form-mid">留空则为一级栏目</div>
                         </div>
                   </div>
 

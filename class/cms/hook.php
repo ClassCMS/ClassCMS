@@ -39,6 +39,9 @@ class cms_hook {
         if(!isset($hook_add_query['classenabled'])) {
             $hook_add_query['classenabled']=1;
         }
+        if(!isset($hook_add_query['requires'])) {
+            $hook_add_query['requires']='';
+        }
         if(!isset($hook_add_query['classorder'])) {
             if($class=C('this:class:get',$hook_add_query['classhash'])) {
                 $hook_add_query['classorder']=$class['classorder'];

@@ -98,6 +98,8 @@ ul.layui-rate li.layui-inline,ul.layui-rate+span.layui-inline{margin-bottom:0;ma
 #cms-right-top-button{float:right;text-align:right}
 #cms-left-bottom-button{float:left;margin-top:20px}
 #cms-right-bottom-button{float:right;text-align:right;margin-top:20px}
+#cms-right-top-button a,#cms-right-bottom-button a,#cms-right-top-button button,#cms-right-bottom-button button{margin-left:10px}
+#cms-left-bottom-button a,#cms-left-bottom-button button{margin-right:10px}
 #savecolumns,#createcolumns,#savevars,#saveinfos,#createinfos{display:none}
 #cms-pagelist{position:relative;height:40px}
 #cms-pagelist a{margin-bottom:2px}
