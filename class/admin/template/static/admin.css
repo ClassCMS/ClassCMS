@@ -253,4 +253,6 @@ input:disabled,textarea:disabled{color: #ccc;cursor:not-allowed}
 #LAY-system-side-menu dl dl dl dl dl a{text-indent:50px;}
 #LAY-system-side-menu a.layui-this:hover{background-color:#1E9FFF}
 .layui-layer-adminRightmenu{top:80px!important;bottom:0;box-shadow:1px 1px 10px rgba(0,0,0,.1);border-radius:0;overflow:auto}
+.layui-table{word-break: break-all;}
+
 

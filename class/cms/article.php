@@ -107,7 +107,6 @@ class cms_article {
             }
         }
         if(!$config['pagesize']) {$config['pagesize']=99999999;}
-        if(isset($config['column']) && !empty($config['column'])) {$config['column']='id,cid,uid,'.$config['column'];}else {$config['column']='*';}
         if(!isset($config['start'])) {$config['start']=0;}
         if(!isset($config['sql'])) {$config['sql']='';}
         if(isset($config['cids'])) {
@@ -175,6 +174,28 @@ class cms_article {
         $GLOBALS['C']['article_query']=$config;
         if(!isset($config['route']) || empty($config['route'])) {$config['route']='article';}
         if(!isset($config['fullurl'])) {$config['fullurl']=false;}
+        if(!isset($config['column']) || empty($config['column'])) {
+            $config['column']='*';
+        }else {
+            $config['column']=trim(str_replace(';',',',$config['column']),',');
+            $querycolumn=array('id','cid','uid');
+            $routeuri='';
+            if(isset($GLOBALS['route'])) {
+                foreach($GLOBALS['route'] as $thisroute) {
+                    if(isset($thisroute['classhash']) && isset($thisroute['modulehash']) && isset($thisroute['hash']) && $thisroute['classhash']==$config['classhash'] && $thisroute['modulehash']==$config['modulehash'] && $thisroute['hash']==$config['route']) {
+                        $routeuri=$thisroute['uri'];
+                        break;
+                    }
+                }
+            }
+            preg_match_all('/[{|\[|(](.*)[}|\]|)]/U',$routeuri,$getarray);
+            foreach($getarray[1] as $key=>$val) {
+                if(substr($val,0,2)!='$.' && substr($val,0,1)=='$') {
+                    $querycolumn[]=substr($val,1);
+                }
+            }
+            $config['column']=implode(',',array_unique(array_merge($querycolumn,explode(',',$config['column']))));
+        }
         $article_query=array();
         $article_query['table']=$config['table'];
         $article_query['where']=$config['sql'];
@@ -219,6 +240,9 @@ class cms_article {
     function add($config) {
         if(!isset($config['cid'])) {
             Return false;
+        }
+        if(isset($config['uid']) && empty($config['uid'])){
+            $config['uid']=0;
         }
         if(!$channel=C('this:channel:get',$config['cid'])) {
             Return false;

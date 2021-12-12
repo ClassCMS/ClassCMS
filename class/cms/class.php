@@ -559,6 +559,37 @@ class cms_class {
         }
         Return true;
     }
+    function data($classhash) {
+        $data['module']=all('table','module','where',where('classhash',$classhash));
+        $data['form']=all('table','form','where',where('classhash',$classhash));
+        $data['route']=all('table','route','where',where('classhash',$classhash));
+        $data['channel']=all('table','channel','where',where('classhash',$classhash));
+        $data['config']=all('table','config','where',where('classhash',$classhash));
+        $data['hook']=all('table','hook','where',where('classhash',$classhash));
+        $data['input']=all('table','input','where',where('classhash',$classhash));
+        $data['auth']=all('table','auth','where',where('classhash',$classhash));
+        $articleModules=array();
+        foreach ($data['form'] as $classForm) {
+            if($classForm['kind']=='column' && $classForm['enabled']){
+                $articleModules[$classForm['modulehash']]=1;
+            }
+        }
+        foreach ($articleModules as $key => $module) {
+            $module=C('cms:module:get',$key,$classhash);
+            $fields=C($GLOBALS['C']['DbClass'].':getfields',$module['table']);
+            if(is_array($fields) && count($fields)) {
+                $data[$module['table']]=all('table',$module['table']);
+            }
+        }
+        if(is_file(classDir($classhash).$classhash.'.php') && $classTables=C($classhash.':table')){
+            if(count($classTables)){
+                foreach ($classTables as $key => $classTable){
+                    $data[$key]=all('table',$key);
+                }
+            }
+        }
+        return $data;
+    }
     function unzip($src_file, $dest_dir=false, $create_zip_name_dir=true, $overwrite=true) 
     {
         if(class_exists('ZipArchive')) {

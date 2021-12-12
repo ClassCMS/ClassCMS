@@ -767,7 +767,7 @@ function hook_requires($args,$requires) {
     return true;
 }
 function uridecode($uri) {
-    Return str_replace(array('%28','%29','%7B','%7D','%5B','%5D','%2F','%3F','%3D','%26','+','%25','%24'),array('(',')','{','}','[',']','/','?','=','&','%20','%','$'),$uri);
+    Return str_replace(array('%28','%29','%7B','%7D','%5B','%5D','%2F','%3F','%3D','%26','+','%25','%24','%40','%21','%3A'),array('(',')','{','}','[',']','/','?','=','&','%20','%','$','@','!',':'),$uri);
 }
 function template_url($classhash='') {
     if(empty($classhash)) {
@@ -1258,12 +1258,13 @@ class cms_database {
         $this->connectError=false;
         if($db_info['kind']=='sqlitepdo'){
             $this->databaselink = new PDO('sqlite:' . $db_info['file']);
+            $this->databaselink->setAttribute(constant('PDO::ATTR_ORACLE_NULLS'),constant('PDO::NULL_TO_STRING'));
         }elseif($db_info['kind']=='mysqlpdo') {
             if(!isset($db_info['dbname']) || empty($db_info['dbname']) || isset($GLOBALS['C']['DbInfo']['createdb'])) {$dbinfo='';}else {$dbinfo='dbname='.$db_info['dbname'];}
             $db_info['hostinfo']=explode(':',$db_info['host']);
             if(count($db_info['hostinfo'])>1) {$db_info['host']=$db_info['hostinfo'][0];$db_info['port']=$db_info['hostinfo'][1];}else {$db_info['port']='3306';}
             try{
-                @$this->databaselink = new PDO('mysql:host='.$db_info['host'].';port='.$db_info['port'].';'.$dbinfo,$db_info['user'],$db_info['password'],array(constant('PDO::MYSQL_ATTR_USE_BUFFERED_QUERY')=>true));
+                @$this->databaselink = new PDO('mysql:host='.$db_info['host'].';port='.$db_info['port'].';'.$dbinfo,$db_info['user'],$db_info['password'],array(constant('PDO::MYSQL_ATTR_USE_BUFFERED_QUERY')=>true,constant('PDO::ATTR_ORACLE_NULLS')=>constant('PDO::NULL_TO_STRING')));
                 $this->query("SET NAMES ".$GLOBALS['C']['DbInfo']['charset']);
             }catch(Exception $errinfo){
                 $this->error('database connect error');
@@ -1403,7 +1404,7 @@ class cms_database {
             if($symbol=='%') {
                 if(is_array($val)) {
                     foreach($val as $key=>$this_val) {
-                        if(substr($this_val,0,1)!='%' || substr($this_val,-1)!='%') {
+                        if(substr($this_val,0,1)!='%' && substr($this_val,-1)!='%') {
                             $this_val='%'.$this_val.'%';
                         }
                         if($key) {
@@ -1413,7 +1414,7 @@ class cms_database {
                         }
                     }
                 }else {
-                    if(substr($val,0,1)!='%' || substr($val,-1)!='%') {
+                    if(substr($val,0,1)!='%' && substr($val,-1)!='%') {
                         $val='%'.$val.'%';
                     }
                     $this_sql.=$this->escape($name).' like \''.$this->escape($val).'\'';
@@ -1841,7 +1842,6 @@ class cms_database {
         $table=$this->prefix($table);
         $name=$this->escape($name);
         $type=$this->escape($type);
-        $config=$this->escape($config);
         if(empty($config)) {$config='null';}
         if(stripos($type,'()')!==false) {
             $type=str_replace('()','',$type);
@@ -1856,7 +1856,6 @@ class cms_database {
         $table=$this->prefix($table);
         $name=$this->escape($name);
         $type=$this->escape($type);
-        $config=$this->escape($config);
         if(empty($config)) {$config='null';}
         $this->query("alter table $table modify $name $type $config;");
         Return true;

@@ -78,7 +78,11 @@ class cms_input {
         if(!$input_add_query['groupname']=C($inputfunction,'group')) {
             $input_add_query['groupname']='';
         }
-        $input_add_query['inputorder']=1;
+        if($grouporder=one('table','input','where',where('groupname',$input_add_query['groupname']))){
+            $input_add_query['inputorder']=$grouporder['inputorder'];
+        }else{
+            $input_add_query['inputorder']=1;
+        }
         $input_add_query['enabled']=1;
         $input_add_query['classenabled']=1;
         unset($GLOBALS['Inputs']);
@@ -159,6 +163,11 @@ class cms_input {
         $defaultvalue=C($config['function'],'defaultvalue',$config);
         if($defaultvalue===false && isset($config['defaultvalue'])) {
             $defaultvalue=$config['defaultvalue'];
+        }
+        if($sql=C($config['function'],'sql',$config)) {
+            if(strlen($defaultvalue)==0 && (stripos($sql,'int')!==false || stripos($sql,'decimal')!==false)){
+                $defaultvalue=0;
+            }
         }
         Return $defaultvalue;
     }

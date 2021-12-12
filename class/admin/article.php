@@ -54,6 +54,7 @@ class admin_article {
             }
             $array['columns'][$key]['name']=$array['columns'][$key]['hash'];
             $array['columns'][$key]['source']='adminlist';
+            $array['columns'][$key]['source_cid']=$array['channel']['id'];
             if($array['columns'][$key]['indexshow']) {
                 $array['columns'][$key]['auth']=C('this:formAuth',$column['id']);
                 if(!$array['columns'][$key]['auth']['read']) {
@@ -115,11 +116,13 @@ class admin_article {
         foreach($array['columns'] as $key=>$column) {
             $array['columns'][$key]=C('cms:form:build',$column['id']);
             $array['columns'][$key]['auth']=C('this:formAuth',$column['id']);
+            $array['columns'][$key]['source_cid']=$array['channel']['id'];
             if($array['columns'][$key]['auth']['read']) {
                 if($array['columns'][$key]['auth']['write']) {$array['allowsubmit']=1;}
                 if(isset($article['id'])) {
                     $array['columns'][$key]['value']=$article[$column['hash']];
                     $array['columns'][$key]['source']='admin_article_edit';
+                    $array['columns'][$key]['source_id']=$article['id'];
                 }else {
                     $array['columns'][$key]['source']='admin_article_add';
                     $array['columns'][$key]['value']=C('cms:input:defaultvalue',$array['columns'][$key]);
@@ -169,9 +172,11 @@ class admin_article {
             $array['columns'][$key]['auth']=C('this:formAuth',$column['id']);
             $array['columns'][$key]['name']=$array['columns'][$key]['hash'];
             $array['columns'][$key]['source']='admin_article_save';
+            $array['columns'][$key]['source_cid']=$array['channel']['id'];
             if($array['columns'][$key]['auth']['write']) {
                 if($article_id) {
                     $array['columns'][$key]['value']=$article[$array['columns'][$key]['name']];
+                    $array['columns'][$key]['source_id']=$article_id;
                 }else {
                     $array['columns'][$key]['value']=C('cms:input:defaultvalue',$array['columns'][$key]);
                 }
@@ -279,6 +284,7 @@ class admin_article {
                 $array['vars'][$key]=C('cms:form:build',$var['id']);
                 $array['vars'][$key]['auth']=C('this:formAuth',$var['id']);
                 $array['vars'][$key]['source']='admin_var_edit';
+                $array['vars'][$key]['source_cid']=$array['channel']['id'];
                 if($array['vars'][$key]['auth']['read']) {
                     if($array['vars'][$key]['auth']['write']) {$array['allowsubmit']=1;}
                     $array['vars'][$key]['value']=C('cms:article:getVar',$array['channel']['id'],$var['hash']);
@@ -318,6 +324,7 @@ class admin_article {
                 $var['name']=$var['hash'];
                 $var['auth']=C('this:formAuth',$var['id']);
                 $var['source']='admin_var_save';
+                $var['source_cid']=$array['channel']['id'];
                 if($var['auth']['read'] && $var['auth']['write']) {
                     if(isset($array['channel'][$var['name']])) {
                         $var['value']=$array['channel'][$var['name']];

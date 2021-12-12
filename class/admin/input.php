@@ -1384,13 +1384,13 @@ class admin_input {
                             if(in_array($article['cid'].':'.$article['id'],$values)) {
                                 $html.=' checked';
                             }
-                            $html.=' lay-filter="'.$_POST['name'].'_article" data-id="'.$article['id'].'" data-cid="'.$article['cid'].'" value="" lay-skin="primary"  name="c1asscms" title="'.$article[$config['titlecolumn']].'"></td><td><a target="_blank" href="?do=admin:article:edit&cid='.$article['cid'].'&id='.$article['id'].'">查看</a></td></tr>';
+                            $html.=' lay-filter="'.$_POST['name'].'_article" data-id="'.$article['id'].'" data-cid="'.$article['cid'].'" value="" lay-skin="primary"  name="'.$_POST['name'].'-c1asscms" title="'.$article[$config['titlecolumn']].'"></td><td><a target="_blank" href="?do=admin:article:edit&cid='.$article['cid'].'&id='.$article['id'].'">查看</a></td></tr>';
                         }else {
                             $html.='<tr><td><input type="radio"';
                             if(in_array($article['cid'].':'.$article['id'],$values)) {
                                 $html.=' checked';
                             }
-                            $html.=' lay-filter="'.$_POST['name'].'_article" data-id="'.$article['id'].'" data-cid="'.$article['cid'].'" value="" name="c1asscms" title="'.$article[$config['titlecolumn']].'"></td><td><a target="_blank" href="?do=admin:article:edit&cid='.$article['cid'].'&id='.$article['id'].'">查看</a></td></tr>';
+                            $html.=' lay-filter="'.$_POST['name'].'_article" data-id="'.$article['id'].'" data-cid="'.$article['cid'].'" value="" name="'.$_POST['name'].'-c1asscms" title="'.$article[$config['titlecolumn']].'"></td><td><a target="_blank" href="?do=admin:article:edit&cid='.$article['cid'].'&id='.$article['id'].'">查看</a></td></tr>';
                         }
                     }
                     Return array('error'=>0,'pagecount'=>$pagecount,'html'=>$html);
@@ -1641,13 +1641,16 @@ class admin_input {
             if(!$module=C('cms:module:get',$channel['modulehash'],$channel['classhash'])) {
                 Return false;
             }
-            if(!count(C($GLOBALS['C']['DbClass'].':getfields',$module['table']))) {
-                if($action=='post') {
-                    Return false;
-                }
+            if(!($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            $tablefields=C($GLOBALS['C']['DbClass'].':getfields',$module['table']);
+            if(!count($tablefields)) {
+                if($action=='post') {Return false;}
                 Return '文章表不存在';
             }
-            if(!($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            if(!isset($tablefields[$config['titlecolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
+            }
             $article_query=array();
             $article_query['cid']=$config['cid'];
             $article_query['pagesize']=9999;
@@ -1658,13 +1661,6 @@ class admin_input {
             $articles=C('cms:article:get',$article_query);
             $config['values']=array();
             foreach($articles as $article) {
-                if(!isset($article[$config['titlecolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有字段:'.htmlspecialchars($config['titlecolumn']);
-                    }
-                }
                 if($config['savetype']==2) {
                     $config['values'][]=implode(':',array($article[$config['titlecolumn']]));
                 }else {
@@ -1721,13 +1717,16 @@ class admin_input {
             if(!$module=C('cms:module:get',$channel['modulehash'],$channel['classhash'])) {
                 Return false;
             }
-            if(!count(C($GLOBALS['C']['DbClass'].':getfields',$module['table']))) {
-                if($action=='post') {
-                    Return false;
-                }
+            if(!($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            $tablefields=C($GLOBALS['C']['DbClass'].':getfields',$module['table']);
+            if(!count($tablefields)) {
+                if($action=='post') {Return false;}
                 Return '文章表不存在';
             }
-            if(!($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            if(!isset($tablefields[$config['titlecolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
+            }
             $article_query=array();
             $article_query['cid']=$config['cid'];
             $article_query['pagesize']=9999;
@@ -1738,13 +1737,6 @@ class admin_input {
             $articles=C('cms:article:get',$article_query);
             $config['values']=array();
             foreach($articles as $article) {
-                if(!isset($article[$config['titlecolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有字段:'.htmlspecialchars($config['titlecolumn']);
-                    }
-                }
                 if($config['savetype']==2) {
                     $config['values'][]=implode(':',array($article[$config['titlecolumn']]));
                 }else {
@@ -1798,13 +1790,16 @@ class admin_input {
             if(!$module=C('cms:module:get',$channel['modulehash'],$channel['classhash'])) {
                 Return false;
             }
-            if(!count(C($GLOBALS['C']['DbClass'].':getfields',$module['table']))) {
-                if($action=='post') {
-                    Return false;
-                }
+            if(!($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            $tablefields=C($GLOBALS['C']['DbClass'].':getfields',$module['table']);
+            if(!count($tablefields)) {
+                if($action=='post') {Return false;}
                 Return '文章表不存在';
             }
-            if(!($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            if(!isset($tablefields[$config['titlecolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
+            }
             $article_query=array();
             $article_query['cid']=$config['cid'];
             $article_query['pagesize']=9999;
@@ -1815,13 +1810,6 @@ class admin_input {
             $articles=C('cms:article:get',$article_query);
             $config['values']=array();
             foreach($articles as $article) {
-                if(!isset($article[$config['titlecolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有字段:'.htmlspecialchars($config['titlecolumn']);
-                    }
-                }
                 if($config['savetype']==2) {
                     $config['values'][]=implode(':',array($article[$config['titlecolumn']]));
                 }else {
@@ -1881,13 +1869,16 @@ class admin_input {
             if(!$module=C('cms:module:get',$channel['modulehash'],$channel['classhash'])) {
                 Return false;
             }
-            if(!count(C($GLOBALS['C']['DbClass'].':getfields',$module['table']))) {
-                if($action=='post') {
-                    Return false;
-                }
+            if(!($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            $tablefields=C($GLOBALS['C']['DbClass'].':getfields',$module['table']);
+            if(!count($tablefields)) {
+                if($action=='post') {Return false;}
                 Return '文章表不存在';
             }
-            if(!($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            if(!isset($tablefields[$config['titlecolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
+            }
             $article_query=array();
             $article_query['cid']=$config['cid'];
             $article_query['pagesize']=9999;
@@ -1898,13 +1889,6 @@ class admin_input {
             $articles=C('cms:article:get',$article_query);
             $config['values']=array();
             foreach($articles as $article) {
-                if(!isset($article[$config['titlecolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有字段:'.htmlspecialchars($config['titlecolumn']);
-                    }
-                }
                 if($config['savetype']==2) {
                     $config['values'][]=implode(':',array($article[$config['titlecolumn']]));
                 }else {
@@ -1947,6 +1931,308 @@ class admin_input {
                         array('configname'=>'待选区标题','hash'=>'title_left','inputhash'=>'text','tips'=>'','defaultvalue'=>'待选','placeholder'=>''),
                         array('configname'=>'已选区标题','hash'=>'title_right','inputhash'=>'text','tips'=>'','defaultvalue'=>'已选','placeholder'=>''),
                     );
+        }
+        Return false;
+    }
+    function articleunlimit($action,$config=array()) {
+        if($action=='disabledArticles') {
+            if($config['fidvalue']==0){
+                return array();
+            }else{
+                if(!isset($config['times'])) {
+                    $treearticles=array($config['fidvalue']);
+                }else{
+                    $treearticles=array();
+                }
+            }
+            if(!isset($config['times'])) {$config['times']=0;}
+            $articles=C('cms:article:get',array('cid'=>$config['cid'],'pagesize'=>9999,'where'=>array($config['fidcolumn']=>$config['fidvalue'])));
+            foreach($articles as $article) {
+                if($article[$config['fidcolumn']]==$config['fidvalue']) {
+                    $treearticles[]=$article['id'];
+                    $config['times']++;
+                    $oldfid=$config['fidvalue'];
+                    $config['fidvalue']=$article['id'];
+                    $sonarticles=C('this:input:articleunlimit','disabledArticles',$config);
+                    if(count($sonarticles)) {
+                        foreach($sonarticles as $sonarticle) {
+                            $treearticles[]=$sonarticle;
+                        }
+                    }
+                    $config['times']--;
+                    $config['fidvalue']=$oldfid;
+                }
+            }
+            Return $treearticles;
+        }
+        if($action=='form' || $action=='view' || $action=='post' || $action=='ajax') {
+            if(!$channel=C('cms:channel:get',$config['cid'])){
+                if($action=='post') {Return false;}
+                Return '尚未配置来源栏目';
+            }
+            if(!$module=C('cms:module:get',$channel['modulehash'],$channel['classhash'])){
+                if($action=='post') {Return false;}
+                Return '配置有误';
+            }
+            if(empty($config['fidcolumn'])) {$config['fidcolumn']='fid';}
+            if(empty($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            $tablefields=C($GLOBALS['C']['DbClass'].':getfields',$module['table']);
+            if(!count($tablefields)) {
+                if($action=='post') {Return false;}
+                Return '来源栏目文章表不存在';
+            }
+            if(!isset($tablefields[$config['fidcolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有分类字段:'.htmlspecialchars($config['fidcolumn']);
+            }
+            if(!isset($tablefields[$config['titlecolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
+            }
+            $config['disabledArticles']=array();
+            if($action=='ajax' && isset($_POST['source_cid']) && isset($_POST['source_id'])){$config['source_cid']=$_POST['source_cid'];$config['source_id']=$_POST['source_id'];}
+            if(isset($config['id']) && isset($config['kind']) && $config['kind']=='column' && $config['hash']==$config['fidcolumn'] && isset($config['source_cid']) && $config['source_cid']==$config['cid']  && isset($config['source_id'])){
+                $config['fidvalue']=$config['source_id'];
+                $config['disabledArticles']=C('this:input:articleunlimit','disabledArticles',$config);
+            }
+        }
+        switch($action) {
+            case 'name':
+                Return '文章无限联动框';
+            case 'hash':
+                Return 'articleunlimit';
+            case 'group':
+                Return '文章';
+            case 'sql':
+                Return 'bigint(11)';
+            case 'form':
+                $config['selecthtml']=C('this:input:articleunlimit','selecthtml',$config);
+                if(!$config['selecthtml']) {$config['selecthtml']='配置错误';}
+                V('input/articleunlimit',$config);
+                Return '';
+             case "ajax":
+                if(isset($config['disabled']) && $config['disabled']) {Return array('error'=>1,'msg'=>'无权限');}
+                $config['value']=intval(@$_POST['value']);
+                if($html=C('this:input:articleunlimit','selecthtml',$config)) {
+                    Return array('error'=>0,'html'=>$html);
+                }
+                Return array('error'=>1);
+            case 'view':
+                if($config['value']) {
+                    if($article=C('cms:article:getOne',array('cid'=>$config['cid'],'where'=>array('id'=>intval($config['value']))))) {
+                        echo($article[$config['titlecolumn']]);
+                    }else{
+                        echo('[不存在]');
+                    }
+                }else {
+                    echo('[未选]');
+                }
+                Return '';
+            case 'post':
+                if(isset($config['nonull']) && $config['nonull']) {
+                    if(!isset($_POST[$config['name']]) || empty($_POST[$config['name']])) {
+                        Return false;
+                    }
+                }
+                if(isset($_POST[$config['name']])) {
+                    if(!$thisarticle=C('cms:article:getOne',array('cid'=>$config['cid'],'where'=>array('id'=>intval($_POST[$config['name']]))))) {
+                        Return false;
+                    }
+                    Return intval(@$_POST[$config['name']]);
+                }else{
+                    Return 0;
+                }
+            case 'config':
+                Return array(
+                        array('configname'=>'来源栏目','hash'=>'cid','inputhash'=>'classchannel','tips'=>'选项来源栏目'),
+                        array('configname'=>'上级字段','hash'=>'fidcolumn','inputhash'=>'text','tips'=>'来源栏目中文章的上级字段','defaultvalue'=>'fid'),
+                        array('configname'=>'标题字段','hash'=>'titlecolumn','inputhash'=>'text','tips'=>'来源栏目中文章的标题字段','defaultvalue'=>'title')
+                    );
+            case 'selecthtml':
+                if($config['value']) {
+                    $thisarticle=C('cms:article:getOne',array('cid'=>$config['cid'],'where'=>array('id'=>$config['value'])));
+                    if($thisarticle) {
+                        $fid=$thisarticle[$config['fidcolumn']];
+                    }else {
+                        if(isset($config['son']) && !$config['son']) {Return false;}
+                        $config['value']=0;
+                        Return '请重新选择 '.C('this:input:articleunlimit','selecthtml',$config);
+                    }
+                }else {
+                    $fid=0;
+                }
+                if(!isset($config['son'])) {
+                    $config['son']=1;
+                }
+                $articles=C('cms:article:get',array('cid'=>$config['cid'],'pagesize'=>9999,'where'=>array($config['fidcolumn']=>$fid)));
+                $html='<div class="layui-inline"><select lay-filter="articleunlimit_'.$config['name'].'">';
+                if(count($articles)) {
+                    $html.='<option value="">请选择</option>';
+                    foreach($articles as $article) {
+                        if(!isset($article[$config['titlecolumn']])) {
+                            $article[$config['titlecolumn']]='字段不存在['.$config['titlecolumn'].']';
+                        }
+                        $disabledHtml='';
+                        if(in_array($article['id'],$config['disabledArticles'])){$disabledHtml=' disabled';}
+                        if($article['id']==$config['value']) {
+                            $html.='<option value="'.$article['id'].'" selected'.$disabledHtml.'>'.$article[$config['titlecolumn']].'</option>';
+                        }else {
+                            $html.='<option value="'.$article['id'].'"'.$disabledHtml.'>'.$article[$config['titlecolumn']].'</option>';
+                        }
+                    }
+                }else {
+                    $html.='<option value="">无选项</option>';
+                    $config['son']=0;
+                }
+                $html.='</select></div>';
+                if($fid>0) {
+                    $fidvalue=$config['value'];
+                    $son=$config['son'];
+                    $config['value']=$fid;
+                    $config['son']=0;
+                    $uplevelhtml=C('this:input:articleunlimit','selecthtml',$config);
+                    if(!$uplevelhtml) {
+                        if($fidvalue && $son) {
+                            $config['value']=0;
+                            Return '请重新选择 '.C('this:input:articleunlimit','selecthtml',$config);
+                        }
+                        Return false;
+                    }
+                    $html=$uplevelhtml.$html;
+                    $config['value']=$fidvalue;
+                    $config['son']=$son;
+                }
+                if($config['value'] && $config['son']) {
+                    $html.=C('this:input:articleunlimit','sonhtml',$config);
+                }
+                Return $html;
+            case 'sonhtml':
+                $articles=C('cms:article:get',array('cid'=>$config['cid'],'pagesize'=>9999,'where'=>array($config['fidcolumn']=>$config['value'])));
+                $html='<div class="layui-inline"><select lay-filter="articleunlimit_'.$config['name'].'">';
+                if(count($articles)) {
+                    $html.='<option value="">请选择</option>';
+                    foreach($articles as $article) {
+                        if(!isset($article[$config['titlecolumn']])) {
+                            $article[$config['titlecolumn']]='字段不存在['.$config['titlecolumn'].']';
+                        }
+                        $disabledHtml='';
+                        if(in_array($article['id'],$config['disabledArticles'])){$disabledHtml=' disabled';}
+                        $html.='<option value="'.$article['id'].'"'.$disabledHtml.'>'.$article[$config['titlecolumn']].'</option>';
+                    }
+                }else {
+                    Return '';
+                }
+                $html.='</select></div>';
+                Return $html;
+        }
+        Return false;
+    }
+    function articletree($action,$config=array()) {
+        if($action=='tree') {
+            if(!isset($config['fidvalue'])) {$config['fidvalue']=0;}
+            if(!isset($config['times'])) {$config['times']=0;}
+            $treearticles=array();
+            foreach($config['articles'] as $article) {
+                if($article[$config['fidcolumn']]==$config['fidvalue']) {
+                    $article['_ex']='|--'.str_repeat('----',$config['times']*2);
+                    $treearticles[]=$article;
+                    $config['times']++;
+                    $oldfid=$config['fidvalue'];
+                    $config['fidvalue']=$article['id'];
+                    $sonarticles=C('this:input:articletree','tree',$config);
+                    if(count($sonarticles)) {
+                        foreach($sonarticles as $sonarticle) {
+                            $treearticles[]=$sonarticle;
+                        }
+                    }
+                    $config['times']--;
+                    $config['fidvalue']=$oldfid;
+                }
+            }
+            Return $treearticles;
+        }
+        if($action=='form' || $action=='view' || $action=='post') {
+            if(!$channel=C('cms:channel:get',$config['cid'])){
+                if($action=='post') {Return false;}
+                Return '尚未配置来源栏目';
+            }
+            if(!$module=C('cms:module:get',$channel['modulehash'],$channel['classhash'])){
+                if($action=='post') {Return false;}
+                Return '配置有误';
+            }
+            if(empty($config['fidcolumn'])) {$config['fidcolumn']='fid';}
+            if(empty($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            $tablefields=C($GLOBALS['C']['DbClass'].':getfields',$module['table']);
+            if(!count($tablefields)) {
+                if($action=='post') {Return false;}
+                Return '来源栏目文章表不存在';
+            }
+            if(!isset($tablefields[$config['fidcolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有分类字段:'.htmlspecialchars($config['fidcolumn']);
+            }
+            if(!isset($tablefields[$config['titlecolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
+            }
+            $articles=C('cms:article:get',array('cid'=>$config['cid'],'pagesize'=>9999));
+            $config['values']=array();
+            $config['articles']=$articles;
+            $articles=C('this:input:articletree','tree',$config);
+            if(!count($articles)) {
+                $config['values'][]='0:暂无选项:disabled';
+            }
+            $disabledArticles=array();
+            if(isset($config['id']) && isset($config['kind']) && $config['kind']=='column' && $config['hash']==$config['fidcolumn']  && isset($config['source_cid']) && $config['source_cid']==$config['cid']  && isset($config['source_id'])){
+                $disabledArticles[]=$config['source_id'];
+                $config['fidvalue']=$config['source_id'];
+                $sonarticles=C('this:input:articletree','tree',$config);
+                foreach ($sonarticles as $sonarticle) {
+                    $disabledArticles[]=$sonarticle['id'];
+                }
+            }
+            foreach($articles as $article) {
+                if($action=='view') {$article['_ex']='';}
+                $article[$config['titlecolumn']]=str_replace(':','\\:',$article[$config['titlecolumn']]);
+                if(in_array($article['id'],$disabledArticles)){
+                    $config['values'][]=implode(':',array($article['id'],$article['_ex'].$article[$config['titlecolumn']],'disabled'));
+                }else{
+                    $config['values'][]=implode(':',array($article['id'],$article['_ex'].$article[$config['titlecolumn']]));
+                }
+            }
+        }
+        switch($action) {
+            case 'name':
+                Return '文章树形列表框';
+            case 'hash':
+                Return 'articletree';
+            case 'group':
+                Return '文章';
+            case 'sql':
+                Return 'bigint(11)';
+            case 'form':
+                $config['inputhash']='select';
+                Return C('cms:input:form',$config);
+            case 'view':
+                $config['inputhash']='select';
+                Return C('cms:input:view',$config);
+            case 'post':
+                $config['inputhash']='select';
+                $postvalue=C('cms:input:post',$config);
+                if($postvalue===false){
+                    Return false;
+                }
+                if(!strlen($postvalue)){$postvalue=0;}
+                Return $postvalue;
+            case 'config':
+                Return array(
+                    array('configname'=>'来源栏目','hash'=>'cid','inputhash'=>'classchannel','tips'=>'选项来源栏目'),
+                    array('configname'=>'上级字段','hash'=>'fidcolumn','inputhash'=>'text','tips'=>'来源栏目中文章的上级字段','defaultvalue'=>'fid'),
+                    array('configname'=>'标题字段','hash'=>'titlecolumn','inputhash'=>'text','tips'=>'来源栏目中文章的标题字段','defaultvalue'=>'title'),
+                    array('configname'=>'默认文字','hash'=>'selecttitle','inputhash'=>'text','tips'=>'未选择时列表框的默认文字,不填则不显示','defaultvalue'=>'请选择'),
+                    array('configname'=>'默认值','hash'=>'selectvalue','inputhash'=>'text','tips'=>'未选择时列表框的默认值','defaultvalue'=>'0'),
+                    array('configname'=>'搜索','hash'=>'search','inputhash'=>'switch','tips'=>'当选项太多时,开启搜索功能可以快速找到对应的选项'),
+                );
         }
         Return false;
     }
@@ -2623,7 +2909,7 @@ class admin_input {
                                     if(in_array($article[$config['idcolumn']],$values)) {
                                         $html.=' checked';
                                     }
-                                    $html.=' lay-filter="'.$_POST['name'].'_article"  title='.$article[$thistitle].' data-id="'.$article['id_va1ue_classcms'].'" value="" lay-skin="primary"  name="c1asscms"></td>';
+                                    $html.=' lay-filter="'.$_POST['name'].'_article"  title='.$article[$thistitle].' data-id="'.$article['id_va1ue_classcms'].'" value="" lay-skin="primary"  name="'.$_POST['name'].'-c1asscms"></td>';
                                 }else {
                                     $html.='<td>'.$article[$thistitle].'</td>';
                                 }
@@ -2637,7 +2923,7 @@ class admin_input {
                                     if(in_array($article[$config['idcolumn']],$values)) {
                                         $html.=' checked';
                                     }
-                                    $html.=' lay-filter="'.$_POST['name'].'_article"  title='.$article[$thistitle].' data-id="'.$article['id_va1ue_classcms'].'" value="" lay-skin="primary"  name="c1asscms"></td>';
+                                    $html.=' lay-filter="'.$_POST['name'].'_article"  title='.$article[$thistitle].' data-id="'.$article['id_va1ue_classcms'].'" value="" lay-skin="primary"  name="'.$_POST['name'].'-c1asscms"></td>';
                                 }else {
                                     $html.='<td>'.$article[$thistitle].'</td>';
                                 }
@@ -2783,26 +3069,25 @@ class admin_input {
             }
             if(empty($config['idcolumn'])) {$config['idcolumn']='id';}
             if(empty($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            $tablefields=C($GLOBALS['C']['DbClass'].':getfields',$config['table']);
+            if(!count($tablefields)) {
+                if($action=='post') {Return false;}
+                Return '数据表不存在';
+            }
+            if(!isset($tablefields[$config['idcolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有数据字段:'.htmlspecialchars($config['idcolumn']);
+            }
+            if(!isset($tablefields[$config['titlecolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
+            }
             $list_query=array();
             $list_query['table']=$config['table'];
             if(!empty($config['order'])) {$list_query['order']=$config['order'];}
             $articles=all($list_query);
             $config['values']=array();
             foreach($articles as $article) {
-                if(!isset($article[$config['idcolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有数据字段:'.htmlspecialchars($config['idcolumn']);
-                    }
-                }
-                if(!isset($article[$config['titlecolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
-                    }
-                }
                 if(!is_numeric($article[$config['idcolumn']]) && $config['idtype']==1) {
                     if($action=='post') {
                         Return false;
@@ -2864,26 +3149,25 @@ class admin_input {
             }
             if(empty($config['idcolumn'])) {$config['idcolumn']='id';}
             if(empty($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            $tablefields=C($GLOBALS['C']['DbClass'].':getfields',$config['table']);
+            if(!count($tablefields)) {
+                if($action=='post') {Return false;}
+                Return '数据表不存在';
+            }
+            if(!isset($tablefields[$config['idcolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有数据字段:'.htmlspecialchars($config['idcolumn']);
+            }
+            if(!isset($tablefields[$config['titlecolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
+            }
             $list_query=array();
             $list_query['table']=$config['table'];
             if(!empty($config['order'])) {$list_query['order']=$config['order'];}
             $articles=all($list_query);
             $config['values']=array();
             foreach($articles as $article) {
-                if(!isset($article[$config['idcolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有数据字段:'.htmlspecialchars($config['idcolumn']);
-                    }
-                }
-                if(!isset($article[$config['titlecolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
-                    }
-                }
                 $article[$config['idcolumn']]=str_replace(':','\\:',$article[$config['idcolumn']]);
                 $article[$config['titlecolumn']]=str_replace(':','\\:',$article[$config['titlecolumn']]);
                 $config['values'][]=implode(':',array($article[$config['idcolumn']],$article[$config['titlecolumn']]));
@@ -2935,26 +3219,25 @@ class admin_input {
             }
             if(empty($config['idcolumn'])) {$config['idcolumn']='id';}
             if(empty($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            $tablefields=C($GLOBALS['C']['DbClass'].':getfields',$config['table']);
+            if(!count($tablefields)) {
+                if($action=='post') {Return false;}
+                Return '数据表不存在';
+            }
+            if(!isset($tablefields[$config['idcolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有数据字段:'.htmlspecialchars($config['idcolumn']);
+            }
+            if(!isset($tablefields[$config['titlecolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
+            }
             $list_query=array();
             $list_query['table']=$config['table'];
             if(!empty($config['order'])) {$list_query['order']=$config['order'];}
             $articles=all($list_query);
             $config['values']=array();
             foreach($articles as $article) {
-                if(!isset($article[$config['idcolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有数据字段:'.htmlspecialchars($config['idcolumn']);
-                    }
-                }
-                if(!isset($article[$config['titlecolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
-                    }
-                }
                 if(!is_numeric($article[$config['idcolumn']]) && $config['idtype']==1) {
                     if($action=='post') {
                         Return false;
@@ -3019,26 +3302,25 @@ class admin_input {
             }
             if(empty($config['idcolumn'])) {$config['idcolumn']='id';}
             if(empty($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            $tablefields=C($GLOBALS['C']['DbClass'].':getfields',$config['table']);
+            if(!count($tablefields)) {
+                if($action=='post') {Return false;}
+                Return '数据表不存在';
+            }
+            if(!isset($tablefields[$config['idcolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有数据字段:'.htmlspecialchars($config['idcolumn']);
+            }
+            if(!isset($tablefields[$config['titlecolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
+            }
             $list_query=array();
             $list_query['table']=$config['table'];
             if(!empty($config['order'])) {$list_query['order']=$config['order'];}
             $articles=all($list_query);
             $config['values']=array();
             foreach($articles as $article) {
-                if(!isset($article[$config['idcolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有数据字段:'.htmlspecialchars($config['idcolumn']);
-                    }
-                }
-                if(!isset($article[$config['titlecolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
-                    }
-                }
                 $article[$config['idcolumn']]=str_replace(':','\\:',$article[$config['idcolumn']]);
                 $article[$config['titlecolumn']]=str_replace(':','\\:',$article[$config['titlecolumn']]);
                 $config['values'][]=implode(':',array($article[$config['idcolumn']],$article[$config['titlecolumn']]));
@@ -3441,33 +3723,29 @@ class admin_input {
             if(empty($config['idcolumn'])) {$config['idcolumn']='id';}
             if(empty($config['fidcolumn'])) {$config['fidcolumn']='fid';}
             if(empty($config['titlecolumn'])) {$config['titlecolumn']='title';}
+            $tablefields=C($GLOBALS['C']['DbClass'].':getfields',$config['table']);
+            if(!count($tablefields)) {
+                if($action=='post') {Return false;}
+                Return '数据表不存在';
+            }
+            if(!isset($tablefields[$config['idcolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有数据字段:'.htmlspecialchars($config['idcolumn']);
+            }
+            if(!isset($tablefields[$config['fidcolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有分类字段:'.htmlspecialchars($config['fidcolumn']);
+            }
+            if(!isset($tablefields[$config['titlecolumn']])){
+                if($action=='post') {Return false;}
+                Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
+            }
             $list_query=array();
             $list_query['table']=$config['table'];
             if(!empty($config['order'])) {$list_query['order']=$config['order'];}
             $articles=all($list_query);
             $config['values']=array();
             if(isset($articles[0])) {
-                if(!isset($articles[0][$config['idcolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有数据字段:'.htmlspecialchars($config['idcolumn']);
-                    }
-                }
-                if(!isset($articles[0][$config['fidcolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有分类字段:'.htmlspecialchars($config['fidcolumn']);
-                    }
-                }
-                if(!isset($articles[0][$config['titlecolumn']])) {
-                    if($action=='post') {
-                        Return false;
-                    }else {
-                        Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
-                    }
-                }
                 if(!is_numeric($articles[0][$config['idcolumn']]) && $config['idtype']==1) {
                     if($action=='post') {
                         Return false;

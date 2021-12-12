@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>ClassCMS 安装</title>
+    <title>{$GLOBALS.C.installTitle}</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
@@ -19,7 +19,7 @@
 
 <div class="ClassCms_install layui-form" lay-filter="install_form">
         <input type="hidden" id="step" name="step" value="">
-        <h2>ClassCMS 安装</h2>
+        <h2>{$GLOBALS.C.installTitle}</h2>
         <div class="layui-row">
             <div class="layui-card">
                 <div class="layui-tab layui-tab-brief" lay-filter="user">

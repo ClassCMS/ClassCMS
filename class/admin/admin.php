@@ -40,13 +40,16 @@ class admin {
     function upgrade($old_version) {
         if(version_compare($old_version,'1.4','<')) {
             C('cms:input:add','this:input:databasetree');
-            update(array('table'=>'input','where'=>array('hash'=>'databasetree'),'inputorder'=>5));
         }
         if(version_compare($old_version,'2.0','<')) {
             $auths=all('table','auth','where',where('hash%',':_module:'));
             foreach($auths as $auth) {
                 update('table','auth','where',where('id',$auth['id']),'authkind',$auth['classhash'].':_'.str_replace('_',':',$auth['authkind']));
             }
+        }
+        if(version_compare($old_version,'2.3','<')) {
+            C('cms:input:add','this:input:articleunlimit');
+            C('cms:input:add','this:input:articletree');
         }
     }
     function auth() {
@@ -623,16 +626,30 @@ class admin {
         Return '_'.substr(md5($GLOBALS['C']['SiteHash']),0,6);
     }
     function adminCookie($token) {
-        setcookie('token'.C('this:cookieHash'), $token, 0,$GLOBALS['C']['SystemDir'],null,null,true);
+        if(version_compare(PHP_VERSION,'7.3.0','<')){
+            setcookie('token'.C('this:cookieHash'), $token, 0,$GLOBALS['C']['SystemDir'],null,null,true);
+        }else{
+            setcookie('token'.C('this:cookieHash'), $token,array('expires'=>0,'path'=>$GLOBALS['C']['SystemDir'],'domain'=>null,'secure'=>null,'httponly'=>true));
+        }
         Return true;
     }
     function csrfSet($value='') {
-        if(empty($value)) {
-            setcookie('csrf'.C('this:cookieHash'),'',0,$GLOBALS['C']['SystemDir'],null,null,true);
-        }else {
-            $value=substr(md5(@$GLOBALS['C']['SiteHash'].rand(10041989,19891004)),0,8);
-            setcookie('csrf'.C('this:cookieHash'),$value,strtotime("+1 year"),$GLOBALS['C']['SystemDir'],null,null,true);
+        if(version_compare(PHP_VERSION,'7.3.0','<')){
+            if(empty($value)) {
+                setcookie('csrf'.C('this:cookieHash'),'',0,$GLOBALS['C']['SystemDir'],null,null,true);
+            }else {
+                $value=substr(md5(@$GLOBALS['C']['SiteHash'].rand(10041989,19891004)),0,8);
+                setcookie('csrf'.C('this:cookieHash'),$value,strtotime("+1 year"),$GLOBALS['C']['SystemDir'],null,null,true);
+            }
+        }else{
+            if(empty($value)) {
+                setcookie('csrf'.C('this:cookieHash'),'',array('expires'=>0,'path'=>$GLOBALS['C']['SystemDir'],'domain'=>null,'secure'=>null,'httponly'=>true));
+            }else {
+                $value=substr(md5(@$GLOBALS['C']['SiteHash'].rand(10041989,19891004)),0,8);
+                setcookie('csrf'.C('this:cookieHash'),$value,array('expires'=>strtotime("+1 year"),'path'=>$GLOBALS['C']['SystemDir'],'domain'=>null,'secure'=>null,'httponly'=>true));
+            }
         }
+        return true;
     }
     function csrfValue() {
         if(isset($_COOKIE['csrf'.C('this:cookieHash')])) {

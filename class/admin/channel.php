@@ -47,30 +47,19 @@ class admin_channel {
             $channel_list_query['where']=array('fid'=>$array['fid'],'classhash'=>$array['classinfo']['hash']);
             $channel_list_query['order']='channelorder asc,id asc';
             $array['channels']=all($channel_list_query);
-            foreach($array['channels'] as $key=>$this_channel) {
-                if(isset($GLOBALS['C']['adminmodulecache'][$this_channel['modulehash']])) {
-                    $this_module=$GLOBALS['C']['adminmodulecache'][$this_channel['modulehash']];
-                }else {
-                    $this_module=C('cms:module:get',$this_channel['modulehash'],$this_channel['classhash']);
-                    $GLOBALS['C']['adminmodulecache'][$this_channel['modulehash']]=$this_module;
-                }
-                if(!C('this:moduleAuth',$this_module,'list') && !C('this:moduleAuth',$this_module,'add') && !C('this:moduleAuth',$this_module,'edit') && !C('this:moduleAuth',$this_module,'var')) {
-                    unset($array['channels'][$key]);
-                }
-            }
         }else {
             $array['showpage']=0;
             $array['channels']=C('cms:channel:tree',$array['fid'],$array['classinfo']['hash']);
-            foreach($array['channels'] as $key=>$this_channel) {
-                if(isset($GLOBALS['C']['adminmodulecache'][$this_channel['modulehash']])) {
-                    $this_module=$GLOBALS['C']['adminmodulecache'][$this_channel['modulehash']];
-                }else {
-                    $this_module=C('cms:module:get',$this_channel['modulehash'],$this_channel['classhash']);
-                    $GLOBALS['C']['adminmodulecache'][$this_channel['modulehash']]=$this_module;
-                }
-                if(!C('this:moduleAuth',$this_module,'list') && !C('this:moduleAuth',$this_module,'add') && !C('this:moduleAuth',$this_module,'edit') && !C('this:moduleAuth',$this_module,'var')) {
-                    unset($array['channels'][$key]);
-                }
+        }
+        foreach($array['channels'] as $key=>$this_channel) {
+            if(isset($GLOBALS['C']['adminmodulecache'][$this_channel['modulehash']])) {
+                $this_module=$GLOBALS['C']['adminmodulecache'][$this_channel['modulehash']];
+            }else {
+                $this_module=C('cms:module:get',$this_channel['modulehash'],$this_channel['classhash']);
+                $GLOBALS['C']['adminmodulecache'][$this_channel['modulehash']]=$this_module;
+            }
+            if(!C('this:moduleAuth',$this_module,'list') && !C('this:moduleAuth',$this_module,'add') && !C('this:moduleAuth',$this_module,'edit') && !C('this:moduleAuth',$this_module,'var')) {
+                $array['channels']=C('this:channel:hideDisabledChannel',$array['channels'],$this_channel['id']);
             }
         }
         V('channel_index',$array);
@@ -270,5 +259,19 @@ class admin_channel {
             $breadcrumb[]=array('title'=>$channel['channelname'].' 栏目');
         }
         Return $breadcrumb;
+    }
+    function hideDisabledChannel($channels,$id){
+        foreach($channels as $key=>$this_channel) {
+            if($this_channel['fid']==$id){
+                $channels=C('this:channel:hideDisabledChannel',$channels,$this_channel['id']);
+            }
+            if($this_channel['id']==$id){
+                $delkey=$key;
+            }
+        }
+        if(isset($delkey)){
+            unset($channels[$delkey]);
+        }
+        return $channels;
     }
 }

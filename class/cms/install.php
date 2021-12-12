@@ -164,6 +164,9 @@ class cms_install {
         if(isset($_SERVER['DbInfo_prefix']) && $_SERVER['DbInfo_prefix']=='rand') {
             $_SERVER['DbInfo_prefix']='c'.date('md').rand(1000,9999).'_';
         }
+        if(!isset($GLOBALS['C']['installTitle']) || empty($GLOBALS['C']['installTitle'])){
+            $GLOBALS['C']['installTitle']='ClassCMS 安装';
+        }
         V('install',$array);
     }
     function classList(){
