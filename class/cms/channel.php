@@ -1,12 +1,12 @@
 <?php
 if(!defined('ClassCms')) {exit();}
 class cms_channel {
-    function all($fid=0,$classhash='',$size=99999999,$var=false,$enabled=0) {
+    function all($fid=0,$classhash='',$size=99999999,$var=false,$hideDisabled=0) {
         $channel_list_query=array();
         $channel_list_query['table']='channel';
         if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
         $channel_list_query['where']=array('fid'=>$fid,'classhash'=>$classhash);
-        if($enabled) {$channel_list_query['where']['enabled']=1;}
+        if($hideDisabled) {$channel_list_query['where']['enabled']=1;}
         if($size) {$channel_list_query['limit']=$size;}
         $channel_list_query['order']='channelorder asc,id asc';
         $channel_list=all($channel_list_query);
@@ -79,7 +79,31 @@ class cms_channel {
         }
         if(!$channel) {Return '';}
         if(empty($routehash)) {$routehash='channel';}
-        if(isset($channel['link']) && !empty($channel['link']) && $routehash=='channel') {Return $channel['link'];}
+        if(isset($channel['link']) && !empty($channel['link']) && $routehash=='channel' && !isset($channel['link_channel'])) {
+            $channel['link_channel']=$channel['link'];
+        }
+        if(isset($channel['link_'.$routehash]) && !empty($channel['link_'.$routehash])){
+            if(substr($channel['link_'.$routehash],0,1)!='@'){
+                return $channel['link_'.$routehash];
+            }
+            $targetLink=explode(':',substr($channel['link_'.$routehash],1));
+            if(strlen($targetLink[0])==0){
+                $sonChannel=C('this:channel:all',$channel['id'],$channel['classhash'],1,true,1);
+                if(!isset($sonChannel[0])){
+                    return '';
+                }
+                $targetLink[0]=$sonChannel[0];
+            }elseif($targetLink[0]==0){
+                if(!$homeChannel=C('this:channel:home',$channel['classhash'])){
+                    return '';
+                }
+                $targetLink[0]=$homeChannel;
+            }
+            if(!isset($targetLink[1]) || empty($targetLink[1])){
+                $targetLink[1]='channel';
+            }
+            return C('this:channel:url',$targetLink[0],$targetLink[1],array(),array(),$fullurl);
+        }
         if(isset($article['link']) && !empty($article['link']) && $routehash=='article') {Return $article['link'];}
         if(isset($GLOBALS['route'])) {
             foreach($GLOBALS['route'] as $thisroute) {
@@ -227,9 +251,7 @@ class cms_channel {
                 $channel[$var['formname']]=$channel[$var['hash']];
             }
         }
-        if(!isset($channel['link']) || empty($channel['link'])) {
-            $channel['link']=U($channel);
-        }
+        $channel['link']=U($channel);
         if($channel) {
             $GLOBALS['channel'][$channel['id']]=$channel;
         }
@@ -351,18 +373,12 @@ class cms_channel {
             for ($i=0; $i<31; $i++) {
                 if(is_numeric(substr($md5str,$i,1))){
                     $hash.=substr($md5str,$i,1);
-                    if(strlen($hash)>4){
+                    if(strlen($hash)>5){
                         break;
                     }
                 }
             }
-            $datehash=date('Y')-2020;
-            if($datehash>0){
-                $datehash=$datehash*10000000;
-            }else{
-                $datehash=0;
-            }
-            $id=$datehash+intval($hash)*100+1;
+            $id=intval($hash)*100+1;
         }
         return $id;
     }

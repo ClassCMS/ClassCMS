@@ -79,15 +79,9 @@ class admin_class {
                     C('cms:common:opcacheReset');
                 }
                 $array['description']=C('cms:class:config',$array['classinfo']['hash'],'description');
-                $array['setting']=false;
+                $array['setting']=total('form',where(array('classhash'=>$array['classinfo']['hash'],'kind'=>'config','enabled'=>1)));
                 $array['phpcheck']='';
-                if(C('cms:class:phpCheck',$classhash)) {
-                    if($class_configs=C($array['classinfo']['hash'].':config')) {
-                        if(is_array($class_configs)) {
-                            $array['setting']=true;
-                        }
-                    }
-                }else {
+                if(!C('cms:class:phpCheck',$classhash)) {
                     $array['phpcheck']='无法使用,当前服务器PHP版本为:'.PHP_VERSION.',当前应用需要PHP版本为:'.C('cms:class:config',$classhash,'php');
                 }
             }
@@ -185,10 +179,7 @@ class admin_class {
                             $array['configs'][$key][$configkey]=$configval;
                         }
                     }
-                    $array['configs'][$key]['auth']=C('this:formAuth',$config['id']);
-                    foreach($array['configs'][$key]['auth'] as $authkey=>$authval) {
-                        $array['configs'][$key]['auth'][$authkey]=true;
-                    }
+                    $array['configs'][$key]['auth']['all']=true;
                     $array['configs'][$key]['source']='admin_class_setting';
                     $array['configs'][$key]['value']=config($config['hash'],false,$array['classinfo']['hash']);
                     if(empty($array['configs'][$key]['tabname'])){
@@ -213,7 +204,7 @@ class admin_class {
             if(!$array['classinfo']['enabled']){
                 Return C('this:ajax','应用未启用');
             }
-             $configs=C($array['classinfo']['hash'].':config');
+            $configs=C($array['classinfo']['hash'].':config');
             if(!is_array($configs)) {
                 Return C('this:ajax','应用不存在设置选项');
             }
@@ -237,10 +228,7 @@ class admin_class {
                         }
                     }
                     $config['name']=$config['hash'];
-                    $config['auth']=C('this:formAuth',$config['id']);
-                    foreach($config['auth'] as $authkey=>$authval) {
-                        $config['auth'][$authkey]=true;
-                    }
+                    $config['auth']['all']=true;
                     $config['source']='admin_class_settingsave';
                     $config['value']=config($config['hash'],false,$array['classinfo']['hash']);
                     $config_value=C('cms:input:post',$config);

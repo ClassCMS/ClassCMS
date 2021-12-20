@@ -711,6 +711,7 @@ class admin_input {
             case 'sql':
                 Return 'varchar(64)';
             case 'form':
+                $config['icons']=C('layui:icon_list');
                 V('input/icon',$config);
                 Return '';
             case 'view':

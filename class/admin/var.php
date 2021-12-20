@@ -1,12 +1,6 @@
 <?php
 if(!defined('ClassCms')) {exit();}
 class admin_var {
-    function varAction() {
-        Return array(
-            'read'=>array('查看'),
-            'write'=>array('修改'),
-            );
-    }
     function index() {
         $array=C('cms:module:get',@$_GET['id']);
         if(!$array) {
@@ -228,6 +222,7 @@ class admin_var {
         $array['config']=C('cms:form:configGet',$array['id']);
         foreach($array['config'] as $key=>$config) {
             $array['config'][$key]['source']='admin_form_setting';
+            $array['config'][$key]['auth']['all']=true;
             $array['config'][$key]['ajax_url']='?do=admin:var:ajax&id='.$array['id'].'&confighash='.$config['hash'].'&csrf='.C('admin:csrfForm');
         }
 
@@ -239,12 +234,11 @@ class admin_var {
         $array['defaultvalue_form']['value']=$array['defaultvalue'];
         $array['defaultvalue_form']['hash']='defaultvalue';
         $array['defaultvalue_form']['source']='admin_defaultvalue_setting';
+        $array['defaultvalue_form']['auth']['all']=true;
         $array['defaultvalue_form']['ajax_url']='?do=admin:var:ajax&id='.$array['id'].'&confighash=defaultvalue&csrf='.C('admin:csrfForm');
 
         $array['admin_role_name']=C('cms:user:$admin_role');
-        $array['input_actions']=C('cms:input:auth',array('inputhash'=>$array['inputhash']));
-        
-        $array['actions']=C('this:var:varAction');
+        $array['input_auths']=C('cms:input:auth',array('inputhash'=>$array['inputhash']));
         $array['roles']=C('cms:user:roleAll');
         foreach($array['roles'] as $key=>$thisrole) {
             $array['roles'][$key]['_editabled']=C('this:roleCheck','admin:var:index',$thisrole['hash'],false);
@@ -293,6 +287,7 @@ class admin_var {
                 $var_config=C('cms:form:configGet',$var['id']);
                 foreach($var_config as $val) {
                     $val['source']='admin_form_setting';
+                    $val['auth']['all']=true;
                     $var_edit_array['config'][$val['name']]=C('cms:input:post',$val);
                     if($var_edit_array['config'][$val['name']]===false) {
                         Return C('this:ajax','配置项:'.$val['configname'].' 不正确',1);
@@ -309,6 +304,7 @@ class admin_var {
                     $var_defaultvalue_form[$val['hash']]=$val['value'];
                 }
                 $var_defaultvalue_form['value']=$var['defaultvalue'];
+                $var_defaultvalue_form['auth']['all']=true;
                 $var_edit_array['defaultvalue']=C('cms:input:post',$var_defaultvalue_form);
                 if(is_array($var_edit_array['defaultvalue']) && isset($var_edit_array['defaultvalue']['error'])) {
                     $var_edit_array['defaultvalue']=false;
@@ -355,6 +351,7 @@ class admin_var {
         if(@$_GET['confighash']=='defaultvalue') {
             $form['hash']='defaultvalue';
             $form['source']='admin_defaultvalue_setting';
+            $form['auth']['all']=true;
             $ajax=C('cms:input:ajax',$form);
             Return C('this:ajax',$ajax);
         }
@@ -362,6 +359,7 @@ class admin_var {
         foreach($configs as $config) {
             if($config['hash']==@$_GET['confighash']) {
                 $config['source']='admin_form_setting';
+                $config['auth']['all']=true;
                 $ajax=C('cms:input:ajax',$config);
                 Return C('this:ajax',$ajax);
             }

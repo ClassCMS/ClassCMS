@@ -186,28 +186,17 @@
                                   <td> <input type="checkbox" name="{$role.hash}" title="{$role.rolename}[{$role.hash}]" lay-filter="checkall" lay-skin="primary"{if $role._editabled} disabled checked{/if}></td>
                                   <td id="{$role.hash}_auth_list" class="var_auth_list">
                                     {if $role._editabled}
-                                        {loop $actions as $thiskey=>$actionname}
+                                        {loop $input_auths as $thiskey=>$authname}
                                             {if stripos($thiskey,'|false')}
-                                                <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname[0]}" lay-filter="checkone" lay-skin="primary" disabled>
+                                                <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$authname}" lay-filter="checkone" lay-skin="primary" disabled>
                                             {else}
-                                                <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname[0]}" lay-filter="checkone" lay-skin="primary" disabled checked>
-                                            {/if}
-                                        {/loop}
-                                        {loop $input_actions as $thiskey=>$actionname}
-                                            {if stripos($thiskey,'|false')}
-                                                <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname}" lay-filter="checkone" lay-skin="primary" disabled>
-                                            {else}
-                                                <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname}" lay-filter="checkone" lay-skin="primary" disabled checked>
+                                                <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$authname}" lay-filter="checkone" lay-skin="primary" disabled checked>
                                             {/if}
                                         {/loop}
                                     {else}
-                                        {loop $actions as $thiskey=>$actionname}
+                                        {loop $input_auths as $thiskey=>$authname}
                                             {$checkkey=cms:form:authStr($var,$thiskey)}
-                                            <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname[0]}" lay-filter="checkone" lay-skin="primary"{if C('this:roleCheck',$checkkey,$role.hash,false)} checked{/if}>
-                                        {/loop}
-                                        {loop $input_actions as $thiskey=>$actionname}
-                                            {$checkkey=cms:form:authStr($var,$thiskey)}
-                                            <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$actionname}" lay-filter="checkone" lay-skin="primary"{if C('this:roleCheck',$checkkey,$role.hash,false)} checked{/if}>
+                                            <input type="checkbox" name="{$role.hash}_role[{$thiskey}]" title="{$authname}" lay-filter="checkone" lay-skin="primary"{if C('this:roleCheck',$checkkey,$role.hash,false)} checked{/if}>
                                         {/loop}
                                     {/if}
                                   </td>

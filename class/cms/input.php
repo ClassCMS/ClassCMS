@@ -102,7 +102,7 @@ class cms_input {
         $del_input_query['where']=$where;
         Return del($del_input_query);
     }
-    function configReset($config,$loadconfig=1) {
+    function configReset($config,$loadconfig=1,$loadauth=1) {
         if(isset($config['inputhash'])) {
             if(!$input=C('this:input:get',$config['inputhash'])) {
                 Return false;
@@ -121,8 +121,6 @@ class cms_input {
                 $config['ajax_url'].='&classcms_form_id='.$config['id'].'&csrf='.C('admin:csrfForm');
             }
         }
-        if(isset($config['auth']['write']) && !$config['auth']['write']) {$config['disabled']=1;}
-        if(!isset($config['disabled'])) {$config['disabled']=0;}
         if($loadconfig) {
             $input_config=C('this:input:config',$config);
             foreach($input_config as $thisconfig) {
@@ -134,10 +132,43 @@ class cms_input {
                 }
             }
         }
+        if($loadauth){
+            $input_auth=C($config['function'],'auth',$config);
+            $default_auth=array('read'=>'查看','write'=>'修改');
+            if(!is_array($input_auth)) {
+                $input_auth=$default_auth;
+            }else{
+                $input_auth=array_merge($default_auth,$input_auth);
+            }
+            foreach ($input_auth as $key=>$auth) {
+                if(!isset($config['auth'][$key])){
+                    if($key=='read' || $key=='write'){
+                        $config['auth'][$key]=1;
+                    }else{
+                        if(stripos($key,'|false')===false) {
+                            if(isset($config['auth']['all']) && $config['auth']['all']){
+                                $config['auth'][$key]=1;
+                            }else{
+                                $config['auth'][$key]=0;
+                            }
+                        }else {
+                            if(isset($config['auth']['all']) && $config['auth']['all']){
+                                $config['auth'][$key]=0;
+                            }else{
+                                $config['auth'][$key]=1;
+                            }
+                        }
+                        
+                    }
+                }
+            }
+            if(isset($config['auth']['write']) && !$config['auth']['write']) {$config['disabled']=1;}
+            if(!isset($config['disabled'])) {$config['disabled']=0;}
+        }
         Return $config;
     }
     function form($config) {
-        if(!$config=C('this:input:configReset',$config)) {
+        if(!$config=C('this:input:configReset',$config,1,1)) {
             Return false;
         }
         if(!isset($config['value'])) {$config['value']='';}
@@ -145,7 +176,7 @@ class cms_input {
         Return C($config['function'],'form',$config);
     }
     function post($config) {
-        if(!$config=C('this:input:configReset',$config)) {
+        if(!$config=C('this:input:configReset',$config,1,1)) {
             Return false;
         }
         if(!isset($config['value'])) {$config['value']='';}
@@ -157,7 +188,7 @@ class cms_input {
         Return $postvalue;
     }
     function defaultvalue($config) {
-        if(!$config=C('this:input:configReset',$config)) {
+        if(!$config=C('this:input:configReset',$config,1,1)) {
             Return false;
         }
         $defaultvalue=C($config['function'],'defaultvalue',$config);
@@ -172,7 +203,7 @@ class cms_input {
         Return $defaultvalue;
     }
     function view($config) {
-        if(!$config=C('this:input:configReset',$config)) {
+        if(!$config=C('this:input:configReset',$config,1,1)) {
             Return false;
         }
         if(!isset($config['value'])) {$config['value']='';}
@@ -183,7 +214,7 @@ class cms_input {
         Return $view;
     }
     function config($config) {
-        if(!$config=C('this:input:configReset',$config,0)) {
+        if(!$config=C('this:input:configReset',$config,0,0)) {
             Return array();
         }
         $not_allowed_config=array('formname','hash','enabled','kind','formorder','formwidth','modulehash','classhash','inputhash','tabname','taborder','tips','resetdefault','defaultvalue','nonull','indexshow','value','source','article');
@@ -200,7 +231,7 @@ class cms_input {
         Return $config_array;
     }
     function sql($config) {
-        if(!$config=C('this:input:configReset',$config)) {
+        if(!$config=C('this:input:configReset',$config,1,0)) {
             Return false;
         }
         if(!$sql=C($config['function'],'sql',$config)) {
@@ -209,19 +240,27 @@ class cms_input {
         Return $sql;
     }
     function ajax($config) {
-        if(!$config=C('this:input:configReset',$config)) {
+        if(!$config=C('this:input:configReset',$config,1,1)) {
             Return false;
         }
-        Return C($config['function'],'ajax',$config);
+        $ajax=C($config['function'],'ajax',$config);
+        if(isset($ajax['message']) && !isset($ajax['msg'])){
+          $ajax['msg']=$ajax['message'];
+        }
+        Return $ajax;
     }
     function auth($config) {
-        if(!$config=C('this:input:configReset',$config)) {
+        if(!$config=C('this:input:configReset',$config,1,0)) {
             Return array();
         }
-        $auth_array=C($config['function'],'auth',$config);
-        if(!is_array($auth_array)) {
-            $auth_array=array();
+        $input_auth=C($config['function'],'auth',$config);
+        $default_auth=array('read'=>'查看','write'=>'修改');
+        if(!is_array($input_auth)) {
+            $input_auth=$default_auth;
+        }else{
+            $input_auth=array_merge($default_auth,$input_auth);
         }
-        Return $auth_array;
+        if(isset($input_auth['all'])){unset($input_auth['all']);}
+        Return $input_auth;
     }
 }

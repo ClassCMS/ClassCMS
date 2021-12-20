@@ -249,27 +249,25 @@ class admin {
         if(!$form=C('cms:form:get',$formid)) {
             Return array();
         }
-        $user_auth=array();
-        $default_auth=array('read'=>'','write'=>'');
-        $form_auth=C('cms:input:auth',array('inputhash'=>$form['inputhash']));
-        $all_auth=array_merge($default_auth,$form_auth);
-        $formkinds=array('column','var','info');
-        if(isset($form['kind']) && in_array($form['kind'],$formkinds)) {
-            if(C('this:check','admin:'.$form['kind'].':index')) {
-                foreach($all_auth as $key=>$this_auth) {
+        $userauth=array();
+        $inputauth=C('cms:input:auth',array('inputhash'=>$form['inputhash']));
+        $formkinds=array('column'=>'admin:column:index','var'=>'admin:var:index','info'=>'admin:info:index','config'=>'admin:class:setting');
+        if(isset($form['kind']) && isset($formkinds[$form['kind']])) {
+            if(C('this:check',$formkinds[$form['kind']])) {
+                foreach($inputauth as $key=>$this_auth) {
                     if(stripos($key,'|false')===false) {
-                        $user_auth[$key]=true;
+                        $userauth[$key]=true;
                     }else {
-                        $user_auth[$key]=false;
+                        $userauth[$key]=false;
                     }
                 }
-                Return $user_auth;
+                Return $userauth;
             }
         }
-        foreach($all_auth as $key=>$this_auth) {
-            $user_auth[$key]=C('this:check',C('cms:form:authStr',$form,$key));
+        foreach($inputauth as $key=>$this_auth) {
+            $userauth[$key]=C('this:check',C('cms:form:authStr',$form,$key));
         }
-        Return $user_auth;
+        Return $userauth;
     }
     function ajax() {
         $return=array();

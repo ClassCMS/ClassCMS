@@ -261,6 +261,7 @@ class cms_form {
         Return del($form_del_query);
     }
     function getColumnCreated($columns,$table) {
+        if(!count($columns)){return $columns;}
         $table_fields=C($GLOBALS['C']['DbClass'].':getfields',$table);
         foreach($columns as $key=>$column) {
             if(!isset($table_fields[$column['hash']]) || !$column['enabled']) {
