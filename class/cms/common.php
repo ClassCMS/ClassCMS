@@ -282,6 +282,7 @@ class cms_common {
         Return false;
     }
     function verify($str,$kind=''){
+        if(empty($str)){return false;}
         if($kind=='id') {
             Return preg_match("/^[1-9][0-9]*$/",$str);
         }

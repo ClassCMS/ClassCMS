@@ -17,6 +17,3 @@ layui.use(['index'],function(){
     
 });
 </script>
-
-
-

@@ -29,15 +29,17 @@ class cms_config {
         $config_query['order']='id desc';
         $configs=all($config_query);
         $values=array();
+        $values_key=array();
         foreach($hashs as $key=>$hash) {
             $in=false;
             foreach($configs as $config) {
-                if($hash==$config['hash']) {
+                if(!isset($values_key[$hash]) && $hash==$config['hash']) {
                     $in=true;
                     if($config['overtime']!=0 && $config['overtime']<time()) {
                         $config['value']=false;
                     }
                     $values[]=$config['value'];
+                    $values_key[$hash]=true;
                 }
             }
             if(!$in) {

@@ -233,11 +233,7 @@ function ClassCms_init() {
     if($ScriptInfo['dirname']==="\\" || $ScriptInfo['dirname']==='/') {$ScriptInfo['dirname']='';}
     $GLOBALS['C']['SystemDir']=$ScriptInfo['dirname'].'/';
     $GLOBALS['C']['Indexfile']=$ScriptInfo['basename'];
-    if(!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['argv'])) {
-        if(!isset($_SERVER['argv'][1])) {$_SERVER['argv'][1]='/';}
-        $_SERVER['REQUEST_URI']=$_SERVER['argv'][1];
-        $GLOBALS['C']['SystemDir']='/';
-    }
+    if(!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['argv'])) {cli_parse();}
     _stripslashes();
     if(isset($GLOBALS['C']['DbInfo']) && is_array($GLOBALS['C']['DbInfo'])) {
         if($GLOBALS['C']['LoadHooks']) {
@@ -1165,7 +1161,29 @@ function _stripslashes() {
 function _stripslashes_deep($value) {
     if(is_array($value)){return array_map('_stripslashes_deep',$value);}elseif(empty($value)){return $value;}else {Return stripslashes($value);}
 }
+function cli_parse(){
+    if(!isset($_SERVER['argv'][1])) {$_SERVER['argv'][1]='/';}
+    $GLOBALS['C']['SystemDir']='/';
+    if(substr($_SERVER['argv'][1],0,2)=='//' || substr($_SERVER['argv'][1],0,7)=='http://' || substr($_SERVER['argv'][1],0,8)=='https://'){
+        $urls=parse_url($_SERVER['argv'][1]);
+        if(isset($urls['scheme']) && $urls['scheme']=='https'){
+            $_SERVER["HTTPS"]='on';
+        }
+        if(isset($urls['host'])){
+            $_SERVER['HTTP_HOST']=$urls['host'];
+        }
+        if(isset($urls['path'])){
+            $_SERVER['REQUEST_URI']=$urls['path'];
+        }else{
+            $_SERVER['REQUEST_URI']='/';
+        }
+    }else{
+        $_SERVER['REQUEST_URI']=$_SERVER['argv'][1];
+    }
+    return true;
+}
 function is_hash($hash) {
+    if(empty($hash)){return false;}
     Return preg_match('/^[A-Za-z]{1}[A-Za-z0-9_]{0,31}$/',$hash);
 }
 function jump($url='',$time=0) {

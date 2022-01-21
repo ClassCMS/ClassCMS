@@ -250,11 +250,11 @@ class cms_input {
         Return $ajax;
     }
     function auth($config) {
+        $default_auth=array('read'=>'查看','write'=>'修改');
         if(!$config=C('this:input:configReset',$config,1,0)) {
-            Return array();
+            Return $default_auth;
         }
         $input_auth=C($config['function'],'auth',$config);
-        $default_auth=array('read'=>'查看','write'=>'修改');
         if(!is_array($input_auth)) {
             $input_auth=$default_auth;
         }else{

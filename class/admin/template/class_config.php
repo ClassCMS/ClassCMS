@@ -82,7 +82,7 @@
         <tr id="config">
         <td align="right">设置:</td>
         <td>
-            {if $classinfo.classorder>1}
+            {if $classinfo.classorder>999999}
                 <input type="checkbox" name="{$classinfo.hash}" title="置顶应用" lay-filter="classorder" checked lay-skin="primary"{if !P('class:order')} disabled{/if}>
             {else}
                 <input type="checkbox" name="{$classinfo.hash}" title="置顶应用" lay-filter="classorder" lay-skin="primary"{if !P('class:order')} disabled{/if}>

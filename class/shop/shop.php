@@ -150,7 +150,6 @@ class shop {
             @unlink($classfile);
             Return C('cms:common:echoJson',array('msg'=>"安装包解压失败,请检查应用目录权限",'error'=>1));
         }
-        Return ;
     }
     function installClass() {
         if(!is_hash(@$_POST['classhash'])) {
@@ -342,6 +341,7 @@ class shop {
         if($defaulthost=config('defaulthost')) {
             $hosts=array_merge($hosts,explode(';',$defaulthosts));
         }
+        if(stripos($url,'@')){Return false;}
         $checkurl=parse_url($url);
         if(!isset($checkurl['host']) || !in_array($checkurl['host'],$hosts)) {
             Return false;

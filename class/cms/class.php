@@ -22,7 +22,7 @@ class cms_class {
         if($enabled) {
             $list_query['where']=array('enabled'=>$enabled);
         }
-        $list_query['order']='classorder desc,enabled desc,id asc';
+        $list_query['order']='enabled desc,classorder desc,id asc';
         $classlist=all($list_query);
         Return $classlist;
     }
@@ -280,7 +280,9 @@ class cms_class {
         Return true;
     }
     function installData($classhash,$datafile=''){
-        if(!is_hash($classhash)) {Return false;}
+        if(!$class=C('this:class:get',$classhash)) {
+            Return false;
+        }
         if(empty($datafile)){
             $datafile=classDir($classhash).$classhash.'.data.php';
         }
@@ -299,6 +301,12 @@ class cms_class {
                             C('cms:form:add',$data);
                         }else{
                             $data['table']=$key;
+                            if($key=='route' || $key=='hook'){
+                                $data['classorder']=$class['classorder'];
+                            }
+                            if($key=='auth' || $key=='hook' || $key=='input' || $key=='module' || $key=='route'){
+                                $data['classenabled']=$class['enabled'];
+                            }
                             insert($data);
                         }
                     }
@@ -454,6 +462,7 @@ class cms_class {
         Return true;
     }
     function changeClassOrder($classhash,$order=1) {
+        if($order<1){$order=1;}
         $new_class=array();
         $new_class['table']='class';
         $new_class['where']=array('hash'=>$classhash);
@@ -486,9 +495,15 @@ class cms_class {
         if(!$class) {
             $new_class['classname']=$classhash;
             $new_class['hash']=$classhash;
-            $new_class['classorder']=1;
             $new_class['enabled']='0';
             $new_class['installed']='0';
+            $new_class['menu']='0';
+            if($lastClass=one('table','class','order','classorder asc','where',where('classorder<=',999999))){
+                $new_class['classorder']=$lastClass['classorder']-1;
+                if($new_class['classorder']<0){$new_class['classorder']=1;}
+            }else{
+                $new_class['classorder']=999999;
+            }
             if(isset($config['version']) && !empty($config['version'])) {$new_class['classversion']=$config['version'];}else {$new_class['classversion']='1.0';}
         }elseif(!$class['installed'] && isset($config['version']) && !empty($config['version'])) {
             $new_class['classversion']=$config['version'];
@@ -505,10 +520,6 @@ class cms_class {
             $new_class['where']=array('hash'=>$classhash);
             Return update($new_class);
         }else {
-            $new_class['classorder']=1;
-            $new_class['enabled']='0';
-            $new_class['installed']='0';
-            $new_class['menu']='0';
             Return insert($new_class);
         }
     }

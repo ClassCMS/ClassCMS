@@ -25,7 +25,6 @@ class cms_hook {
         if(!isset($hook_add_query['hookname']) || empty($hook_add_query['hookname'])) {
             Return false;
         }
-        $hook_add_query['hookname']=$hook_add_query['hookname'];
         if(!isset($hook_add_query['hookedfunction'])) {
             Return false;
         }

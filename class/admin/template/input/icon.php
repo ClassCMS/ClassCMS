@@ -20,9 +20,9 @@
         <ul>
         {loop $icons as $key=>$icon}
             {if $key==$value}
-                <li style="display:inline-block;padding:6px;border:#1E9FFF solid 1px" rel="{$key}" alt="{$icon.0}"><i class="layui-icon {$key}"></i></li>
+                <li style="display:inline-block;padding:6px;border:#1E9FFF solid 1px;cursor:pointer" rel="{$key}" alt="{$icon.0}"><i class="layui-icon {$key}"></i></li>
             {else}
-                <li style="display:inline-block;padding:6px;border:none" rel="{$key}" alt="{$icon.0}"><i class="layui-icon {$key}"></i></li>
+                <li style="display:inline-block;padding:6px;border:none;cursor:pointer" rel="{$key}" alt="{$icon.0}"><i class="layui-icon {$key}"></i></li>
             {/if}
         {/loop}
         </ul>

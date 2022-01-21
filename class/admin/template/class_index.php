@@ -50,7 +50,7 @@
                         {else}
                         <span{if !$class.enabled} class="cms-text-disabled"{/if}>{$class.classname}</span>
                         {/if}
-                        {if $class.classorder>1} <i class="layui-icon layui-icon-rate" title="置顶应用"></i>{/if}
+                        {if $class.classorder>999999} <i class="layui-icon layui-icon-rate" title="置顶应用"></i>{/if}
                     </td>
                     <td class="layui-hide-xss">{$class.hash}</td>
                     <td class="layui-show-md-td">{$class.classversion}</td>

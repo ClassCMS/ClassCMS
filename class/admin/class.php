@@ -44,7 +44,12 @@ class admin_class {
         $array['newclass']='';
         if(count($newclass)) {
             foreach($newclass as $this_new) {
-                $array['newclass'].=' <a class="layui-btn layui-btn-xs layui-btn-normal" href="?do=admin:class:config&hash='.$this_new.'">'.$this_new.'</a>';
+                if($this_name=C('cms:class:config',$this_new,'name')){
+                    $this_name=$this_name.'['.$this_new.']';
+                }else{
+                    $this_name=$this_new;
+                }
+                $array['newclass'].=' <a class="layui-btn layui-btn-xs layui-btn-normal" href="?do=admin:class:config&hash='.$this_new.'">'.$this_name.'</a>';
             }
         }
         V('class_index',$array);
@@ -346,17 +351,15 @@ class admin_class {
         $state=@$_POST['state'];
         if(C('cms:class:refresh',$classhash)) {
             if($state=='false') {
-                $new_order=1;
+                if($lastClass=one('table','class','order','classorder asc','where',where('classorder<=',999999))){
+                    $new_order=$lastClass['classorder']-1;
+                }else{
+                    $new_order=999999;
+                }
             }else {
-                $lastorder=array();
-                $lastorder['table']='class';
-                $lastorder['column']='classorder';
-                $lastorder['order']='classorder asc';
-                $lastorder['where']=array('classorder>'=>1);
-                $lastorder_query=one($lastorder);
-                if(isset($lastorder_query['classorder'])) {
-                    $new_order=$lastorder_query['classorder']-1;
-                }else {
+                if($lastClass=one('table','class','order','classorder asc','where',where('classorder>',999999))){
+                    $new_order=$lastClass['classorder']-1;
+                }else{
                     $new_order=99999999;
                 }
             }

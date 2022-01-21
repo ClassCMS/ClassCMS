@@ -48,17 +48,8 @@ class cms_article {
             }
         }elseif(isset($config['modulehash'])) {
             if(!isset($config['cids'])) {
-                if($config['enabled']) {
-                    $module_channels=all(array('table'=>'channel','column'=>'id','where'=>array('enabled'=>1,'classhash'=>$config['classhash'],'modulehash'=>$config['modulehash'])));
-                }else {
-                    $module_channels=all(array('table'=>'channel','column'=>'id','where'=>array('classhash'=>$config['classhash'],'modulehash'=>$config['modulehash'])));
-                }
-                if(count($module_channels)>0 ) {
-                    $config['cids']=array();
-                    foreach($module_channels as $module_channel) {
-                        $config['cids'][]=$module_channel['id'];
-                    }
-                }
+                $config['cids']=C('this:channel:moduleChannel',$config['modulehash'],$config['enabled'],$config['classhash']);
+                if(!count($config['cids'])) {Return array();}
             }
         }elseif(isset($GLOBALS['C']['channel']['id'])) {
             $config['cid']=$GLOBALS['C']['channel']['id'];
@@ -79,6 +70,10 @@ class cms_article {
             }
         }
         if(!isset($config['table'])) {Return array();}
+        if(!isset($GLOBALS['C']['ArticleTable'][$config['table']])){
+            $GLOBALS['C']['ArticleTableFields'][$config['table']]=C($GLOBALS['C']['DbClass'].':getfields',$config['table']);
+        }
+        if(!count($GLOBALS['C']['ArticleTableFields'][$config['table']])) {Return array();}
         if(isset($config['order'])) {
             $config['order']=$config['order'];
         }else {
@@ -90,6 +85,7 @@ class cms_article {
                 $config['order']='id desc';
             }
         }
+        $config['order']=str_replace(';',',',$config['order']);
         if($config['order']=='rand') {
             if($GLOBALS['C']['DbInfo']['kind']=='sqlitepdo') {
                 $config['order']='random()';
@@ -120,6 +116,18 @@ class cms_article {
                 $config['sql'].='cid=\''.$config['cid'].'\'';
             }else {
                 $config['sql'].=' and cid=\''.$config['cid'].'\'';
+            }
+        }
+        foreach ($config as $key=>$value) {
+            if(substr($key,0,6)=='where.'){
+                $thiswhere=explode('.',$key);
+                if(count($thiswhere)==2){
+                    $config['where'][$thiswhere[1]]=$value;
+                }elseif(count($thiswhere)==3){
+                    $config['where'][$thiswhere[1]][$thiswhere[2]]=$value;
+                }elseif(count($thiswhere)==4){
+                    $config['where'][$thiswhere[1]][$thiswhere[2]][$thiswhere[3]]=$value;
+                }
             }
         }
         if(isset($config['where'])) {

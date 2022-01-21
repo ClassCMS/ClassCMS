@@ -198,7 +198,15 @@ class cms_channel {
         }
         $channels=C('cms:channel:parents',$channel['id'],$classhash);
         if($home=C('cms:channel:home',$classhash)) {
-            array_unshift($channels,$home);
+            $in=0;
+            foreach ($channels as $thischannels) {
+                if($thischannels['id']==$home['id']){
+                    $in=1;
+                }
+            }
+            if(!$in){
+                array_unshift($channels,$home);
+            }
         }
         foreach($channels as $key=>$this_channel) {
             $channels[$key]['active']=0;
@@ -206,6 +214,24 @@ class cms_channel {
         $channel['active']=1;
         $channels[]=$channel;
         Return $channels;
+    }
+    function moduleChannel($modulehash,$hideDisabled=0,$classhash=''){
+        if(empty($classhash)) {
+            $classhash=I(-1);
+        }
+        if(!is_hash($modulehash)){
+            return array();
+        }
+        if($hideDisabled) {
+            $channels=all(array('table'=>'channel','column'=>'id','where'=>array('enabled'=>1,'classhash'=>$classhash,'modulehash'=>$modulehash)));
+        }else {
+            $channels=all(array('table'=>'channel','column'=>'id','where'=>array('classhash'=>$classhash,'modulehash'=>$modulehash)));
+        }
+        $ids=array();
+        foreach ($channels as $channel) {
+            $ids[]=$channel['id'];
+        }
+        return $ids;
     }
     function top($cid=0,$classhash='',$times=0) {
         if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
