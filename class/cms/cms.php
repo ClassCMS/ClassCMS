@@ -131,7 +131,7 @@ class cms {
                 }
             }
         }
-        if(stripos($_file,'}')===false) {
+        if(stripos($_file,'}')===false && stripos($_file,'?')===false && stripos($_file,'>')===false) {
             $C_templates=explode(';',$_file);
             foreach($C_templates as $C_template) {
                 if(!empty($C_template)) {

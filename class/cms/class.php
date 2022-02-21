@@ -179,7 +179,13 @@ class cms_class {
     function installConfig($classhash) {
         if($configs=C($classhash.':config')) {
             if(is_array($configs)) {
+                $autoOrder=true;
                 foreach($configs as $config) {
+                    if(isset($config['formorder'])){
+                        $autoOrder=false;
+                    }
+                }
+                foreach($configs as $key=>$config) {
                     if(is_array($config) && isset($config['configname']) && isset($config['hash']) && isset($config['inputhash'])) {
                         $newconfig=array();
                         $newconfig['hash']=$config['hash'];
@@ -191,7 +197,13 @@ class cms_class {
                         if(isset($config['tabname'])) {$newconfig['tabname']=$config['tabname'];}
                         if(isset($config['tips'])) {$newconfig['tips']=$config['tips'];}
                         if(isset($config['defaultvalue'])) {$newconfig['defaultvalue']=$config['defaultvalue'];}
-                        if(isset($config['formorder'])) {$newconfig['formorder']=intval($config['formorder']);}
+                        if(isset($config['formorder'])) {
+                            $newconfig['formorder']=intval($config['formorder']);
+                        }elseif($autoOrder){
+                            $newconfig['formorder']=count($configs)-$key;
+                        }else{
+                            $newconfig['formorder']=0;
+                        }
                         if(isset($config['taborder'])) {$newconfig['taborder']=intval($config['taborder']);}
                         if(isset($config['nonull'])) {$newconfig['nonull']=intval($config['nonull']);}
                         if($form=C('this:form:get',$config['hash'],'config','',$classhash)) {

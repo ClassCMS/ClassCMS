@@ -140,17 +140,17 @@ class cms_form {
             unset($form_add_query['config']);
         }
         $formidid=insert($form_add_query);
+        if(isset($form_config) && is_array($form_config)) {
+            foreach($form_config as $configkey=>$configval) {
+                C('this:config:set',C('this:form:configStr',$form_add_query,$configkey),$configval,0,$form_add_query['classhash']);
+            }
+        }
         if($form_add_query['kind']=='column' && $form_add_query['enabled'] && $formidid) {
             C('this:module:tableCreate',$form_add_query['modulehash'],$form_add_query['classhash']);
             C('this:form:columnReset',$formidid);
         }
         if($form_add_query['kind']=='info' && $form_add_query['enabled'] && $formidid) {
             C('this:form:infoReset',$formidid);
-        }
-        if(isset($form_config) && is_array($form_config)) {
-            foreach($form_config as $configkey=>$configval) {
-                C('this:config:set',C('this:form:configStr',$form_add_query,$configkey),$configval,0,$form_add_query['classhash']);
-            }
         }
         Return $formidid;
     }

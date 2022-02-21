@@ -21,7 +21,7 @@
           <div class="layadmin-user-login-box layadmin-user-login-body layui-form" lay-filter="classcms-login-form">
                 <div class="layui-form-item">
                     <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="LAY-user-login-username"></label>
-                    <input type="text" name="userhash" value="{if isset($_GET.u)}{htmlspecialchars($_GET.u)}{/if}" id="LAY-user-login-username" lay-verify="" placeholder="用户名" class="layui-input">
+                    <input type="text" name="userhash" value="{if isset($_GET.u)}{htmlspecialchars($_GET.u)}{/if}" id="LAY-user-login-username" lay-verify="" placeholder="账号" class="layui-input">
                 </div>
                 <div class="layui-form-item">
                     <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>

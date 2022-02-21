@@ -3,7 +3,7 @@ if(!defined('ClassCms')) {exit();}
 class admin_channel {
     function auth() {
         Return array(
-            'channel:index;channel:order;channel:jump;channel:jumpModule'=>'查看栏目列表',
+            'channel:index;channel:jump;channel:jumpModule'=>'查看栏目列表',
             'channel:add;channel:addPost'=>'增加栏目',
             'channel:edit;channel:editPost'=>'修改栏目',
             'channel:del'=>'删除栏目',
