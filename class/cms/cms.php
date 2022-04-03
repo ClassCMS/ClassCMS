@@ -4,10 +4,10 @@ class cms {
         if(!isset($GLOBALS['C']['DbInfo'])) {Return array('template_class' =>'admin');}
     }
     function stop() {
-        Return '无法停止';
+        Return E('无法停用');
     }
     function uninstall() {
-        Return '无法卸载';
+        Return E('无法卸载');
     }
     function initRoute($routekey) {
         $inited=false;
@@ -355,6 +355,8 @@ function C() {
     }else {
         Return false;
     }
+    unset($GLOBALS['C']['c_lasterror']);
+    if(isset($GLOBALS['C']['c_error'])){ array_pop($GLOBALS['C']['c_error']); }
     if($end_class!=='-' && isset($GLOBALS['hook'][strtolower($class)]) && count($GLOBALS['hook'][strtolower($class)])) {
         foreach($GLOBALS['hook'][strtolower($class)] as $hookclass=>$hookrequires) {
             $args[0]=$hookclass;
@@ -370,10 +372,13 @@ function C() {
                             $watchargs=$args;
                             unset($watchargs[0]);
                             if(hook_requires(array($watchclass,$class,array_values($watchargs),$return),$hookrequires)){
+                                $GLOBALS['C']['c_error'][]=null;
                                 $watchreturn=call_user_func_array('C',array($watchclass,$class,array_values($watchargs),$return));
                                 if($watchreturn!==null) {
                                     $return=$watchreturn;
+                                    $GLOBALS['C']['c_error'][count($GLOBALS['C']['c_error'])-2]=end($GLOBALS['C']['c_error']);
                                 }
+                                array_pop($GLOBALS['C']['c_error']);
                             }
                         }
                     }
@@ -441,6 +446,12 @@ function C() {
             }else {
                 if(method_exists($GLOBALS['class'][$classname],$classfunction)) {
                     $return=call_user_func_array(array($GLOBALS['class'][$classname],$classfunction),$args);
+                    if(isset($GLOBALS['C']['c_lasterror'])){
+                        $GLOBALS['C']['c_error'][]=$GLOBALS['C']['c_lasterror'];
+                        unset($GLOBALS['C']['c_lasterror']);
+                    }else{
+                        $GLOBALS['C']['c_error'][]=null;
+                    }
                 }else {
                     if(!isset($lastreturn)) {
                         $return=null;
@@ -457,10 +468,13 @@ function C() {
     if($end_class!=='-' && isset($GLOBALS['hook'][strtolower($class).':=']) && count($GLOBALS['hook'][strtolower($class).':='])) {
         foreach($GLOBALS['hook'][strtolower($class).':='] as $watchclass=>$hookrequires) {
             if(hook_requires(array($watchclass,$class,array_values($args),$return),$hookrequires)){
+                $GLOBALS['C']['c_error'][]=null;
                 $watchreturn=call_user_func_array('C',array($watchclass,$class,array_values($args),$return));
                 if($watchreturn!==null) {
                     $return=$watchreturn;
+                    $GLOBALS['C']['c_error'][count($GLOBALS['C']['c_error'])-2]=end($GLOBALS['C']['c_error']);
                 }
+                array_pop($GLOBALS['C']['c_error']);
             }
         }
     }
@@ -499,12 +513,6 @@ function I($level=0){
     }
     Return false;
 }
-function now_class() {
-    Return I();
-}
-function last_class() {
-    Return I(-1);
-}
 function V($file,$vars=array(),$classhash='') {
     if(empty($classhash)) {$classhash=I();}
     return C('cms:nowView',$file,$vars,$classhash);
@@ -513,51 +521,48 @@ function P($do,$classhash=false,$userid=false) {
     if(!$classhash) {$classhash=I();}
     Return C('admin:check',$classhash.':'.$do,$userid);
 }
-function L($name,$language='',$classhash='') {
-    if(empty($classhash)) {$classhash=I();}
-    if(empty($language) && isset($_COOKIE['u_language_'.$classhash])) {
-        $language=$_COOKIE['u_language_'.$classhash];
+function E($msg=null){
+    if($msg===null){
+        if(!isset($GLOBALS['C']['c_error']) || !end($GLOBALS['C']['c_error'])){return null;}
+        return end($GLOBALS['C']['c_error']);
+    }elseif($msg===false){
+        unset($GLOBALS['C']['c_lasterror']);
+    }elseif(is_string($msg)){
+        $GLOBALS['C']['c_lasterror']=L($msg);
     }
-    if(empty($language) && isset($_COOKIE['u_language'])) {
-        $language=$_COOKIE['u_language'];
-    }
-    if(!isset($GLOBALS['class_config'][$classhash])) {
-        C($classhash);
-    }
-    if(isset($GLOBALS['class_config'][$classhash]['language'])) {
-        $class_languages=explode(';',$GLOBALS['class_config'][$classhash]['language']);
-    }else {
-        $class_languages=array();
-    }
-    if(empty($language) && isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-        $_SERVER['HTTP_ACCEPT_LANGUAGE']=strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-        $HTTP_ACCEPT_LANGUAGE=explode(';q=',$_SERVER['HTTP_ACCEPT_LANGUAGE']);
-        foreach($class_languages as $class_language) {
-            if(stripos($HTTP_ACCEPT_LANGUAGE[0],$class_language)===false) {
-            }else {
-                $language=$class_language;
-                break;
-            }
+    return false;
+}
+function L($txt='',$language=0){
+    if(!$classhash=I()){return $txt;}
+    if(!isset($GLOBALS['class_config'][$classhash])){return $txt;}
+    $config=$GLOBALS['class_config'][$classhash];
+    if(!isset($config['languages']) || !is_array($config['languages']) || !count($config['languages'])){return $txt;}
+    if(!$language){
+        if(isset($GLOBALS['C']['language'])){
+            $language=$GLOBALS['C']['language'];
+        }elseif(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
+            $acceptLanguages=explode(',',$_SERVER['HTTP_ACCEPT_LANGUAGE']);
+            $language=$acceptLanguages[0];
+            $GLOBALS['C']['language']=$acceptLanguages[0];
+        }else{
+            return $txt;
         }
     }
-    if(!in_array($language,$class_languages)) {
-        if(count($class_languages)>0) {
-            $language=$class_languages[0];
-        }else {
-            Return false;
-        }
-    }
-    if(empty($language)) {
-        Return false;
-    }
+    if(!isset($config['languages'][$language])){return $txt;}
+    if(isset($config['languages_dir']) && !empty($config['languages_dir'])){$config['languages_dir'].=DIRECTORY_SEPARATOR; }else{$config['languages_dir']=''; }
     if(!isset($GLOBALS['class_language'][$classhash][$language])) {
-        $GLOBALS['class_language'][$classhash][$language]=require_once(classDir($classhash).'language'.DIRECTORY_SEPARATOR.$language.'.php');
+        if(stripos($config['languages'][$language],'/')===false && stripos($config['languages'][$language],'\\')===false){
+            $languageFile=classDir($classhash).$config['languages_dir'].$language.'.php';
+        }else{
+            $languageFile=$config['languages'][$language];
+        }
+        if(!is_file($languageFile)){return $txt;}
+        $GLOBALS['class_language'][$classhash][$language]=@require_once($languageFile);
     }
-    if(isset($GLOBALS['class_language'][$classhash][$language][$name])) {
-        Return $GLOBALS['class_language'][$classhash][$language][$name];
-    }else {
-        Return false;
+    if(isset($GLOBALS['class_language'][$classhash][$language][$txt])){
+        return $GLOBALS['class_language'][$classhash][$language][$txt];
     }
+    return $txt;
 }
 function U($channel,$routehash='',$article=array(),$args=array(),$fullurl=false) {
     Return C('cms:channel:url',$channel,$routehash,$article,$args,$fullurl);
@@ -572,6 +577,12 @@ function G($hash,$val=null,$classhash=''){
     }
     $GLOBALS['running_data'][$classhash][$hash]=$val;
     return true;
+}
+function now_class() {
+    Return I();
+}
+function last_class() {
+    Return I(-1);
 }
 function route($routehash,$args=array(),$classhash='',$fullurl=false) {
     Return C('cms:route:url',$routehash,$args,$classhash,$fullurl);
@@ -1823,8 +1834,12 @@ class cms_database {
         $sqlite_fields='';
         $mysql_fields='';
         if(is_array($fields) && count($fields)) {
+            unset($fields['id']);
             foreach($fields as $fieldname=>$field) {
-                if(is_array($field)) {
+                if(is_array($field) && isset($field['Type'])) {
+                    $sqlite_fields.=',['.$fieldname.'] '.$field['Type'];
+                    $mysql_fields .=',`'.$fieldname.'` '.$field['Type'];
+                }elseif(is_array($field)) {
                     if(!isset($field[1])) {$field[1]='';}
                     $sqlite_fields.=',['.$fieldname.'] '.$field[0].' '.$field[1];
                     $mysql_fields .=',`'.$fieldname.'` '.$field[0].' '.$field[1];

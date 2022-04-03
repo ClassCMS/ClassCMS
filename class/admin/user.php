@@ -111,6 +111,8 @@ class admin_user {
             Return C('this:ajax','增加成功');
         }elseif(is_string($addreturn)){
             Return C('this:ajax',$addreturn,1);
+        }elseif(E()){
+            Return C('this:ajax',E(),1);
         }
         Return C('this:ajax','增加失败',1);
     }
@@ -195,6 +197,8 @@ class admin_user {
                 Return C('this:ajax','修改成功');
             }elseif(is_string($editreturn)){
                 Return C('this:ajax',$editreturn,1);
+            }elseif(E()){
+                Return C('this:ajax',E(),1);
             }
             Return C('this:ajax','修改失败',1);
         }else {
@@ -223,6 +227,8 @@ class admin_user {
             Return C('this:ajax','删除成功');
         }elseif(is_string($delreturn)) {
             Return C('this:ajax',$delreturn,1);
+        }elseif(E()){
+            Return C('this:ajax',E(),1);
         }
         Return C('this:ajax','删除失败',1);
     }
@@ -253,9 +259,10 @@ class admin_user {
         $role_add_array['hash']=$_POST['hash'];
         if(C('cms:user:roleAdd',$role_add_array)) {
             Return C('this:ajax','增加成功');
-        }else {
-            Return C('this:ajax','增加失败',1);
+        }elseif(E()) {
+            Return C('this:ajax',E(),1);
         }
+        Return C('this:ajax','增加失败',1);
     }
     function roleEditPost() {
         if($role=C('cms:user:roleGet',@$_POST['hash'])){
@@ -265,9 +272,10 @@ class admin_user {
             $role_edit_array['hash']=$_POST['hash'];
             if(C('cms:user:roleEdit',$role_edit_array)) {
                 Return C('this:ajax','修改成功');
-            }else {
-                Return C('this:ajax','修改失败',1);
+            }elseif(E()) {
+                Return C('this:ajax',E(),1);
             }
+            Return C('this:ajax','修改失败',1);
         }else {
             Return C('this:ajax','此角色不存在',1);
         }
@@ -305,9 +313,10 @@ class admin_user {
     function roleDel() {
         if(C('cms:user:roleDel',$_POST['hash'])) {
             Return C('this:ajax','删除成功');
-        }else {
-            Return C('this:ajax','删除失败',1);
+        }elseif(E()) {
+            Return C('this:ajax',E(),1);
         }
+        Return C('this:ajax','删除失败',1);
     }
     function roleOrder() {
         $rolesarray=explode('|',$_POST['rolesarray']);
@@ -412,11 +421,11 @@ class admin_user {
             if(empty($msg) && count($user_edit_query)) {
                 $user_edit_query['id']=$array['user']['id'];
                 if(C('cms:user:edit',$user_edit_query)) {
-                    $msg='修改成功';
-                }else {
-                    $msg='修改失败';
+                    Return C('this:ajax','修改成功');
+                }elseif(E()) {
+                    Return C('this:ajax',E(),1);
                 }
-                Return C('this:ajax',$msg);
+                Return C('this:ajax','修改失败',1);
             }else {
                 Return C('this:ajax',$msg,1);
             }

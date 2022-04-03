@@ -87,9 +87,10 @@ class admin_info {
             }
             if(C('cms:form:del',@$_POST['infoid'])){
                 Return C('this:ajax','删除成功');
-            }else {
-                Return C('this:ajax','删除失败',1);
+            }elseif(E()){
+                Return C('this:ajax',E(),1);
             }
+            Return C('this:ajax','删除失败',1);
         }else {
             Return C('this:ajax','属性不存在',1);
         }
@@ -185,7 +186,11 @@ class admin_info {
                     $info_add_array['tabname']=htmlspecialchars($infos['tabname'][$key]);
                     $info_add_array['taborder']=intval($infos['taborder'][$key]);
                     if(!C('cms:form:add',$info_add_array)) {
-                        $thismsg.=' 增加失败';
+                        if(E()){
+                            $thismsg.=' '.E();
+                        }else{
+                            $thismsg.=' 增加失败';
+                        }
                     }
                 }
                 if(empty($thismsg)) {
@@ -335,6 +340,7 @@ class admin_info {
                 }
                 Return C('this:ajax',array('msg'=>$msg,'refresh'=>1));
             }else {
+                if(E()){Return C('this:ajax',E(),1);}
                 Return C('this:ajax','修改失败',1);
             }
         }else {

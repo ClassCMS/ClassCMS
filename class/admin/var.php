@@ -93,9 +93,10 @@ class admin_var {
             }
             if(C('cms:form:del',@$_POST['varid'])){
                 Return C('this:ajax','删除成功');
-            }else {
-                Return C('this:ajax','删除失败',1);
+            }elseif(E()){
+                Return C('this:ajax',E(),1);
             }
+            Return C('this:ajax','删除失败',1);
         }else {
             Return C('this:ajax','变量不存在',1);
         }
@@ -191,7 +192,11 @@ class admin_var {
                     $var_add_array['tabname']=htmlspecialchars($vars['tabname'][$key]);
                     $var_add_array['taborder']=intval($vars['taborder'][$key]);
                     if(!C('cms:form:add',$var_add_array)) {
-                        $thismsg.=' 增加失败';
+                        if(E()){
+                            $thismsg.=' '.E();
+                        }else{
+                            $thismsg.=' 增加失败';
+                        }
                     }
                 }
                 if(empty($thismsg)) {
@@ -338,6 +343,7 @@ class admin_var {
                 }
                 Return C('this:ajax',array('msg'=>$msg,'refresh'=>1));
             }else {
+                if(E()){Return C('this:ajax',E(),1);}
                 Return C('this:ajax','修改失败',1);
             }
         }else {

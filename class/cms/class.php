@@ -37,6 +37,12 @@ class cms_class {
     }
     function start($classhash) {
         if(C('this:class:refresh',$classhash)) {
+            if(!$class=C('this:class:get',$classhash)) {
+                Return false;
+            }
+            if($class['enabled']){
+                Return false;
+            }
             if(!C('this:class:phpCheck',$classhash)) {
                 Return false;
             }
@@ -56,13 +62,22 @@ class cms_class {
                 C('this:class:installHook',$classhash);
                 Return true;
             }
-            if(!is_string($startinfo)) {$startinfo='';}
+            if(!is_string($startinfo)) {
+                $startinfo='';
+                if(E()){$startinfo=E();}
+            }
             Return $startinfo;
         }
         Return false;
     }
     function stop($classhash) {
         if(C('this:class:refresh',$classhash)) {
+            if(!$class=C('this:class:get',$classhash)) {
+                Return false;
+            }
+            if(!$class['enabled']){
+                Return false;
+            }
             if(!C('this:class:phpCheck',$classhash)) {
                 Return false;
             }
@@ -76,7 +91,10 @@ class cms_class {
                 update($stop_class);
                 Return true;
             }
-            if(!is_string($stopinfo)) {$stopinfo='';}
+            if(!is_string($stopinfo)) {
+                $stopinfo='';
+                if(E()){$stopinfo=E();}
+            }
             Return $stopinfo;
         }
         Return false;
@@ -108,7 +126,10 @@ class cms_class {
                 C('this:class:start',$classhash);
                 Return true;
             }
-            if(!is_string($installinfo)) {$installinfo='';}
+            if(!is_string($installinfo)) {
+                $installinfo='';
+                if(E()){$installinfo=E();}
+            }
             C('this:class:removeClassConfig',$classhash);
             Return $installinfo;
         }
@@ -329,6 +350,12 @@ class cms_class {
     }    
     function uninstall($classhash) {
         if(!is_hash($classhash)) {Return false;}
+        if(!$class=C('this:class:get',$classhash)) {
+            Return false;
+        }
+        if(!$class['installed']) {
+            Return false;
+        }
         if(is_file(classDir($classhash).$classhash.'.php')) {
             if(!C('this:class:refresh',$classhash)) {
                 Return false;
@@ -349,7 +376,10 @@ class cms_class {
             $new_class['installed']='0';
             Return update($new_class);
         }
-        if(!is_string($uninstallinfo)) {$uninstallinfo='';}
+        if(!is_string($uninstallinfo)) {
+            $uninstallinfo='';
+            if(E()){$uninstallinfo=E();}
+        }
         Return $uninstallinfo;
     }
     function upgrade($classhash) {
@@ -387,6 +417,8 @@ class cms_class {
                 C('this:class:installHook',$classhash);
             }
             Return true;
+        }elseif(E()){
+            Return E();
         }
         Return $updateinfo;
     }
@@ -494,9 +526,7 @@ class cms_class {
     }
     function refresh($classhash) {
         if(!is_hash($classhash)) {Return false;}
-        if(!is_file(classDir($classhash).$classhash.'.php')) {
-            Return false;
-        }
+        if(!is_file(classDir($classhash).$classhash.'.php')) {Return false;}
         $array=array();
         $array['table']='class';
         $array['where']=array('hash'=>$classhash);
@@ -626,9 +656,7 @@ class cms_class {
                 $zip->close();
             }
         }elseif(function_exists('zip_open')) {
-            if(!cms_createdir($dest_dir)) {
-                Return false;
-            }
+            if(!cms_createdir($dest_dir)) {Return false;}
             if ($zip = zip_open($src_file)){
                 if ($zip){
                     if($create_zip_name_dir){

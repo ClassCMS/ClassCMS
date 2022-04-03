@@ -278,33 +278,36 @@ class admin_class {
         $info=C('cms:class:install',$classhash);
         if($info===true) {
             Return C('this:ajax','安装成功.');
-        }else {
-            Return C('this:ajax','安装失败.'.$info,1);
+        }elseif($info) {
+            Return C('this:ajax',$info,1);
         }
+        Return C('this:ajax','安装失败.',1);
     }
     function uninstall() {
         $classhash=@$_POST['hash'];
         C('cms:hook:unhook',$classhash);
         $info=C('cms:class:uninstall',$classhash);
         if($info===true) {
-            Return C('this:ajax','卸载成功.');
-        }else {
-            Return C('this:ajax','卸载失败.'.$info,1);
+            Return C('this:ajax','卸载成功');
+        }elseif($info) {
+            Return C('this:ajax',$info,1);
         }
+        Return C('this:ajax','卸载失败',1);
     }
     function fileUpdate() {
         $classhash=@$_POST['hash'];
         $old_version=@$_POST['old_version'];
         $new_version=@$_POST['new_version'];
         if(!C('cms:class:requires',$classhash)) {
-            Return C('this:ajax','更新失败.请先安装依赖应用',1);
+            Return C('this:ajax','更新失败,请先安装依赖应用',1);
         }
         $info=C('cms:class:upgrade',$classhash);
         if($info===true) {
             Return C('this:ajax','更新成功');
-        }else {
-            Return C('this:ajax','更新失败.'.$info,1);
+        }elseif($info) {
+            Return C('this:ajax',$info,1);
         }
+        Return C('this:ajax','更新失败',1);
     }
     function changeState() {
         $classhash=@$_POST['hash'];
@@ -314,19 +317,21 @@ class admin_class {
             $info=C('cms:class:stop',$classhash);
             if($info===true) {
                 Return C('this:ajax','停用成功');
-            }else {
-                Return C('this:ajax','停用失败.'.$info);
+            }elseif($info) {
+                Return C('this:ajax',$info);
             }
+            Return C('this:ajax','停用失败');
         }else {
             if(!C('cms:class:requires',$classhash)) {
-                Return C('this:ajax','启用失败.请先安装依赖应用');
+                Return C('this:ajax','启用失败,请先安装依赖应用');
             }
             $info=C('cms:class:start',$classhash);
             if($info===true) {
                 Return C('this:ajax','启用成功');
-            }else {
-                Return C('this:ajax','启用失败.'.$info);
+            }elseif($info) {
+                Return C('this:ajax',$info);
             }
+            Return C('this:ajax','启用失败');
         }
     }
     function menu() {
@@ -344,7 +349,7 @@ class admin_class {
             update($new_class);
             Return C('this:ajax','后台菜单设置成功,请刷新后台页面');
         }
-        Return C('this:ajax','后台菜单设置失败');
+        Return C('this:ajax','后台菜单设置失败',1);
     }
     function order() {
         $classhash=@$_POST['hash'];
@@ -366,6 +371,6 @@ class admin_class {
             C('cms:class:changeClassOrder',$classhash,$new_order);
             Return C('this:ajax','置顶应用成功');
         }
-        Return C('this:ajax','置顶应用失败');
+        Return C('this:ajax','置顶应用失败',1);
     }
 }

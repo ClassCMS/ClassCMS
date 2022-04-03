@@ -119,6 +119,8 @@ class admin_channel {
             Return C('this:ajax','增加成功');
         }elseif(is_string($addreturn)) {
             Return C('this:ajax',$addreturn,1);
+        }elseif(E()){
+            Return C('this:ajax',E(),1);
         }
         Return C('this:ajax','增加失败',1);
     }
@@ -155,6 +157,8 @@ class admin_channel {
                 Return C('this:ajax','修改成功');
             }elseif(is_string($editreturn)) {
                 Return C('this:ajax',$editreturn,1);
+            }elseif(E()){
+                Return C('this:ajax',E(),1);
             }
             Return C('this:ajax','修改失败',1);
         }else {
@@ -203,6 +207,8 @@ class admin_channel {
                 Return C('this:ajax','删除成功');
             }elseif(is_string($delreturn)) {
                 Return C('this:ajax',$delreturn,1);
+            }elseif(E()){
+                Return C('this:ajax',E(),1);
             }
             Return C('this:ajax','删除失败',1);
         }else {

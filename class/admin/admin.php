@@ -7,10 +7,10 @@ class admin {
         );
     }
     function stop() {
-        Return '无法停止';
+        Return E('管理后台无法停用');
     }
     function uninstall() {
-        Return '无法卸载';
+        Return E('管理后台无法卸载');
     }
     function install() {
         if(!isset($GLOBALS['C']['install']) || $GLOBALS['C']['install']!==false) {
@@ -66,6 +66,9 @@ class admin {
         Return true;
     }
     function defaultPage() {
+        if(isset($_GET['home']) && isset($GLOBALS['C']['admin']['load']) && $GLOBALS['C']['admin']['load']=='admin:index' && isset($_SERVER['QUERY_STRING'])){
+            Return str_ireplace('?home=','?do=','?'.$_SERVER['QUERY_STRING']);
+        }
         if(isset($GLOBALS['C']['admin']['defaultpage'])) {Return $GLOBALS['C']['admin']['defaultpage'];}
         if(P('class:index')) {Return '?do=admin:class:index';}
         C('this:leftMenu');
@@ -94,6 +97,14 @@ class admin {
         }else {
             $do='admin:index';
         }
+        if(!$userid=C('this:nowUser')) {
+            if(!C('this:nologinActionCheck',$do)){
+                if(C('cms:common:isAjax')) {
+                    Return C('this:ajax','已退出,请重新登入',1,1001);
+                }
+                $do='admin:login';
+            }
+        }
         $doclass=explode(':',$do);
         if(count($doclass)!=2 && count($doclass)!=3) {
             Return C('this:error','error');
@@ -101,25 +112,18 @@ class admin {
         $classinfo=C('cms:class:get',$doclass[0]);
         if(!$classinfo || !$classinfo['enabled']) {
             if(C('cms:common:isAjax')) {
-                Return C('this:ajax','应用已停用',1,1001);
+                Return C('this:ajax','无权限',1,1001);
             }else {
-                Return C('this:error','应用已停用');
+                Return C('this:error','无权限');
             }
         }
-        if(!$userid=C('this:nowUser')) {
-            if(C('cms:common:isAjax') && $do!=='admin:login') {
-                Return C('this:ajax','已退出,请重新登入',1,1001);
-            }
-            $do='admin:login';
-        }
-        $GLOBALS['C']['admin']['load']=$do;
         if(!C('this:check',$do,$userid,true)) {
             if(C('cms:common:isAjax')) {
                 Return C('this:ajax','无权限',1,1001);
             }
             Return C('this:error','无权限');
         }
-        if(isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD']=='POST' && !C('this:publicActionCheck',$do)) {
+        if(isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD']=='POST' && !C('this:nologinActionCheck',$do) && !C('this:publicActionCheck',$do)) {
             if(!C('this:csrfCheck',1)) {
                 if(C('cms:common:isAjax')) {
                     Return C('this:ajax','非法提交,请刷新当前页面或重新登入系统',1,1001);
@@ -128,22 +132,25 @@ class admin {
                 }
             }
         }
+        $GLOBALS['C']['admin']['load']=$do;
         C($do);
         Return true;
     }
-    function publicActionCheck($do) {
-        $defaultaction=array('admin:login','admin:index','admin:logout','admin:article:*','admin:formAjax','admin:jumpHome');
-        if(isset($GLOBALS['C']['admin']['publicAction'])) {
-            foreach($defaultaction as $action) {
-                if(!in_array($action,$GLOBALS['C']['admin']['publicAction'])) {
-                    $GLOBALS['C']['admin']['publicAction'][]=$action;
-                }
-            }
-        }else {
-            $GLOBALS['C']['admin']['publicAction']=$defaultaction;
-        }
+    function nologinActionCheck($do){
+        $defaultActions=array('admin:login');
         $dos=explode(':',$do);
-        foreach($GLOBALS['C']['admin']['publicAction'] as $action) {
+        foreach($defaultActions as $action) {
+            $action=str_replace("*",end($dos),$action);
+            if($do==$action) {
+                Return true;
+            }
+        }
+        Return false;
+    }
+    function publicActionCheck($do) {
+        $defaultActions=array('admin:index','admin:logout','admin:article:*','admin:formAjax','admin:jumpHome');
+        $dos=explode(':',$do);
+        foreach($defaultActions as $action) {
             $action=str_replace("*",end($dos),$action);
             if($do==$action) {
                 Return true;
@@ -152,6 +159,9 @@ class admin {
         Return false;
     }
     function check($do='',$userid=false,$admin_load=false) {
+        if(C('this:nologinActionCheck',$do)) {
+            Return true;
+        }
         if(C('this:publicActionCheck',$do)) {
             Return true;
         }
@@ -571,18 +581,26 @@ class admin {
                 Return C('this:ajax','请填写密码',1);
             }
             $check=C('cms:user:checkUser',$_POST['userhash'],$_POST['passwd']);
-            if($check['error']===0 && isset($check['userid'])) {
-                $token=C('cms:user:makeToken',$check['userid']);
-                if(C('this:adminCookie',$token)) {
-                    C('this:csrfSet',1);
-                    Return C('this:ajax','登入成功');
-                }else {
-                    Return C('this:ajax','登入失败',1);
+            if(is_array($check)){
+                if($check['error']===0 && isset($check['userid'])) {
+                    $userid=$check['userid'];
+                }else{
+                    Return C('this:ajax',$check['msg'],1);
                 }
+            }elseif($check){
+                $userid=$check;
+            }else{
+                Return C('this:ajax',E(),1);
+            }
+            $token=C('cms:user:makeToken',$userid);
+            if(C('this:adminCookie',$token)) {
+                C('this:csrfSet',1);
+                Return C('this:ajax','登入成功');
             }else {
-                Return C('this:ajax',$check['msg'],1);
+                Return C('this:ajax','登入失败',1);
             }
         }
+        if(C('this:nowUser')){return C('cms:common:jump','?do=admin:index');}
         V('login',$array);
     }
     function title() {
@@ -600,11 +618,17 @@ class admin {
     }
     function logout() {
         if(!C('this:csrfCheck',1)) {
-            Return C('this:ajax','非法提交,请刷新当前页面或重新登入系统',1,1002);
+            if(C('cms:common:isAjax')) {
+                Return C('this:ajax','非法提交,请刷新当前页面或重新登入系统',1,1002);
+            }
+            Return C('this:error','非法提交,请刷新当前页面或重新登入系统');
         }
         C('this:adminCookie','');
         C('this:csrfSet','');
-        Return C('this:ajax','');
+        if(C('cms:common:isAjax')) {
+            Return C('this:ajax','');
+        }
+        Return C('cms:common:jump','?do=admin:login');
     }
     function nowUser() {
         if(isset($GLOBALS['C']['admin']['nowuser'])) {

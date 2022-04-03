@@ -208,6 +208,9 @@ class admin_article {
                 if(is_string($id)) {
                     Return C('this:ajax',$id,1);
                 }
+                if(E()){
+                    Return C('this:ajax',E(),1);
+                }
                 Return C('this:ajax','增加失败',1);
             }
         }else {
@@ -218,6 +221,9 @@ class admin_article {
             }else {
                 if(is_string($editreturn)) {
                     Return C('this:ajax',$editreturn,1);
+                }
+                if(E()){
+                    Return C('this:ajax',E(),1);
                 }
                 Return C('this:ajax','保存失败',1);
             }
@@ -248,6 +254,9 @@ class admin_article {
                 if(is_string($delreturn)) {
                     Return C('this:ajax',$delreturn,1);
                 }elseif(!$delreturn) {
+                    if(E()){
+                        Return C('this:ajax',E(),1);
+                    }
                     Return C('this:ajax','删除失败',1);
                 }
             }
@@ -347,6 +356,9 @@ class admin_article {
                 if(is_string($savetrturn)) {
                     Return C('this:ajax',$savetrturn,1);
                 }elseif(!$savetrturn) {
+                    if(E()){
+                        Return C('this:ajax',E(),1);
+                    }
                     Return C('this:ajax','保存失败',1);
                 }
                 

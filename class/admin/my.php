@@ -45,9 +45,10 @@ class admin_my {
             }else {
                 Return C('this:ajax','修改成功,请刷新页面');
             }
-        }else {
-            Return C('this:ajax','修改失败',1);
+        }elseif(E()) {
+            Return C('this:ajax',E(),1);
         }
+        Return C('this:ajax','修改失败',1);
     }
     function info() {
         $array['userid']=C('admin:nowUser');
@@ -118,11 +119,11 @@ class admin_my {
         if(empty($msg) && count($my_edit_query)) {
             $my_edit_query['id']=$array['userid'];
             if(C('cms:user:edit',$my_edit_query)) {
-                $msg='保存成功';
-            }else {
-                $msg='保存失败';
+                Return C('this:ajax','保存成功');
+            }elseif(E()) {
+                Return C('this:ajax',E(),1);
             }
-            Return C('this:ajax',$msg);
+            Return C('this:ajax','保存失败',1);
         }else {
             Return C('this:ajax',$msg,1);
         }

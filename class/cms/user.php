@@ -17,25 +17,21 @@ class cms_user {
         Return $userinfo;
     }
     function add($user_add_query) {
-        if(!is_hash($user_add_query['hash'])) {
-            Return false;
-        }
+        if(!is_hash($user_add_query['hash'])) { Return false; }
         if(C('this:user:get',$user_add_query['hash'])){Return false;}
-        if(isset($user_add_query['username'])) {
-            $user_add_query['username']=htmlspecialchars(trim($user_add_query['username']));
-            $same_name_query=array();
-            $same_name_query['table']='user';
-            $same_name_query['where']=array('username'=>$user_add_query['username']);
-            if(one($same_name_query)) {
-                Return false;
-            }
-        }else {
+        if(!isset($user_add_query['username']) || !$user_add_query['username']){
             $user_add_query['username']=$user_add_query['hash'];
         }
-        if(!isset($user_add_query['enabled'])) {
-            $user_add_query['enabled']=1;
+        $user_add_query['username']=htmlspecialchars(trim($user_add_query['username']));
+        $same_name_query=array();
+        $same_name_query['table']='user';
+        $same_name_query['where']=array('username'=>$user_add_query['username']);
+        if(one($same_name_query)) {
+            Return false;
         }
         $user_add_query['table']='user';
+        if(!isset($user_add_query['enabled'])) {$user_add_query['enabled']=1;}
+        if(!isset($user_add_query['passwd'])) {Return false;}
         $user_add_query['passwd']=C('this:user:passwd2md5',$user_add_query['passwd']);
         $infos=C('this:form:all','info');
         $infos=C('this:form:getColumnCreated',$infos,'user');
@@ -233,14 +229,17 @@ class cms_user {
         }
         $userinfo=one($user_query);
         if(!$userinfo) {
+            E('账号不存在');
             Return array('error'=>2,'msg'=>'账号不存在');
         }
         if(!$userinfo['enabled']) {
-            Return array('error'=>3,'msg'=>'账号已禁用');
+            E('账号未启用');
+            Return array('error'=>3,'msg'=>'账号未启用');
         }
         if(!empty($passwd)) {
             $passwd=C('this:user:passwd2md5',trim($passwd));
             if($userinfo['passwd']!==$passwd) {
+                E('密码不正确');
                 Return array('error'=>4,'msg'=>'密码不正确');
             }
         }
@@ -251,6 +250,7 @@ class cms_user {
                 Return array('error'=>0,'userid'=>$userinfo['id']);
             }
         }
+        E('账号无法登入');
         Return array('error'=>5,'msg'=>'账号无法登入');
     }
     function checkToken($token,$checkuser=true) {

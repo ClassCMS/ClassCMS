@@ -101,9 +101,10 @@ class admin_column {
             }
             if(C('cms:form:del',@$_POST['columnid'])){
                 Return C('this:ajax','删除成功');
-            }else {
-                Return C('this:ajax','删除失败',1);
+            }elseif(E()){
+                Return C('this:ajax',E(),1);
             }
+            Return C('this:ajax','删除失败',1);
         }else {
             Return C('this:ajax','字段不存在',1);
         }
@@ -221,7 +222,11 @@ class admin_column {
                         $column_add_array['indexshow']=1;
                     }
                     if(!C('cms:form:add',$column_add_array)) {
-                        $thismsg.=' 增加失败';
+                        if(E()){
+                            $thismsg.=' '.E();
+                        }else{
+                            $thismsg.=' 增加失败';
+                        }
                     }
                 }
                 if(empty($thismsg)) {
@@ -386,6 +391,7 @@ class admin_column {
                 }
                 Return C('this:ajax',array('msg'=>$msg,'refresh'=>1));
             }else {
+                if(E()){Return C('this:ajax',E(),1);}
                 Return C('this:ajax','修改失败',1);
             }
         }else {
