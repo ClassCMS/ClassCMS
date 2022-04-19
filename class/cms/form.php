@@ -63,20 +63,8 @@ class cms_form {
         Return $form;
     }
     function allowFormName($formname) {
-        if(stripos($formname,'.')!==false) {Return false;}
-        if(stripos($formname,'(')!==false) {Return false;}
-        if(stripos($formname,')')!==false) {Return false;}
-        if(stripos($formname,'[')!==false) {Return false;}
-        if(stripos($formname,']')!==false) {Return false;}
-        if(stripos($formname,'{')!==false) {Return false;}
-        if(stripos($formname,'}')!==false) {Return false;}
         if(stripos($formname,'<')!==false) {Return false;}
         if(stripos($formname,'>')!==false) {Return false;}
-        if(stripos($formname,'$')!==false) {Return false;}
-        if(stripos($formname,';')!==false) {Return false;}
-        if(stripos($formname,',')!==false) {Return false;}
-        if(stripos($formname,'\'')!==false) {Return false;}
-        if(stripos($formname,'/')!==false) {Return false;}
         Return true;
     }
     function allowFormHash($hash,$kind='') {
@@ -96,6 +84,12 @@ class cms_form {
     }
     function add($form_add_query) {
         if(!isset($form_add_query['hash']) || !is_hash($form_add_query['hash'])) {
+            Return false;
+        }
+        if(!isset($form_add_query['formname'])){
+            $form_add_query['formname']=$form_add_query['hash'];
+        }
+        if(!C('this:form:allowFormName',$form_add_query['formname'])) {
             Return false;
         }
         if(!isset($form_add_query['modulehash'])) {
@@ -167,19 +161,8 @@ class cms_form {
         unset($form_edit_query['hash']);
         unset($form_edit_query['classhash']);
         unset($form_edit_query['modulehash']);
-        if(isset($form_edit_query['formname'])) {
-            $same_name_where=array();
-            $same_name_where['id<>']=$form_edit_query['id'];
-            $same_name_where['classhash']=$form['classhash'];
-            $same_name_where['modulehash']=$form['modulehash'];
-            $same_name_where['kind']=$form['kind'];
-            $same_name_where['formname']=$form_edit_query['formname'];
-            $same_name_channel_query=array();
-            $same_name_channel_query['table']='form';
-            $same_name_channel_query['where']=$same_name_where;
-            if(one($same_name_channel_query)) {
-                Return false;
-            }
+        if(isset($form_edit_query['formname']) && !C('this:form:allowFormName',$form_edit_query['formname'])){
+            Return false;
         }
         if(isset($form_edit_query['hash'])) {
             $same_hash_where=array();

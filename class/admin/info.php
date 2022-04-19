@@ -138,15 +138,6 @@ class admin_info {
                 if(isset($old_table_fields[$infos['hash'][$key]])) {
                     unset($old_table_fields[$infos['hash'][$key]]);
                 }
-                $where=array();
-                $where['kind']='info';
-                $where['formname']=$infos['formname'][$key];
-                $same_form_query=array();
-                $same_form_query['table']='form';
-                $same_form_query['where']=$where;
-                if(one($same_form_query)) {
-                    $thismsg.=' 属性名已存在';
-                }
                 if(empty($infos['hash'][$key])) {
                     if(is_hash($infos['formname'][$key])) {
                         $infos['hash'][$key]=$infos['formname'][$key];
@@ -251,25 +242,12 @@ class admin_info {
             if($info['kind']!='info') {
                 Return C('this:ajax','属性不存在',1);
             }
-            $formname=trim($_POST['formname']);
-            if(!C('cms:form:allowFormName',$formname)) {
+            if(!C('cms:form:allowFormName',$_POST['formname'])) {
                 Return C('this:ajax','属性名不允许包含特殊符号',1);
-            }
-            $where=array();
-            $where['id<>']=intval($_POST['id']);
-            $where['classhash']=$info['classhash'];
-            $where['modulehash']=$info['modulehash'];
-            $where['formname']=$formname;
-            $where['kind']='info';
-            $same_name_query=array();
-            $same_name_query['table']='form';
-            $same_name_query['where']=$where;
-            if(one($same_name_query)) {
-                Return C('this:ajax','存在同名属性',1);
             }
             $info_edit_array=array();
             $info_edit_array['id']=$_POST['id'];
-            $info_edit_array['formname']=$formname;
+            $info_edit_array['formname']=trim($_POST['formname']);
             $input=C('cms:input:get',$_POST['inputhash']);
             if($input) {
                 $info_edit_array['inputhash']=$input['hash'];

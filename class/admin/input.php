@@ -948,7 +948,7 @@ class admin_input {
                     Return '无选项';
                 }
                 if(!isset($config['style'])) {$config['style']=1;}
-                if($config['style']==1) {$skin=' lay-skin="primary"';}else {$skin='';}
+                if($config['style']==1) {$skin=' lay-skin="primary" ';}else {$skin='';}
                 foreach($values as $thisvalue) {
                     echo('<input type="checkbox"'.$skin.'name="'.$config['name'].'[]"  lay-filter="'.$config['name'].'" value="'.$thisvalue[0].'" title="'.$thisvalue[1].'" '.$thisvalue[2].' '.$thisvalue[3].'>');
                 }

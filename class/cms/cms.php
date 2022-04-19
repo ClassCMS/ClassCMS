@@ -58,6 +58,7 @@ class cms {
                     }
                 }
                 if($matched) {
+                    $GLOBALS['C']['routekey']=$routekey;
                     if(isset($GLOBALS['C']['GET'])) {
                         foreach($GLOBALS['C']['GET'] as $key=>$val) {
                             $_GET[$key]=$val;
@@ -88,6 +89,7 @@ class cms {
             }
             Return false;
         }else {
+            $GLOBALS['C']['routekey']=$routekey;
             if(isset($thisroute['classview']) && !empty($thisroute['classview'])) {
                 $GLOBALS['C']['route_view'][$thisroute['classfunction']]=$thisroute['classview'];
                 $inited=true;
@@ -132,18 +134,12 @@ class cms {
             }
         }
         if(stripos($_file,'}')===false && stripos($_file,'?')===false && stripos($_file,'>')===false) {
-            $C_templates=explode(';',$_file);
-            foreach($C_templates as $C_template) {
-                if(!empty($C_template)) {
-                    $C_template_config['template']=$C_template;
-                    $C_template_config['file']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'].$C_template;
-                    $C_template_config['filedir']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'];
-                    $U_tempfile=include_template($C_template_config);
-                    if($U_tempfile) {include($U_tempfile);}
-                }
-            }
+            $C_template_config['file']=$_file;
+            $C_template_config['rootpath']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'];
+            $U_tempfile=include_template($C_template_config);
+            if($U_tempfile) {include($U_tempfile);}
         }else {
-            $C_template_config['filedir']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'];
+            $C_template_config['rootpath']=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$C_template_config['class'].DIRECTORY_SEPARATOR.$C_template_config['dir'];
             $C_template_config['code']=$_file;
             $U_tempfile=include_template($C_template_config);
             if($U_tempfile) {include($U_tempfile);}
@@ -811,20 +807,57 @@ function template_config($classhash) {
     Return $U_template_config;
 }
 function include_template($template_config) {
-    if(isset($template_config['code'])) {
-        $template_config['file']=md5($template_config['code']);
+    if(isset($template_config['code'])) {$template_config['file']=md5($template_config['code']);}
+    if(stripos($template_config['file'],'.php')===false) {$template_config['file'].='.php';}
+    $template_config['file']=str_replace("\\","/",$template_config['file']);
+    if(!isset($template_config['nowpath'])){$template_config['nowpath']=$template_config['rootpath'];}
+    $fileExplode=explode('/',$template_config['file']);
+    if(count($fileExplode)===1){
+        $template_config['filepath']=$template_config['nowpath'].$template_config['file'];
+    }elseif(empty($fileExplode[0])){
+        $template_config['file']=end($fileExplode);
+        array_pop($fileExplode);
+        array_shift($fileExplode);
+        $template_config['nowpath']=$template_config['rootpath'].implode('/',$fileExplode).'/';
+        $template_config['filepath']=$template_config['nowpath'].$template_config['file'];
+    }else{
+        $parentLevel=substr_count($template_config['file'],'../');
+        if($parentLevel){
+            $nowpaths=explode('/',str_replace("\\","/",$template_config['nowpath']));
+            if(empty(end($nowpaths))){
+                array_pop($nowpaths);
+            }
+            for ($i=0; $i <$parentLevel; $i++) {
+                array_pop($nowpaths);
+            }
+            $template_config['nowpath']=implode('/',$nowpaths).'/';
+            $rootpath=str_replace("\\","/",$template_config['rootpath']);
+            if(substr($template_config['nowpath'],0,strlen($rootpath))!=$rootpath){
+                Return false;
+            }
+            $template_config['file']=str_replace('../','',$template_config['file']);
+            foreach ($fileExplode as $key => $thisdir) {
+                if($thisdir=='..' || $thisdir=='.' || empty($thisdir)){unset($fileExplode[$key]);}
+            }
+        }
+        if(count($fileExplode)>1){
+            $template_config['file']=end($fileExplode);
+            array_pop($fileExplode);
+            $template_config['nowpath']=$template_config['nowpath'].implode('/',$fileExplode).'/';
+        }
+        $template_config['filepath']=$template_config['nowpath'].$template_config['file'];
     }
-    $cachefile=dir_template($template_config['file'],'template'.DIRECTORY_SEPARATOR.$template_config['class']);
+    $cachefile=dir_template($template_config['filepath'],'template'.DIRECTORY_SEPARATOR.$template_config['class']);
     $cachefiletime=@filemtime($cachefile);
     if(($cachefiletime+$template_config['cache'])>time()) {
         Return $cachefile;
     }else {
         $content=cms_template($template_config);
         if($content===false) {
-            $content='template file not found: '.str_replace($GLOBALS['C']['SystemRoot'],DIRECTORY_SEPARATOR,$template_config['file']);
-            if(stripos($template_config['file'],'.php')===false){$content.='.php ';}
+            $content='file not found: '.str_replace(array($GLOBALS['C']['SystemRoot'],'/','\\'),DIRECTORY_SEPARATOR,$template_config['filepath']);
+            if(stripos($template_config['filepath'],'.php')===false){$content.='.php ';}
         }
-        $cached=save_template($template_config['file'],$content,$template_config['cache'],'template'.DIRECTORY_SEPARATOR.$template_config['class']);
+        $cached=save_template($template_config['filepath'],$content,$template_config['cache'],'template'.DIRECTORY_SEPARATOR.$template_config['class']);
         if($cached && $content) {
             Return $cachefile;
         }
@@ -940,8 +973,7 @@ function cms_template($template_config) {
     if(isset($template_config['code'])) {
         $templatecontent=$template_config['code'];
     }else {
-        if(stripos($template_config['file'],'.php')===false) {$template_config['file'].='.php';$template_config['template'].='.php';}
-        $templatecontent=@file_get_contents($template_config['file']);
+        $templatecontent=@file_get_contents($template_config['filepath']);
     }
     if($templatecontent===false) {Return false;}
     $templatecontent=str_ireplace(array('</head>','</body>'),array('{cms:head:~('.$template_config['class'].')}</head>','{cms:body:~('.$template_config['class'].')}</body>'),$templatecontent);
@@ -1004,14 +1036,15 @@ function cms_template($template_config) {
             $thisothertemp=substr($thistemp,5);
             $templist[2][$key]=1;
             $template_config_new=$template_config;
+            unset($template_config_new['filepath']);
             if(substr($thisothertemp,0,1)=='$') {
                 $thisothertemp=cms_template_varname($thisothertemp,$template_config['class']);
                 foreach($template_config_new as $template_config_new_key=>$template_config_new_val) {
                     $template_config_new[$template_config_new_key]=str_replace('\\','\\\\',$template_config_new_val);
                 }
-                $templist[1][$key]="include(include_template(array('template'=>{$thisothertemp},'file'=>\"{$template_config_new['filedir']}\".{$thisothertemp},'cache'=>\"{$template_config_new['cache']}\",'class'=>\"{$template_config_new['class']}\",'dir'=>\"{$template_config_new['dir']}\",'httpdir'=>\"{$template_config_new['httpdir']}\",'filedir'=>\"{$template_config_new['filedir']}\")));";
+                $templist[1][$key]="include(include_template(array('file'=>{$thisothertemp},'cache'=>\"{$template_config_new['cache']}\",'nowpath'=>\"{$template_config_new['nowpath']}\",'class'=>\"{$template_config_new['class']}\",'dir'=>\"{$template_config_new['dir']}\",'httpdir'=>\"{$template_config_new['httpdir']}\",'rootpath'=>\"{$template_config_new['rootpath']}\")));";
             }else {
-                $template_config_new['file']=$template_config_new['filedir'].$thisothertemp;
+                $template_config_new['file']=$thisothertemp;
                 $templist[1][$key]='include(\''.include_template($template_config_new).'\');';
             }
         }
@@ -2077,6 +2110,6 @@ class cms_database {
         Return true;
     }
     function if_field_allow($fieldname) {
-        Return !in_array($fieldname,array('id','cid','uid','rowstyle','stepstyle','rowurl','csrf','link','like','add','all','alter','as','and','asc','before','between','bigint','binary','blob','both','by','call','cascade','case','change','char','check','column','create','cross','cursor','databases','database','dec','delete','default','desc','div','double','drop','each','else','elseif','exists','exit','explain','false','float','for','force','from','foreign','goto','group','if','in','index','inner','inout','insert','int','integer','into','is','join','key','kill','keys','left','limit','lines','load','lock','loop','long','mod','not','null','on','option','or','order','out','outer','outfile','primary','range','read','reads','real','set','show','sql','ssl','starting','then','table','to','undo','true','union','unlock','update','using','values','varchar','when','where','while','with','write'));
+        Return !in_array(strtolower($fieldname),array('id','cid','uid','rowstyle','stepstyle','rowurl','csrf','link','like','add','all','alter','as','and','asc','before','between','bigint','binary','blob','both','by','call','cascade','case','change','char','check','column','create','cross','cursor','databases','database','dec','delete','default','desc','div','double','drop','each','else','elseif','exists','exit','explain','false','float','for','force','from','foreign','goto','group','if','in','index','inner','inout','insert','int','integer','into','is','join','key','kill','keys','left','limit','lines','load','lock','loop','long','mod','not','null','on','option','or','order','out','outer','outfile','primary','range','read','reads','real','set','show','sql','ssl','starting','then','table','to','undo','true','union','unlock','update','using','values','varchar','when','where','while','with','write'));
     }
 }

@@ -160,17 +160,6 @@ class admin_column {
                 if(isset($old_table_fields[$columns['hash'][$key]])) {
                     unset($old_table_fields[$columns['hash'][$key]]);
                 }
-                $where=array();
-                $where['classhash']=$module['classhash'];
-                $where['modulehash']=$module['hash'];
-                $where['kind']='column';
-                $where['formname']=$columns['formname'][$key];
-                $same_form_query=array();
-                $same_form_query['table']='form';
-                $same_form_query['where']=$where;
-                if(one($same_form_query)) {
-                    $thismsg.=' 字段名已存在';
-                }
                 if(empty($columns['hash'][$key])) {
                     if(is_hash($columns['formname'][$key])) {
                         $columns['hash'][$key]=$columns['formname'][$key];
@@ -292,26 +281,12 @@ class admin_column {
             if($column['kind']!='column') {
                 Return C('this:ajax','字段不存在',1);
             }
-
-            $formname=trim($_POST['formname']);
-            if(!C('cms:form:allowFormName',$formname)) {
+            if(!C('cms:form:allowFormName',$_POST['formname'])) {
                 Return C('this:ajax','字段名不允许包含特殊符号',1);
-            }
-            $where=array();
-            $where['id<>']=intval($_POST['id']);
-            $where['classhash']=$column['classhash'];
-            $where['modulehash']=$column['modulehash'];
-            $where['formname']=$formname;
-            $where['kind']='column';
-            $same_name_query=array();
-            $same_name_query['table']='form';
-            $same_name_query['where']=$where;
-            if(one($same_name_query)) {
-                Return C('this:ajax','存在同名字段',1);
             }
             $column_edit_array=array();
             $column_edit_array['id']=$_POST['id'];
-            $column_edit_array['formname']=$formname;
+            $column_edit_array['formname']=trim($_POST['formname']);
             $input=C('cms:input:get',$_POST['inputhash']);
             if($input) {
                 $column_edit_array['inputhash']=$input['hash'];

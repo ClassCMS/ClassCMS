@@ -142,17 +142,6 @@ class admin_var {
                 if(!C('cms:form:allowFormName',$vars['formname'][$key])) {
                     $thismsg.=' 变量名不允许包含特殊符号';
                 }
-                $where=array();
-                $where['classhash']=$module['classhash'];
-                $where['modulehash']=$module['hash'];
-                $where['kind']='var';
-                $where['formname']=$vars['formname'][$key];
-                $same_form_query=array();
-                $same_form_query['table']='form';
-                $same_form_query['where']=$where;
-                if(one($same_form_query)) {
-                    $thismsg.=' 变量名已存在';
-                }
                 if(empty($vars['hash'][$key])) {
                     if(is_hash($vars['formname'][$key])) {
                         $vars['hash'][$key]=$vars['formname'][$key];
@@ -256,26 +245,12 @@ class admin_var {
             if($var['kind']!='var') {
                 Return C('this:ajax','变量不存在',1);
             }
-
-            $formname=trim($_POST['formname']);
-            if(!C('cms:form:allowFormName',$formname)) {
+            if(!C('cms:form:allowFormName',$_POST['formname'])) {
                 Return C('this:ajax','变量名不允许包含特殊符号',1);
-            }
-            $where=array();
-            $where['id<>']=intval($_POST['id']);
-            $where['classhash']=$var['classhash'];
-            $where['modulehash']=$var['modulehash'];
-            $where['formname']=$formname;
-            $where['kind']='var';
-            $same_name_query=array();
-            $same_name_query['table']='form';
-            $same_name_query['where']=$where;
-            if(one($same_name_query)) {
-                Return C('this:ajax','存在同名变量',1);
             }
             $var_edit_array=array();
             $var_edit_array['id']=$_POST['id'];
-            $var_edit_array['formname']=$formname;
+            $var_edit_array['formname']=trim($_POST['formname']);
             $input=C('cms:input:get',$_POST['inputhash']);
             if($input) {
                 $var_edit_array['inputhash']=$input['hash'];

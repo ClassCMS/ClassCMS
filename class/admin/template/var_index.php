@@ -131,7 +131,7 @@ layui.$('.varsort').on('change','input[name=formname]',function(){
         layui.$(this).css('color','black');
         return true;
     }
-    if (layui.$(this).val().indexOf(".") != -1 || layui.$(this).val().indexOf("(") != -1 || layui.$(this).val().indexOf(")") != -1 || layui.$(this).val().indexOf("[") != -1 || layui.$(this).val().indexOf("]") != -1 || layui.$(this).val().indexOf("{") != -1 || layui.$(this).val().indexOf("}") != -1 || layui.$(this).val().indexOf("<") != -1 || layui.$(this).val().indexOf(">") != -1 || layui.$(this).val().indexOf("$") != -1 || layui.$(this).val().indexOf(";") != -1 || layui.$(this).val().indexOf(",") != -1 || layui.$(this).val().indexOf("\\") != -1 || layui.$(this).val().indexOf("/") != -1){
+    if (layui.$(this).val().indexOf("<") != -1 || layui.$(this).val().indexOf(">") != -1){
         if (layui.$(this).css('color')!='red')
         {
             layui.$(this).css('color','red');

@@ -220,14 +220,7 @@ class cms_user {
         Return true;
     }
     function checkUser($userid,$passwd='') {
-        $user_query=array();
-        $user_query['table']='user';
-        if(C('this:common:verify',$userid,'id')) {
-            $user_query['where']=array('id'=>$userid);
-        }else {
-            $user_query['where']=array('hash'=>$userid);
-        }
-        $userinfo=one($user_query);
+        $userinfo=C('this:user:get',$userid);
         if(!$userinfo) {
             E('账号不存在');
             Return array('error'=>2,'msg'=>'账号不存在');
