@@ -82,7 +82,7 @@ class shop {
             Return C('cms:common:echoJson',array('msg'=>"未安装zip组件,无法解压安装包",'error'=>1));
         }
         $classdir=classDir($classhash);
-        $path=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['CacheDir'].DIRECTORY_SEPARATOR.'shop'.DIRECTORY_SEPARATOR;
+        $path=cacheDir('shop');
         if(!cms_createdir($path)) {
             Return C('cms:common:echoJson',array('msg'=>"创建缓存目录失败,无法下载",'error'=>1));
         }
@@ -129,7 +129,7 @@ class shop {
             Return C('cms:common:echoJson',array('msg'=>"未安装zip组件,无法解压安装包",'error'=>1));
         }
         $classdir=classDir($classhash);
-        $path=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['CacheDir'].DIRECTORY_SEPARATOR.'shop'.DIRECTORY_SEPARATOR;
+        $path=cacheDir('shop');
         if(!cms_createdir($path)) {
             Return C('cms:common:echoJson',array('msg'=>"创建缓存目录失败,无法下载",'error'=>1));
         }

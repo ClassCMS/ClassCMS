@@ -99,17 +99,17 @@ class cms_install {
         }else {
             $array['infos'][]=array('name'=>'应用目录('.$GLOBALS['C']['ClassDir'].')','value'=>'无权限,无法安装新应用','error'=>1);
         }
-        if(C('this:install:makeDir',$GLOBALS['C']['CacheDir'])) {
-            if(C('this:install:dirTest',$GLOBALS['C']['CacheDir'])) {
+        if(C('this:install:makeDir',cacheDir(),1)) {
+            if(C('this:install:dirTest',cacheDir(),1)) {
                 $array['infos'][]=array('name'=>'缓存目录('.$GLOBALS['C']['CacheDir'].')','value'=>'正常');
             }else {
                 $array['infos'][]=array('name'=>'缓存目录('.$GLOBALS['C']['CacheDir'].')','value'=>'无权限,无法安装','error'=>1);
                 $array['allow']=false;
-                echo($GLOBALS['C']['SystemRoot'].$GLOBALS['C']['CacheDir'].DIRECTORY_SEPARATOR.' permission denied!');
+                echo('permission denied:'.cacheDir());
                 Return ;
             }
         }else {
-            echo('Unable to create directory '.$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['CacheDir'].DIRECTORY_SEPARATOR);
+            echo('Unable to create directory:'.cacheDir());
             Return ;
         }
         if(C('this:install:makeDir',$GLOBALS['C']['UploadDir'])) {
@@ -235,9 +235,11 @@ class cms_install {
             Return true;
         }
     }
-    function makeDir($dir='') {
+    function makeDir($dir='',$root_ex=false) {
         if(empty($dir)) {Return ;}
-        $dir=$GLOBALS['C']['SystemRoot'].$dir.DIRECTORY_SEPARATOR;
+        if(!$root_ex){
+            $dir=$GLOBALS['C']['SystemRoot'].$dir.DIRECTORY_SEPARATOR;
+        }
         if(!is_dir($dir)) {
             if(!@mkdir($dir)) {
                 Return false;
@@ -262,9 +264,12 @@ class cms_install {
         @unlink($file);
         Return true;
     }
-    function dirTest($dir='') {
+    function dirTest($dir='',$root_ex=false) {
         if(empty($dir)) {Return ;}
-        $dir=$GLOBALS['C']['SystemRoot'].$dir.DIRECTORY_SEPARATOR.rand(1000000,9999999).'_';
+        if(!$root_ex){
+            $dir=$GLOBALS['C']['SystemRoot'].$dir.DIRECTORY_SEPARATOR;
+        }
+        $dir=$dir.DIRECTORY_SEPARATOR.rand(1000000,9999999).'_';
         $file=$dir.'write.test';
         if(!$fp = @fopen($file,"w")) {
             Return false;

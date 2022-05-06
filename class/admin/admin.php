@@ -94,6 +94,7 @@ class admin {
     function load() {
         if(isset($_GET['do'])) {
             $do=$_GET['do'];
+            if(is_array($do)){Return C('this:error','错误');}
         }else {
             $do='admin:index';
         }
@@ -148,7 +149,7 @@ class admin {
         Return false;
     }
     function publicActionCheck($do) {
-        $defaultActions=array('admin:index','admin:logout','admin:article:*','admin:formAjax','admin:jumpHome');
+        $defaultActions=array('admin:index','admin:logout','admin:article:*','admin:formAjax','admin:jumpHome','admin:loadMenu');
         $dos=explode(':',$do);
         foreach($defaultActions as $action) {
             $action=str_replace("*",end($dos),$action);
@@ -157,6 +158,9 @@ class admin {
             }
         }
         Return false;
+    }
+    function loadMenu(){
+        Return C('this:ajax',array('left'=>C('this:leftMenu'),'user'=>C('this:userNav'),'ico'=>C('this:icoNav')));
     }
     function check($do='',$userid=false,$admin_load=false) {
         if(C('this:nologinActionCheck',$do)) {
@@ -449,7 +453,7 @@ class admin {
         $headhtml.=C('this:css');
         $headhtml.=C('layui:js').PHP_EOL;
         $headhtml.=C('this:csrfJs').PHP_EOL;
-        $headhtml.='<script>layui.config({base: \''.template_url().'static/\'}).extend({index: \'lib/index\'}).use([\'index\',\'form\'],function(){});</script>'.PHP_EOL;
+        $headhtml.='<script>layui.config({base: \''.template_url().'static/\',version:\'2.9\'}).extend({index: \'lib/index\'}).use([\'index\',\'form\'],function(){});</script>'.PHP_EOL;
         Return $headhtml;
     }
     function css($check=1) {

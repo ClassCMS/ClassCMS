@@ -42,7 +42,7 @@
         {if P('class:fileUpdate') && $classinfo.classversion && $classinfo.classversion<$new_version}
             <a id="class_update" rel="{$classinfo.hash}" old="{$classinfo.classversion}" new="{$new_version}" class="layui-btn layui-btn-sm layui-btn-normal">新版本:{$new_version}</a>
         {/if}
-        {if $classinfo.classversion && $classinfo.classversion>$new_version}
+        {if $classinfo.classversion && $classinfo.classversion>$new_version && $new_version}
             应用文件有变动,请卸载后重新安装.
         {/if}
     </td>
@@ -224,6 +224,7 @@
     function configmsg(res){
         if (res.error==0)
         {
+            layui.admin.events.loadmenu();
             var confirm=layer.confirm(res.msg, {btn: ['好的'],shadeClose:1,end :function(){layui.admin.events.reload();}}, function(){layui.layer.close(confirm);});
         }
     }

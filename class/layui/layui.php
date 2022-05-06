@@ -2,10 +2,10 @@
 if(!defined('ClassCms')) {exit();}
 class layui {
     function stop() {
-        Return '无法停止';
+        Return E('系统组件,无法停止');
     }
     function uninstall() {
-        Return '无法卸载';
+        Return E('系统组件,无法卸载');
     }
     function css($check=1) {
         if($check && G('css')){return '';}

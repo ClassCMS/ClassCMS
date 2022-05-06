@@ -243,6 +243,9 @@ class cms_class {
         Return true;
     }
     function installRoute($classhash) {
+        if(!del(array('table'=>'route','where'=>array('classhash'=>$classhash,'modulehash'=>'')))){
+            Return false;
+        }
         if($routes=C($classhash.':route')) {
             if(is_array($routes)) {
                 foreach($routes as $route) {
@@ -257,12 +260,7 @@ class cms_class {
                         $newroute['enabled']=$route['enabled'];
                         $newroute['classfunction']=$route['function'];
                         $newroute['classview']=$route['view'];
-                        if($thisroute=C('this:route:get',$newroute['hash'],'',$classhash)) {
-                            $newroute['id']=$thisroute['id'];
-                            C('this:route:edit',$newroute);
-                        }else {
-                            C('this:route:add',$newroute);
-                        }
+                        C('this:route:add',$newroute);
                     }
                 }
             }
@@ -273,6 +271,9 @@ class cms_class {
         Return true;
     }
     function installHook($classhash) {
+        if(!del(array('table'=>'hook','where'=>array('classhash'=>$classhash)))){
+            Return false;
+        }
         if($hooks=C($classhash.':hook')) {
             if(is_array($hooks)) {
                 foreach($hooks as $hook) {
@@ -285,12 +286,7 @@ class cms_class {
                         $newhook['hookedfunction']=$hook['hookedfunction'];
                         $newhook['requires']=$hook['requires'];
                         $newhook['enabled']=$hook['enabled'];
-                        if($thishook=C('this:hook:get',$newhook['hookname'],$newhook['hookedfunction'],$classhash)) {
-                            $newhook['id']=$thishook['id'];
-                            C('this:hook:edit',$newhook);
-                        }else {
-                            C('this:hook:add',$newhook);
-                        }
+                        C('this:hook:add',$newhook);
                     }
                 }
             }

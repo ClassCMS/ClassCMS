@@ -198,6 +198,7 @@ function saveinfos(enabled){
     },done: function(res){
         if (res.error==0)
         {
+            layui.admin.events.loadmenu();
             var confirm=layer.confirm(res.msg, {btn: ['好的','返回'],shadeClose:1,end :function(){layui.admin.events.reload();}},function(){layui.layer.close(confirm);},function(){
                 layui.admin.events.back();
                 });
@@ -365,6 +366,7 @@ layui.$('#infoitem').on('click','.infodelete',function(){
                 layui.admin.load('删除中...');
             },done: function(res){
                 layui.admin.loaded();
+                layui.admin.events.loadmenu();
                 if (res.error==0)
                 {
                     layui.layer.msg(res.msg);

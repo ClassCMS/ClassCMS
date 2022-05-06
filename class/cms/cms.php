@@ -682,6 +682,12 @@ function classDir($classhash='') {
     Return $GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$classhash.DIRECTORY_SEPARATOR;
 }
 function cacheDir($path='') {
+    if(stripos($GLOBALS['C']['CacheDir'],'/')!==false || stripos($GLOBALS['C']['CacheDir'],'\\')!==false) {
+        if(empty($path)) {
+            Return rtrim($GLOBALS['C']['CacheDir'],'/\\').DIRECTORY_SEPARATOR;
+        }
+        Return rtrim($GLOBALS['C']['CacheDir'],'/\\').DIRECTORY_SEPARATOR.$path.DIRECTORY_SEPARATOR;
+    }
     if(empty($path)) {
         Return $GLOBALS['C']['SystemRoot'].$GLOBALS['C']['CacheDir'].DIRECTORY_SEPARATOR;
     }
@@ -728,6 +734,7 @@ function hook_requires($args,$requires) {
     $classfunction=explode(':',$args[0]);
     $classhash=$classfunction[0];
     $requires=explode(';',$requires);
+    if(isset($GLOBALS['C']['c_error'])){$old_c_error=$GLOBALS['C']['c_error'];}else{$old_c_error=false;}
     foreach ($requires as $require) {
         $thisrequire=explode('=',$require);
         $names=explode('.',$thisrequire[0]);
@@ -741,10 +748,10 @@ function hook_requires($args,$requires) {
             if($value!==null && $_POST[$names[1]]!=$value){return false;}
         }elseif($names[0]=='p'){
             if(!isset($names[1])){return false;}
-            if($value===null){if(!P($names[1],$classhash)){return false;}}elseif($value==0){if(P($names[1],$classhash)){return false;}}else{if(!P($names[1],$classhash)){return false;}}
+            if($value===null){if(!P($names[1],$classhash)){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;}}elseif($value==0){if(P($names[1],$classhash)){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;}}else{if(!P($names[1],$classhash)){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;}}
         }elseif($names[0]=='config'){
             if(!isset($names[1])){return false;}
-            if($value!==null){if(config($names[1],false,$classhash)!=$value){return false;}}elseif(!config($names[1],false,$classhash)){return false;}
+            if($value!==null){if(config($names[1],false,$classhash)!=$value){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;}}elseif(!config($names[1],false,$classhash)){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;}
         }elseif($names[0]=='globals'){
             if(count($names)==2){
                 if($value===null){if(!isset($GLOBALS[$names[1]])){return false;}}elseif(!isset($GLOBALS[$names[1]]) || $GLOBALS[$names[1]]!=$value){return false;}
@@ -767,6 +774,7 @@ function hook_requires($args,$requires) {
             }
         }
     }
+    if(isset($old_c_error) && $old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}
     return true;
 }
 function uridecode($uri) {
@@ -824,7 +832,7 @@ function include_template($template_config) {
         $parentLevel=substr_count($template_config['file'],'../');
         if($parentLevel){
             $nowpaths=explode('/',str_replace("\\","/",$template_config['nowpath']));
-            if(empty(end($nowpaths))){
+            if(!end($nowpaths)){
                 array_pop($nowpaths);
             }
             for ($i=0; $i <$parentLevel; $i++) {
@@ -890,7 +898,7 @@ function dir_template($keyname,$keykind='') {
     }else {
         $keykind.=DIRECTORY_SEPARATOR;
     }
-    Return $GLOBALS['C']['SystemRoot'].$GLOBALS['C']['CacheDir'].DIRECTORY_SEPARATOR.$keykind.substr($md5,8,20).'.html';
+    Return cacheDir().$keykind.substr($md5,8,20).'.html';
 }
 function echo_replace($str) {
     Return str_replace("'","\\'",$str);

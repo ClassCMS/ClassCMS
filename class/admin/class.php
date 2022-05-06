@@ -347,7 +347,7 @@ class admin_class {
                 $new_class['menu']=1;
             }
             update($new_class);
-            Return C('this:ajax','后台菜单设置成功,请刷新后台页面');
+            Return C('this:ajax','后台菜单设置成功');
         }
         Return C('this:ajax','后台菜单设置失败',1);
     }

@@ -8,10 +8,10 @@
   <div id="ClassCMS" class="layadmin-tabspage-none">
     <div class="layui-layout layui-layout-admin">
       <div class="layui-header">
-        <ul class="layui-nav layui-layout-left">
+        <ul class="layui-nav layui-layout-left" id="LAY-system-ico-menu" lay-filter="layadmin-ico-menu">
           {this:icoNav()}
         </ul>
-        <ul class="layui-nav layui-layout-right" lay-filter="layadmin-layout-right" style="margin-right:20px">
+        <ul class="layui-nav layui-layout-right" id="LAY-system-user-menu" lay-filter="layadmin-layout-right" style="margin-right:20px">
           {this:userNav:())}
         </ul>
       </div>

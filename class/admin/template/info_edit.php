@@ -267,6 +267,7 @@
         },done: function(res){
             if (res.error==0)
             {
+                layui.admin.events.loadmenu();
                 var confirm=layer.confirm(res.msg, 
                     {
                         btn: ['好的','返回'],
