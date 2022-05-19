@@ -360,6 +360,7 @@ class admin {
         $html='';
         if(!isset($child['url'])) {$child['url']='';}
         if(!isset($child['title'])) {$child['title']='unknown';}
+        if(!isset($child['tips'])) {$child['tips']='';}
         if(!isset($child['ico'])) {$child['ico']='';}
         if(!isset($child['function'])) {$child['function']='';}
         if(!isset($child['classhash'])) {$child['classhash']=$classhash;}
@@ -392,10 +393,18 @@ class admin {
         }
         if($times) {
             $html.='<dd data-name="'.($child['title']).'" class="'.$openhtml.'">';
-            $html.='<a'.$targethtml.'><i class="layui-icon '.$child['ico'].'"></i>'.$child['title'].'</a>';
+            $html.='<a'.$targethtml.'><i class="layui-icon '.$child['ico'].'"></i>'.$child['title'];
+            if($child['tips']){
+                $html.='<span class="layui-badge">'.$child['tips'].'</span>';
+            }
+            $html.='</a>';
         }else {
             $html.='<li data-name="'.($child['title']).'" class="layui-nav-item '.$openhtml.'">'.PHP_EOL;
-            $html.='<a'.$targethtml.'><i class="layui-icon '.$child['ico'].'"></i><cite>'.$child['title'].'</cite></a>';
+            $html.='<a'.$targethtml.'><i class="layui-icon '.$child['ico'].'"></i><cite>'.$child['title'].'</cite>';
+            if($child['tips']){
+                $html.='<span class="layui-badge">'.$child['tips'].'</span>';
+            }
+            $html.='</a>';
         }
         if(isset($child['child']) && is_array($child['child']) && count($child['child'])) {
             $html.=PHP_EOL.'<dl class="layui-nav-child">'.PHP_EOL;

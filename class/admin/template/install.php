@@ -112,7 +112,7 @@
                         <div class="layui-tab-item layui-show">
                             <div class="layui-form-item">
                                 <label class="layadmin-user-login-icon layui-icon layui-icon-dir"></label>
-                                <input type="text" name="admindir" value="{if isset($_SERVER['admin_dir'])}{$_SERVER['admin_dir']}{/if}" class="layui-input" lay-verify="hash" placeholder="自定义后台路径,如:admin">
+                                <input type="text" name="admindir"{if isset($GLOBALS['C']['AdminDir'])} disabled{/if} value="{if isset($GLOBALS['C']['AdminDir'])}{$GLOBALS['C']['AdminDir']}{elseif isset($_SERVER['admin_dir'])}{$_SERVER['admin_dir']}{/if}" class="layui-input" lay-verify="hash" placeholder="自定义后台路径,如:admin">
                             </div>
                             <div class="layui-form-item">
                                 <label class="layadmin-user-login-icon layui-icon layui-icon-username"></label>

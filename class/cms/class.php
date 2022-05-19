@@ -148,7 +148,7 @@ class cms_class {
         }
         if(count($requires)) {
             foreach($requires as $require) {
-                $installed=false;
+                $enabled=false;
                 @preg_match_all('/\[.*?\]/',$require,$requireversions);
                 if(isset($requireversions[0][0])){
                     $requireclasshash=rtrim($require,$requireversions[0][0]);
@@ -156,7 +156,7 @@ class cms_class {
                     $requireclasshash=$require;
                 }
                 foreach($classes as $thisclass) {
-                    if($thisclass['hash']==$requireclasshash && $thisclass['installed']) {
+                    if($thisclass['hash']==$requireclasshash && $thisclass['enabled']) {
                         if(isset($requireversions[0][0])){
                             $thisversions=explode(',',rtrim(ltrim($requireversions[0][0],'['),']'));
                             foreach ($thisversions as $thisversion) {
@@ -187,10 +187,10 @@ class cms_class {
                                 }
                             }
                         }
-                        $installed=true;
+                        $enabled=true;
                     }
                 }
-                if(!$installed) {
+                if(!$enabled) {
                     Return false;
                 }
             }
@@ -392,10 +392,10 @@ class cms_class {
         if(!C('this:class:phpCheck',$classhash)) {
             Return false;
         }
-        if(!C('this:class:requires',$classhash)) {
-            Return false;
-        }
         if($class['installed']) {
+            if(!C('this:class:requires',$classhash)) {
+                Return false;
+            }
             $updateinfo=C($classhash.':upgrade',$old_version);
         }else {
             $updateinfo=true;

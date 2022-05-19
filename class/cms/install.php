@@ -14,8 +14,10 @@ class cms_install {
                 $GLOBALS['C']['UrlRewrite']=0;
             }
             if($_POST['step']=='_database') {
-                if(isset($_POST['admindir']) && !is_hash($_POST['admindir'])) {
-                    Return C('admin:ajax','admin dir error',1);
+                if(!isset($GLOBALS['C']['AdminDir'])){
+                    if(isset($_POST['admindir']) && !is_hash($_POST['admindir'])) {
+                        Return C('admin:ajax','admin dir error',1);
+                    }
                 }
                 $createDatabase=C('this:install:createDatabase',1);
                 if(!is_array($createDatabase)) {
@@ -39,10 +41,12 @@ class cms_install {
                 }else {
                     $config['Debug']=0;
                 }
-                if(isset($_POST['admindir']) && is_hash($_POST['admindir'])) {
-                    $config['AdminDir']=$_POST['admindir'];
-                }else {
-                    $config['AdminDir']='admin';
+                if(!isset($GLOBALS['C']['AdminDir'])){
+                    if(isset($_POST['admindir']) && is_hash($_POST['admindir'])) {
+                        $config['AdminDir']=$_POST['admindir'];
+                    }else {
+                        $config['AdminDir']='admin';
+                    }
                 }
                 $config['SiteHash']=substr(md5(rand(10000000,99999999).time().rand(10000000,99999999)),0,16);
                 $config['DbInfo']=$createDatabase;
@@ -51,6 +55,9 @@ class cms_install {
                     Return C('admin:ajax',$writeConfig,1);
                 }
                 C('this:common:opcacheReset');
+                if(isset($GLOBALS['C']['AdminDir'])){
+                    Return C('admin:ajax',rewriteUri($GLOBALS['C']['AdminDir'].'/'));
+                }
                 Return C('admin:ajax',rewriteUri($config['AdminDir'].'/'));
             }
             if($classdirslist=@scandir(classDir())) {

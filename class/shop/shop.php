@@ -159,6 +159,9 @@ class shop {
         if(!$classinfo=C('cms:class:get',$classhash)) {
             Return C('cms:common:echoJson',array('msg'=>'应用不存在','error'=>1));
         }
+        if(!C('cms:class:requires',$classhash)) {
+            Return C('cms:common:echoJson',array('msg'=>'安装失败.请先安装依赖应用','error'=>1));
+        }
         if(C('cms:class:install',$classhash)) {
             Return C('cms:common:echoJson',array('msg'=>"安装完成"));
         }else{
@@ -230,12 +233,14 @@ class shop {
                             }
                         }
                     }
-                    if($thisclass['installed'] && $versioncheck){
+                    if($thisclass['enabled'] && $versioncheck){
                         $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-normal" href="?do=admin:class:config&hash='.$requireclasshash.'"><i class="layui-icon layui-icon-ok"></i>'.$require.'</a> ';
                     }elseif(!$versioncheck){
                         $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-primary" href="?do=admin:class:config&hash='.$requireclasshash.'"><i class="layui-icon layui-icon-ok"></i>'.$require.' [不兼容]</a> ';
                     }elseif(!$thisclass['installed']){
                         $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-primary" href="?do=admin:class:config&hash='.$requireclasshash.'"><i class="layui-icon layui-icon-close"></i>'.$require.' [未安装]</a> ';
+                    }elseif(!$thisclass['enabled']){
+                        $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-primary" href="?do=admin:class:config&hash='.$requireclasshash.'"><i class="layui-icon layui-icon-close"></i>'.$require.' [未启用]</a> ';
                     }
                 }else {
                     $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-primary" href="?do=shop:index&action=detail&classhash='.$requireclasshash.'"><i class="layui-icon layui-icon-close"></i>'.$require.' [未下载]</a> ';
