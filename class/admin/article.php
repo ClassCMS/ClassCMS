@@ -132,6 +132,12 @@ class admin_article {
             }
         }
         if($array['id']) {
+            if(isset($_SERVER['HTTP_REFERER'])){
+                $referer_parse=parse_url($_SERVER['HTTP_REFERER']);
+                if(isset($referer_parse['host']) && $referer_parse['host']==C('cms:common:serverName')){
+                    $array['referer']=$_SERVER['HTTP_REFERER'];
+                }
+            }
             if($editColumns=C('this:article:editColumns:~',$array['columns'])) {
                 $array['columns']=$editColumns;
             }

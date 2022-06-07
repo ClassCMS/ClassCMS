@@ -6,7 +6,7 @@ class cms_common {
             $time=date('Y-m-d H:i:s');
         }
         $file = fopen('log_'.md5($GLOBALS['C']['SiteHash']).'.txt', "a");
-        fwrite($file, $time.' '.$msg.PHP_EOL);
+        fwrite($file, $time.' '.$msg."\n");
         fclose($file);
         Return true;
     }
@@ -352,6 +352,9 @@ class cms_common {
         Return $content;
     }
     function download($url,$path,$timeout=999){
+        if(!function_exists("curl_init")){
+            return false;
+        }
         $removefile=!@is_file($path);
         if(!$fp = @fopen($path, "w+")){
             return false;

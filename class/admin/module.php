@@ -3,7 +3,7 @@ if(!defined('ClassCms')) {exit();}
 class admin_module {
     function auth() {
         Return array(
-            'module:index;module:order;'=>'查看模型列表',
+            'module:index;module:order'=>'查看模型列表',
             'module:add;module:addPost'=>'增加模型',
             'module:config;module:edit;module:editPost'=>'修改模型',
             'module:del'=>'删除模型',

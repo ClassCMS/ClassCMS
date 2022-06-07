@@ -73,22 +73,10 @@ class admin {
         if(P('class:index')) {Return '?do=admin:class:index';}
         C('this:leftMenu');
         if(isset($GLOBALS['C']['admin']['defaultpage'])) {Return $GLOBALS['C']['admin']['defaultpage'];}
-        if(P('my:info')) {
-            $infos=C('cms:form:all','info');
-            $infos=C('cms:form:getColumnCreated',$infos,'user');
-            if(count($infos)) {
-                foreach($infos as $key=>$info) {
-                    if($infos[$key]['enabled']) {
-                        $infos[$key]=C('cms:form:build',$info['id']);
-                        $infos[$key]['auth']=C('this:formAuth',$info['id']);
-                        if($infos[$key]['auth']['read']) {
-                            Return '?do=admin:my:info';
-                        }
-                    }
-                }
-            }
+        $userNavItems=C('this:userNavItems');
+        if(isset($userNavItems[0][0])){
+            Return $userNavItems[0][0];
         }
-        if(P('my:edit')) {Return '?do=admin:my:edit';}
         Return '';
     }
     function load() {
@@ -399,7 +387,7 @@ class admin {
             }
             $html.='</a>';
         }else {
-            $html.='<li data-name="'.($child['title']).'" class="layui-nav-item '.$openhtml.'">'.PHP_EOL;
+            $html.='<li data-name="'.($child['title']).'" class="layui-nav-item '.$openhtml."\">\n";
             $html.='<a'.$targethtml.'><i class="layui-icon '.$child['ico'].'"></i><cite>'.$child['title'].'</cite>';
             if($child['tips']){
                 $html.='<span class="layui-badge">'.$child['tips'].'</span>';
@@ -407,13 +395,13 @@ class admin {
             $html.='</a>';
         }
         if(isset($child['child']) && is_array($child['child']) && count($child['child'])) {
-            $html.=PHP_EOL.'<dl class="layui-nav-child">'.PHP_EOL;
+            $html.="\n<dl class=\"layui-nav-child\">\n";
             foreach($child['child'] as $this_child) {
                 $html.=C('this:childMenu',$classhash,$this_child,$times+1);
             }
-            $html.='</dl>'.PHP_EOL;
+            $html.="</dl>\n";
         }
-        if($times) {$html.='</dd>'.PHP_EOL;}else {$html.='</li>'.PHP_EOL;}
+        if($times) {$html.="</dd>\n";}else {$html.="</li>\n";}
         Return $html;
     }
     function menu() {
@@ -455,20 +443,20 @@ class admin {
         Return true;
     }
     function head($title='') {
-        $headhtml=PHP_EOL.'<meta charset="utf-8"><title>'.$title.'</title><meta name="renderer" content="webkit">'.PHP_EOL;
-        $headhtml.='<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="referrer" content="origin-when-cross-origin">'.PHP_EOL;
-        $headhtml.='<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">'.PHP_EOL;
-        $headhtml.=C('layui:css').PHP_EOL;
+        $headhtml="\n".'<meta charset="utf-8"><title>'.$title.'</title><meta name="renderer" content="webkit">'."\n";
+        $headhtml.='<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="referrer" content="origin-when-cross-origin">'."\n";
+        $headhtml.='<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">'."\n";
+        $headhtml.=C('layui:css')."\n";
         $headhtml.=C('this:css');
-        $headhtml.=C('layui:js').PHP_EOL;
-        $headhtml.=C('this:csrfJs').PHP_EOL;
-        $headhtml.='<script>layui.config({base: \''.template_url().'static/\',version:\'2.9\'}).extend({index: \'lib/index\'}).use([\'index\',\'form\'],function(){});</script>'.PHP_EOL;
+        $headhtml.=C('layui:js')."\n";
+        $headhtml.=C('this:csrfJs')."\n";
+        $headhtml.='<script>layui.config({base: \''.template_url().'static/\',version:\'3.1\'}).extend({index: \'lib/index\'}).use([\'index\',\'form\'],function(){});</script>'."\n";
         Return $headhtml;
     }
     function css($check=1) {
         if($check && G('css')){return '';}
         G('css',1);
-        Return '<link rel="stylesheet" href="'.template_url().'static/admin.css" media="all">'.PHP_EOL;
+        Return '<link rel="stylesheet" href="'.template_url().'static/admin.css" media="all">'."\n";
     }
     function icoNav() {
         Return '<li class="layui-nav-item layadmin-flexible" lay-unselect><a href="javascript:;" layadmin-event="flexible" title="侧边伸缩"><i class="layui-icon layui-icon-shrink-right" id="LAY_app_flexible"></i></a></li><li class="layui-nav-item" lay-unselect><a href="?do=admin:jumpHome" target="_blank" title="主页"><i class="layui-icon layui-icon-website"></i></a></li><li class="layui-nav-item" lay-unselect><a href="javascript:;" layadmin-event="refresh" title="刷新"><i class="layui-icon layui-icon-refresh-3"></i></a></li>';
@@ -608,7 +596,7 @@ class admin {
             $token=C('cms:user:makeToken',$userid);
             if(C('this:adminCookie',$token)) {
                 C('this:csrfSet',1);
-                Return C('this:ajax','登入成功');
+                Return C('this:ajax',array('msg'=>'登入成功','token'=>$token));
             }else {
                 Return C('this:ajax','登入失败',1);
             }

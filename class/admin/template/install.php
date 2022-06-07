@@ -74,26 +74,26 @@
                             {if $pdo_mysql || $mysql}
                                 <div class="layui-form-item">
                                     <label class="layadmin-user-login-icon layui-icon layui-icon-website" for="LAY-user-login-username"></label>
-                                    <input type="text" name="mysql_host" value="{if isset($_SERVER['DbInfo_host'])}{$_SERVER['DbInfo_host']}{else}127.0.0.1{/if}" placeholder="数据库地址,如:127.0.0.1或者localhost:3306" class="layui-input">
+                                    <input type="text" name="mysql_host" value="127.0.0.1" placeholder="数据库地址,如:127.0.0.1或者localhost:3306" class="layui-input">
                                 </div>
                                 <div class="layui-form-item">
                                     <label class="layadmin-user-login-icon layui-icon layui-icon-template-1" for="LAY-user-login-username"></label>
-                                    <input type="text" name="mysql_dbname" value="{if isset($_SERVER['DbInfo_dbname'])}{$_SERVER['DbInfo_dbname']}{/if}" placeholder="数据库名" class="layui-input">
+                                    <input type="text" name="mysql_dbname" value="" placeholder="数据库名" class="layui-input">
                                 </div>
                                 <div class="layui-form-item">
                                     <label class="layadmin-user-login-icon layui-icon layui-icon-align-left" for="LAY-user-login-username"></label>
-                                    <input type="text"  name="prefix" value="{if isset($_SERVER['DbInfo_prefix'])}{$_SERVER['DbInfo_prefix']}{/if}"  placeholder="表名前缀,如classcms_,不要与其他网站冲突" class="layui-input">
+                                    <input type="text"  name="prefix" value=""  placeholder="表名前缀,如classcms_,不要与其他网站冲突" class="layui-input">
                                 </div>
                                 <div class="layui-form-item">
                                     <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="LAY-user-login-password"></label>
-                                    <input type="text" name="mysql_user" value="{if isset($_SERVER['DbInfo_user'])}{$_SERVER['DbInfo_user']}{else}root{/if}" placeholder="数据库账号" class="layui-input">
+                                    <input type="text" name="mysql_user" value="root" placeholder="数据库账号" class="layui-input">
                                 </div>
                                 <div class="layui-form-item">
                                     <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>
-                                    <input type="password" name="mysql_password" value="{if isset($_SERVER['DbInfo_password'])}{$_SERVER['DbInfo_password']}{/if}" placeholder="数据库密码" class="layui-input">
+                                    <input type="password" name="mysql_password" value="" placeholder="数据库密码" class="layui-input">
                                 </div>
                                 <div class="layui-form-item">
-                                    <input type="checkbox" name="mysql_utf8mb4" lay-skin="primary" title="使用utf8mb4字符集,支持Emoji表情,Mysql版本需&gt;=5.5.3" checked>
+                                    <input type="checkbox" name="mysql_utf8mb4" lay-skin="primary" title="使用utf8mb4字符集,支持Emoji表情" checked>
                                 </div>
                             {else}
                                 服务器未开启pdo_mysql或Mysql组件,无法使用Mysql数据库
@@ -112,19 +112,19 @@
                         <div class="layui-tab-item layui-show">
                             <div class="layui-form-item">
                                 <label class="layadmin-user-login-icon layui-icon layui-icon-dir"></label>
-                                <input type="text" name="admindir"{if isset($GLOBALS['C']['AdminDir'])} disabled{/if} value="{if isset($GLOBALS['C']['AdminDir'])}{$GLOBALS['C']['AdminDir']}{elseif isset($_SERVER['admin_dir'])}{$_SERVER['admin_dir']}{/if}" class="layui-input" lay-verify="hash" placeholder="自定义后台路径,如:admin">
+                                <input type="text" name="admindir"{if isset($GLOBALS['C']['AdminDir'])} disabled{/if} value="{if isset($GLOBALS['C']['AdminDir'])}{$GLOBALS['C']['AdminDir']}{/if}" class="layui-input" lay-verify="hash" placeholder="自定义后台路径,如:admin">
                             </div>
                             <div class="layui-form-item">
                                 <label class="layadmin-user-login-icon layui-icon layui-icon-username"></label>
-                                <input type="text" name="userhash" placeholder="管理员账号" class="layui-input" lay-verify="hash" value="{if isset($_SERVER['admin_userhash'])}{$_SERVER['admin_userhash']}{/if}">
+                                <input type="text" name="userhash" placeholder="管理员账号" class="layui-input" lay-verify="hash" value="">
                             </div>
                             <div class="layui-form-item">
                                 <label class="layadmin-user-login-icon layui-icon layui-icon-password"></label>
-                                <input type="password" name="passwd" placeholder="管理员密码" class="layui-input" value="{if isset($_SERVER['admin_passwd'])}{$_SERVER['admin_passwd']}{/if}">
+                                <input type="password" name="passwd" placeholder="管理员密码" class="layui-input" value="">
                             </div>
                             <div class="layui-form-item">
                                 <label class="layadmin-user-login-icon layui-icon layui-icon-password"></label>
-                                <input type="password" name="passwd2" placeholder="确认密码" class="layui-input" value="{if isset($_SERVER['admin_passwd'])}{$_SERVER['admin_passwd']}{/if}">
+                                <input type="password" name="passwd2" placeholder="确认密码" class="layui-input" value="">
                             </div>
                             <div class="layui-form-item">
                                 <input type="checkbox" name="debug" lay-skin="primary" title="显示报错信息,方便本地调试">
@@ -166,6 +166,11 @@
 </div>
     <script>
     layui.use(['index','form','element'],function(){
+        {if isset($GLOBALS['C']['InstallDefaultSetting'])}
+            {loop $GLOBALS['C']['InstallDefaultSetting'] as $settingkey=>$settingvalue}
+            layui.$('input[name={$settingkey}]').val("{$settingvalue}");
+            {/loop}
+        {/if}
         layui.element.on('tab(database)', function(data){
           layui.$('input[name=database]').val(data.index);
         });

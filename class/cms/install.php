@@ -168,9 +168,6 @@ class cms_install {
         if(!$array['classlist']){
             $array['allow']=false;
         }
-        if(isset($_SERVER['DbInfo_prefix']) && $_SERVER['DbInfo_prefix']=='rand') {
-            $_SERVER['DbInfo_prefix']='c'.date('md').rand(1000,9999).'_';
-        }
         if(!isset($GLOBALS['C']['installTitle']) || empty($GLOBALS['C']['installTitle'])){
             $GLOBALS['C']['installTitle']='ClassCMS 安装';
         }
@@ -428,17 +425,17 @@ class cms_install {
                         $configstr.="'".$key2."'=>'".$val2."',";
                     }
                 }
-                $configstr.=");".PHP_EOL;
+                $configstr.=");\n";
             }else {
                 if(is_int($val)) {
-                    $configstr.="\$GLOBALS['C']['".$key."']=".$val.";".PHP_EOL;
+                    $configstr.="\$GLOBALS['C']['".$key."']=".$val.";\n";
                 }else {
                     $val=str_replace(array("'","\\"),array("\'","\\\\"),$val);
-                    $configstr.="\$GLOBALS['C']['".$key."']='".$val."';".PHP_EOL;
+                    $configstr.="\$GLOBALS['C']['".$key."']='".$val."';\n";
                 }
             }
         }
-        $configstr.=PHP_EOL.PHP_EOL."require('class/cms/cms.php');";
+        $configstr.="\n\nrequire('class/cms/cms.php');";
         $file=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['Indexfile'];
         $indexfileContent=@file_get_contents($file);
         if(!$indexfileContent) {
