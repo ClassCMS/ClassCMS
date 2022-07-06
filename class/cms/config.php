@@ -51,6 +51,9 @@ class cms_config {
     function set($hash,$value='',$overtime=0,$classhash='') {
         if(empty($classhash)) {$classhash=I(-1);}
         if(!is_hash($classhash)) {Return false;}
+        if($overtime>0 && $overtime<=3600*24*365){
+            $overtime=time()+$overtime;
+        }
         $config_query=array();
         $config_query['table']='config';
         $config_query['where']=array('hash'=>$hash,'classhash'=>$classhash);

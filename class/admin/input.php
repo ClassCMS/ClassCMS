@@ -1119,6 +1119,7 @@ class admin_input {
                 $config['values']=explode("\n",$config['values']);
             }
             $values=array();
+            $checkedvalues=array();
             foreach($config['values'] as $key=>$val) {
                 $val=htmlspecialchars($val);
                 $val=str_replace(';',' ',$val);
@@ -1141,9 +1142,23 @@ class admin_input {
                         if($thisvalue[2]=='disabled') {$thisvalue[2]=true;}else {$thisvalue[2]=false;}
                         if(in_array($val,$value)) {$thisvalue[3]=true;}else {$thisvalue[3]=false;}
                     }
-                    $values[]=array('value'=>$thisvalue[0],'title'=>$thisvalue[1],'disabled'=>$thisvalue[2],'checked'=>false);
+                    if($thisvalue[3]){
+                        $checkedvalues[]=array('value'=>$thisvalue[0],'title'=>$thisvalue[1],'disabled'=>$thisvalue[2],'checked'=>false);
+                    }else{
+                        $values[]=array('value'=>$thisvalue[0],'title'=>$thisvalue[1],'disabled'=>$thisvalue[2],'checked'=>false);
+                    }
                 }
             }
+            $newcheckedvalues=array();
+            foreach ($value as $key => $thisvalue) {
+                foreach ($checkedvalues as $checkedvalue) {
+                    if($thisvalue==$checkedvalue['value']){
+                        $newcheckedvalues[]=$checkedvalue;
+                        break;
+                    }
+                }
+            }
+            $values=array_merge($values,$newcheckedvalues);
         }
         switch($action) {
             case 'name':
@@ -1155,9 +1170,6 @@ class admin_input {
             case 'sql':
                 Return 'text';
             case 'form':
-                if(!count($values)) {
-                    Return '无选项';
-                }
                 $config['values']=json_encode($values);
                 $config['json_value']=json_encode(explode(';',$config['value']));
                 V('input/transfer',$config);
@@ -1184,14 +1196,16 @@ class admin_input {
                     }
                     Return '';
                 }
-                $postvalue_array=explode(';',$_POST[$config['name']]);
                 $postvalue=array();
-                foreach($values as $thisvalue) {
-                    if($thisvalue['disabled']!='disabled' && in_array($thisvalue['value'],$postvalue_array)) {
-                        if($config['savetype']==1) {
-                            $postvalue[]=$thisvalue['value'];
-                        }else {
-                            $postvalue[]=$thisvalue['title'];
+                $postvalue_array=explode(';',$_POST[$config['name']]);
+                foreach ($postvalue_array as $thispostvalue) {
+                    foreach($values as $thisvalue) {
+                        if($thisvalue['disabled']!='disabled' && $thispostvalue==$thisvalue['value']) {
+                            if($config['savetype']==1) {
+                                $postvalue[]=$thisvalue['value'];
+                            }else {
+                                $postvalue[]=$thisvalue['title'];
+                            }
                         }
                     }
                 }

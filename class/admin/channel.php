@@ -21,23 +21,23 @@ class admin_channel {
     function index() {
         if(isset($_GET['id'])) {
             if(!$channel=C('cms:channel:get',intval($_GET['id']))){
-                Return C('this:error','栏目不存在');
+                Return E('栏目不存在');
             }
             $_GET['classhash']=$channel['classhash'];
             $array['fid']=$channel['id'];
             $array['breadcrumb']=C('this:channel:breadcrumb',$channel);
         }else{
             if(!isset($_GET['classhash']) && !$_GET['classhash']=C('cms:class:defaultClass')){
-                Return C('this:error','未安装模板应用');
+                Return E('未安装模板应用');
             }
             $array['fid']=0;
             $array['breadcrumb']=C('this:channel:breadcrumb',false,$_GET['classhash']);
         }
         if(!$array['classinfo']=C('cms:class:get',$_GET['classhash'])) {
-            Return C('this:error','应用未安装');
+            Return E('应用未安装');
         }
-        if(!$array['classinfo']['installed']) {Return C('this:error',$_GET['classhash'].' 应用未安装');}
-        if(!$array['classinfo']['module']) {Return C('this:error','此应用['.$_GET['classhash'].'] 未开启模型配置选项');}
+        if(!$array['classinfo']['installed']) {Return E($_GET['classhash'].' 应用未安装');}
+        if(!$array['classinfo']['module']) {Return E('此应用['.$_GET['classhash'].'] 未开启模型配置选项');}
         $array['channel_edit']=P('channel:edit');
         if($maxshow=C('this:channel:maxshow',$array['classinfo']['hash'])) {
             $array['showpage']=1;
@@ -62,16 +62,16 @@ class admin_channel {
                 $array['channels']=C('this:channel:hideDisabledChannel',$array['channels'],$this_channel['id']);
             }
         }
-        V('channel_index',$array);
+        Return V('channel_index',$array);
     }
     function add() {
         if(!$array['classinfo']=C('cms:class:get',@$_GET['classhash'])) {
-            Return C('this:error','应用不存在');
+            Return E('应用不存在');
         }
-        if(!$array['classinfo']['module']) {Return C('this:error',$array['classinfo']['classname'].' 应用无法配置模型');}
+        if(!$array['classinfo']['module']) {Return E($array['classinfo']['classname'].' 应用无法配置模型');}
         $modulelist=C('cms:module:all',$array['classinfo']['hash']);
         if(!count($modulelist)) {
-            Return C('this:error','当前应用下没有模型,请先增加模型');
+            Return E('当前应用下没有模型,请先增加模型');
         }
         if(isset($_GET['fid'])) {
             $array['channel']['fid']=intval($_GET['fid']);
@@ -93,18 +93,18 @@ class admin_channel {
             $array['channel']['channelorder']=ceil(($max_order['channelorder']+10)/10)*10;
         }
         $array['title']='增加栏目';
-        V('channel_edit',$array);
+        Return V('channel_edit',$array);
     }
     function addPost() {
-        if(!$array['classinfo']=C('cms:class:get',@$_POST['classhash'])) {Return C('this:ajax','应用不存在',1);}
-        if(!$array['classinfo']['installed']) {Return C('this:ajax','应用未安装',1);}
-        if(!$array['classinfo']['module']) {Return C('this:ajax',$array['classinfo']['classname'].' 应用无法配置模型',1);}
+        if(!$array['classinfo']=C('cms:class:get',@$_POST['classhash'])) {Return E('应用不存在');}
+        if(!$array['classinfo']['installed']) {Return E('应用未安装');}
+        if(!$array['classinfo']['module']) {Return E($array['classinfo']['classname'].' 应用无法配置模型');}
         if(!@$_POST['modulehash']) {
-            Return C('this:ajax','请选择模型',1);
+            Return E('请选择模型');
         }
         $module=C('cms:module:get',@$_POST['modulehash'],$array['classinfo']['hash']);
         if(!$module) {
-            Return C('this:ajax','模型不存在',1);
+            Return E('模型不存在');
         }
         $channel_add_array=array();
         $channel_add_array['classhash']=$module['classhash'];
@@ -116,33 +116,33 @@ class admin_channel {
         if($channel_add_array['channelorder']<0) {$channel_add_array['channelorder']=0;}
         $addreturn=C('cms:channel:add',$channel_add_array);
         if(is_numeric($addreturn)) {
-            Return C('this:ajax','增加成功');
+            Return array('msg'=>'增加成功','id'=>$addreturn,'url'=>'?do=admin:article:home&cid='.$addreturn);
         }elseif(is_string($addreturn)) {
-            Return C('this:ajax',$addreturn,1);
+            Return E($addreturn);
         }elseif(E()){
-            Return C('this:ajax',E(),1);
+            Return E(E());
         }
-        Return C('this:ajax','增加失败',1);
+        Return E('增加失败');
     }
     function edit() {
         $array['channel']=C('cms:channel:get',@$_GET['id']);
         if(!$array['channel']) {
-            Return C('this:error','栏目不存在');
+            Return E('栏目不存在');
         }
         if(!$array['classinfo']=C('cms:class:get',$array['channel']['classhash'])) {
-            Return C('this:error','应用不存在');
+            Return E('应用不存在');
         }
-        if(!$array['classinfo']['module']) {Return C('this:error',$array['classinfo']['classname'].' 应用无法配置模型');}
+        if(!$array['classinfo']['module']) {Return E($array['classinfo']['classname'].' 应用无法配置模型');}
         $array['breadcrumb']=C('this:channel:breadcrumb',$array['channel'],$array['classinfo']['hash'],'修改');
         $array['classinfo']=C('cms:class:get',$array['channel']['classhash']);
         $array['title']=$array['channel']['channelname'].' 修改';
-        V('channel_edit',$array);
+        Return V('channel_edit',$array);
     }
     function editPost() {
         if($channel=C('cms:channel:get',@$_POST['id'])){
             $module=C('cms:module:get',@$_POST['modulehash'],$channel['classhash']);
             if(!$module) {
-                Return C('this:ajax','模型不存在',1);
+                Return E('模型不存在');
             }
             $channel_edit_array=array();
             $channel_edit_array['id']=$_POST['id'];
@@ -154,31 +154,31 @@ class admin_channel {
             if($channel_edit_array['channelorder']<0) {$channel_edit_array['channelorder']=0;}
             $editreturn=C('cms:channel:edit',$channel_edit_array);
             if($editreturn===true) {
-                Return C('this:ajax','修改成功');
+                Return array('msg'=>'修改成功','id'=>$_POST['id'],'url'=>'?do=admin:article:home&cid='.$_POST['id']);
             }elseif(is_string($editreturn)) {
-                Return C('this:ajax',$editreturn,1);
+                Return E($editreturn);
             }elseif(E()){
-                Return C('this:ajax',E(),1);
+                Return E(E());
             }
-            Return C('this:ajax','修改失败',1);
+            Return E('修改失败');
         }else {
-            Return C('this:ajax','栏目不存在',1);
+            Return E('栏目不存在');
         }
     }
     function jump() {
         $array['channel']=C('cms:channel:get',@$_GET['id']);
         if(!$array['channel']) {
-            Return C('this:error','栏目不存在');
+            Return E('栏目不存在');
         }
         if(!$array['channel']['enabled']) {
-            Return C('this:error','栏目已禁用');
+            Return E('栏目已禁用');
         }
         $class=C('cms:class:get',$array['channel']['classhash']);
         if(!$class['enabled']){
-            Return C('this:error','应用未启用');
+            Return E('应用未启用');
         }
         if(!isset($array['channel']['link']) || empty($array['channel']['link']) || $array['channel']['link']=='#') {
-            Return C('this:error','栏目页面未配置');
+            Return E('栏目页面未配置');
         }
         echo('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">');
         echo("<meta name='referrer' content='never'><meta http-equiv=refresh content='0;url=".$array['channel']['link']."'>");
@@ -187,32 +187,32 @@ class admin_channel {
     function jumpModule() {
         $array['channel']=C('cms:channel:get',@$_GET['id']);
         if(!$array['channel']) {
-            Return C('this:error','栏目不存在');
+            Return E('栏目不存在');
         }
         if($module=C('cms:module:get',$array['channel']['modulehash'],$array['channel']['classhash'])) {
             echo('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">');
             echo("<meta name='referrer' content='never'><meta http-equiv=refresh content='0;url=?do=admin:module:config&id=".$module['id']."'>");
             Return true;
         }
-        Return C('this:error','模型不存在');
+        Return E('模型不存在');
     }
     function del() {
         if($channel=C('cms:channel:get',@$_POST['id'])){
             $son_channels=C('cms:channel:tree',$channel['id'],$channel['classhash']);
             if(count($son_channels)) {
-                Return C('this:ajax','请先删除下属栏目',1);
+                Return E('请先删除下属栏目');
             }
             $delreturn=C('cms:channel:del',$_POST['id']);
             if($delreturn===true) {
-                Return C('this:ajax','删除成功');
+                Return '删除成功';
             }elseif(is_string($delreturn)) {
-                Return C('this:ajax',$delreturn,1);
+                Return E($delreturn);
             }elseif(E()){
-                Return C('this:ajax',E(),1);
+                Return E(E());
             }
-            Return C('this:ajax','删除失败',1);
+            Return E('删除失败');
         }else {
-            Return C('this:ajax','栏目不存在',1);
+            Return E('栏目不存在');
         }
     }
     function breadcrumb($channel=0,$classhash='',$actionname='',$showself=0) {

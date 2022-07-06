@@ -119,7 +119,7 @@
         },done: function(res){
             if (res.error==0)
             {
-                var confirm=layer.confirm(res.msg, {btn: ['好的','返回'],shadeClose:1},function(){layui.layer.close(confirm);},function(){
+                var confirm=layer.confirm(res.msg, {btn: ['管理','返回'],shadeClose:1},function(){window.location=res.url;},function(){
                     layui.admin.events.back();
                     });
             }

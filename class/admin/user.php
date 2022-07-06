@@ -59,7 +59,7 @@ class admin_user {
                 unset($array['infos'][$key]);
             }
         }
-        V('user_index',$array);
+        Return V('user_index',$array);
     }
     function add() {
         $array['nowuser']=C('cms:user:get',C('this:nowUser'));
@@ -72,7 +72,7 @@ class admin_user {
             $array['roleinput']['rolehash']=$array['nowuser']['rolehash'];
         }
         $array['title']='增加用户';
-        V('user_edit',$array);
+        Return V('user_edit',$array);
     }
     function addPost() {
         $user_add_array=array();
@@ -80,11 +80,11 @@ class admin_user {
         $same_name_query['table']='user';
         $same_name_query['where']=array('username'=>$user_add_array['username']);
         if(one($same_name_query)) {
-            Return C('this:ajax','该昵称已被使用',1);
+            Return E('该昵称已被使用');
         }
         $user_add_array['hash']=$_POST['hash'];
         if(C('cms:user:get',$user_add_array['hash'])){
-            Return C('this:ajax','已存在该账号',1);
+            Return E('已存在该账号');
         }
         $user_add_array['enabled']=C('cms:input:post',array('inputhash'=>'switch','name'=>'enabled'));
         $user_add_array['rolehash']=C('cms:input:post',array('inputhash'=>'rolecheckbox','name'=>'rolehash'));
@@ -94,27 +94,27 @@ class admin_user {
             $user_rolehash_array=explode(';',$user_add_array['rolehash']);
             foreach($user_rolehash_array as $this_role) {
                 if(!in_array($this_role,$my_role_array)) {
-                    Return C('this:ajax','没有权限增加此角色['.htmlspecialchars($this_role).']',1);
+                    Return E('没有权限增加此角色['.htmlspecialchars($this_role).']');
                 }
             }
         }
         $user_add_array['passwd']=C('cms:input:post',array('inputhash'=>'password','name'=>'passwd'));
         if(strlen(trim($_POST['passwd']))) {
             if($_POST['passwd']!==$_POST['passwd_2']) {
-                Return C('this:ajax','新密码输入不一致',1);
+                Return E('新密码输入不一致');
             }
         }else {
-            Return C('this:ajax','密码不能为空',1);
+            Return E('密码不能为空');
         }
         $addreturn=C('cms:user:add',$user_add_array);
         if(is_numeric($addreturn)) {
-            Return C('this:ajax','增加成功');
+            Return '增加成功';
         }elseif(is_string($addreturn)){
-            Return C('this:ajax',$addreturn,1);
+            Return E($addreturn);
         }elseif(E()){
-            Return C('this:ajax',E(),1);
+            Return E(E());
         }
-        Return C('this:ajax','增加失败',1);
+        Return E('增加失败');
     }
     function edit() {
         if($array=C('cms:user:get',@$_GET['id'])){
@@ -124,7 +124,7 @@ class admin_user {
                 $user_rolehash_array=explode(';',$array['rolehash']);
                 foreach($user_rolehash_array as $this_role) {
                     if(!in_array($this_role,$my_role_array) && !empty($this_role)) {
-                        Return C('this:error','没有权限修改此账号');
+                        Return E('没有权限修改此账号');
                     }
                 }
             }
@@ -147,9 +147,9 @@ class admin_user {
                     unset($array['infos'][$key]);
                 }
             }
-            V('user_edit',$array);
+            Return V('user_edit',$array);
         }else {
-            C('this:error','用户不存在');
+            Return E('用户不存在');
         }
     }
     function editPost() {
@@ -161,7 +161,7 @@ class admin_user {
             $same_name_query['table']='user';
             $same_name_query['where']=array('hash<>'=>$user_edit_array['hash'],'username'=>$user_edit_array['username']);
             if(one($same_name_query)) {
-                Return C('this:ajax','该昵称已被使用',1);
+                Return E('该昵称已被使用');
             }
             $user_edit_array['enabled']=C('cms:input:post',array('inputhash'=>'switch','name'=>'enabled'));
             
@@ -173,7 +173,7 @@ class admin_user {
                     $user_rolehash_array=explode(';',$user_edit_array['rolehash']);
                     foreach($user_rolehash_array as $this_role) {
                         if(!in_array($this_role,$my_role_array)) {
-                            Return C('this:ajax','没有权限为此账号增加角色 ['.htmlspecialchars($this_role).']',1);
+                            Return E('没有权限为此账号增加角色 ['.htmlspecialchars($this_role).']');
                         }
                     }
                 }
@@ -187,50 +187,50 @@ class admin_user {
             $user_edit_array['passwd']=C('cms:input:post',array('inputhash'=>'password','name'=>'passwd'));
             if(strlen(trim($_POST['passwd']))) {
                 if($_POST['passwd']!==$_POST['passwd_2']) {
-                    Return C('this:ajax','新密码输入不一致',1);
+                    Return E('新密码输入不一致');
                 }
             }else {
                 unset($user_edit_array['passwd']);
             }
             $editreturn=C('cms:user:edit',$user_edit_array);
             if($editreturn===true) {
-                Return C('this:ajax','修改成功');
+                Return '修改成功';
             }elseif(is_string($editreturn)){
-                Return C('this:ajax',$editreturn,1);
+                Return $editreturn;
             }elseif(E()){
-                Return C('this:ajax',E(),1);
+                Return E(E());
             }
-            Return C('this:ajax','修改失败',1);
+            Return E('修改失败');
         }else {
-            Return C('this:ajax','用户不存在',1);
+            Return E('用户不存在');
         }
     }
     function del() {
         if(!$del_user=C('cms:user:get',@$_POST['id'])) {
-            Return C('this:ajax','用户不存在',1);
+            Return E('用户不存在');
         }
         $nowuser=C('cms:user:get',C('this:nowUser'));
         if($nowuser['hash']==$del_user['hash']) {
-            Return C('this:ajax','无法删除自身账号',1);
+            Return E('无法删除自身账号');
         }
         if(!C('this:user:superAdmin',$nowuser['rolehash']) && !empty($del_user['rolehash'])) {
             $my_role_array=explode(';',$nowuser['rolehash']);
             $user_rolehash_array=explode(';',$del_user['rolehash']);
             foreach($user_rolehash_array as $this_role) {
                 if(!in_array($this_role,$my_role_array) && !empty($this_role)) {
-                    Return C('this:ajax','没有权限删除此账号',1);
+                    Return E('没有权限删除此账号');
                 }
             }
         }
         $delreturn=C('cms:user:del',@$_POST['id']);
         if($delreturn===true){
-            Return C('this:ajax','删除成功');
+            Return '删除成功';
         }elseif(is_string($delreturn)) {
-            Return C('this:ajax',$delreturn,1);
+            Return $delreturn;
         }elseif(E()){
-            Return C('this:ajax',E(),1);
+            Return E(E());
         }
-        Return C('this:ajax','删除失败',1);
+        Return E('删除失败');
     }
     function superAdmin($rolehashs) {
         $rolehash_array=explode(';',$rolehashs);
@@ -240,13 +240,13 @@ class admin_user {
         Return false;
     }
     function roleIndex() {
-        V('user_role_index');
+        Return V('user_role_index');
     }
     function roleEdit() {
         if($array=C('cms:user:roleGet',@$_GET['hash'])){
-            V('user_role_edit',$array);
+            Return V('user_role_edit',$array);
         }else {
-            V('user_role_edit');
+            Return V('user_role_edit');
         }
     }
     function roleAddPost() {
@@ -254,15 +254,15 @@ class admin_user {
         if(isset($_POST['enabled'])) {$role_add_array['enabled']=1;}else {$role_add_array['enabled']=0;}
         $role_add_array['rolename']=htmlspecialchars($_POST['rolename']);
         if(!is_hash(@$_POST['hash'])) {
-            Return C('this:ajax','角色标识格式有误',1);
+            Return E('角色标识格式有误');
         }
         $role_add_array['hash']=$_POST['hash'];
         if(C('cms:user:roleAdd',$role_add_array)) {
-            Return C('this:ajax','增加成功');
+            Return '增加成功';
         }elseif(E()) {
-            Return C('this:ajax',E(),1);
+            Return E(E());
         }
-        Return C('this:ajax','增加失败',1);
+        Return E('增加失败');
     }
     function roleEditPost() {
         if($role=C('cms:user:roleGet',@$_POST['hash'])){
@@ -271,31 +271,31 @@ class admin_user {
             $role_edit_array['rolename']=htmlspecialchars($_POST['rolename']);
             $role_edit_array['hash']=$_POST['hash'];
             if(C('cms:user:roleEdit',$role_edit_array)) {
-                Return C('this:ajax','修改成功');
+                Return '修改成功';
             }elseif(E()) {
-                Return C('this:ajax',E(),1);
+                Return E(E());
             }
-            Return C('this:ajax','修改失败',1);
+            Return E('修改失败');
         }else {
-            Return C('this:ajax','此角色不存在',1);
+            Return E('此角色不存在');
         }
     }
     function rolePermission() {
         if($array=C('cms:user:roleGet',@$_GET['hash'])){
             $array['superadmin']=C('this:user:superAdmin',$array['hash']);
             $array['title']=$array['rolename'].'['.$array['hash'].'] 权限';
-            V('user_role_permission',$array);
+            Return V('user_role_permission',$array);
         }else {
-            Return C('this:error','此角色不存在');
+            Return E('此角色不存在');
         }
     }
     function rolePermissionPost() {
         $role=C('cms:user:roleGet',@$_POST['rolehash']);
         if(!$role) {
-            Return C('this:ajax','此角色不存在',1);
+            Return E('角色不存在');
         }
         if(C('this:user:superAdmin',$role['hash'])) {
-            Return C('this:ajax','无法编辑管理员权限',1);
+            Return E('无法编辑管理员权限');
         }
         C('cms:user:authDelAll',array('rolehash'=>$role['hash'],'authkind'=>'class'));
         begin();
@@ -308,15 +308,15 @@ class admin_user {
             }
         }
         commit();
-        Return C('this:ajax','修改成功');
+        Return '修改成功';
     }
     function roleDel() {
         if(C('cms:user:roleDel',$_POST['hash'])) {
-            Return C('this:ajax','删除成功');
+            Return '删除成功';
         }elseif(E()) {
-            Return C('this:ajax',E(),1);
+            Return E(E());
         }
-        Return C('this:ajax','删除失败',1);
+        Return E('删除失败');
     }
     function roleOrder() {
         $rolesarray=explode('|',$_POST['rolesarray']);
@@ -328,7 +328,7 @@ class admin_user {
                 C('cms:user:roleEdit',$role_up_query);
             }
         }
-        Return C('this:ajax','修改成功');
+        Return '修改成功';
     }
     function info() {
         if($array['user']=C('cms:user:get',@$_GET['id'])){
@@ -338,14 +338,14 @@ class admin_user {
                 $user_rolehash_array=explode(';',$array['user']['rolehash']);
                 foreach($user_rolehash_array as $this_role) {
                     if(!in_array($this_role,$my_role_array)) {
-                        Return C('this:error','没有权限修改此账号');
+                        Return E('没有权限修改此账号');
                     }
                 }
             }
             $array['infos']=C('cms:form:all','info');
             $array['infos']=C('cms:form:getColumnCreated',$array['infos'],'user');
             if(!count($array['infos'])) {
-                Return C('this:error','未增加用户属性');
+                Return E('未增加用户属性');
             }
             $array['allowsubmit']=0;
             foreach($array['infos'] as $key=>$info) {
@@ -368,17 +368,17 @@ class admin_user {
                 }
             }
             if(!count($array['infos'])) {
-                Return C('this:error','无任何属性权限');
+                Return E('无任何属性权限');
             }
             $array['tabs']=C('cms:form:getTabs',$array['infos']);
             $array['title']=$array['user']['username'].'['.$array['user']['hash'].'] 属性';
-            V('user_info',$array);
+            Return V('user_info',$array);
         }else {
-            C('this:error','用户不存在');
+            Return E('用户不存在');
         }
     }
     function infoSave() {
-        if(!is_hash(@$_POST['hash'])) {Return C('this:ajax','用户不存在',1);}
+        if(!is_hash(@$_POST['hash'])) {Return E('用户不存在');}
         if($array['user']=C('cms:user:get',$_POST['hash'])){
             $array['nowuser']=C('cms:user:get',C('this:nowUser'));
             if(!C('this:user:superAdmin',$array['nowuser']['rolehash'])) {
@@ -386,7 +386,7 @@ class admin_user {
                 $user_rolehash_array=explode(';',$array['user']['rolehash']);
                 foreach($user_rolehash_array as $this_role) {
                     if(!in_array($this_role,$my_role_array)) {
-                        Return C('this:ajax','没有权限修改此账号',1);
+                        Return E('没有权限修改此账号');
                     }
                 }
             }
@@ -421,16 +421,16 @@ class admin_user {
             if(empty($msg) && count($user_edit_query)) {
                 $user_edit_query['id']=$array['user']['id'];
                 if(C('cms:user:edit',$user_edit_query)) {
-                    Return C('this:ajax','修改成功');
+                    Return '修改成功';
                 }elseif(E()) {
-                    Return C('this:ajax',E(),1);
+                    Return E(E());
                 }
-                Return C('this:ajax','修改失败',1);
+                Return E('修改失败');
             }else {
-                Return C('this:ajax',$msg,1);
+                Return E($msg);
             }
         }else {
-            C('this:ajax','用户不存在',1);
+            Return E('用户不存在');
         }
     }
 }

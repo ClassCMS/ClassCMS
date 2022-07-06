@@ -13,7 +13,7 @@ class admin_my {
         $array['userinfo']=C('cms:user:get',$array['userid']);
         $array['breadcrumb']=array(array('title'=>'账号管理'));
         $array['password_input']=array('name'=>'passwd','inputhash'=>'password','checkold'=>1,'value'=>$array['userinfo']['passwd'],'placeholder_old'=>'请输入当前的密码','placeholder_new'=>'请输入新密码','placeholder_check'=>'请确认新密码');
-        V('my_edit',$array);
+        Return V('my_edit',$array);
     }
     function editPost() {
         $array['userid']=C('admin:nowUser');
@@ -24,14 +24,14 @@ class admin_my {
         $same_name_query['table']='user';
         $same_name_query['where']=array('id<>'=>$my_edit_query['id'],'username'=>$my_edit_query['username']);
         if(one($same_name_query)) {
-            Return C('this:ajax','该昵称已被使用',1);
+            Return E('该昵称已被使用');
         }
         if(strlen(trim($_POST['passwd']))) {
             if(C('cms:user:passwd2md5',$_POST['passwd_old'])!=$array['userinfo']['passwd']) {
-                Return C('this:ajax','当前密码错误',1);
+                Return E('当前密码错误');
             }
             if($_POST['passwd']!==$_POST['passwd_2']) {
-                Return C('this:ajax','新密码输入不一致',1);
+                Return E('新密码输入不一致');
             }
         }
         $array['password_input']=array('name'=>'passwd','inputhash'=>'password','checkold'=>1,'value'=>$array['userinfo']['passwd']);
@@ -41,14 +41,14 @@ class admin_my {
         }
         if(C('cms:user:edit',$my_edit_query)){
             if(isset($my_edit_query['passwd'])) {
-                Return C('this:ajax',array('msg'=>'修改成功,密码已经重置,请重新登入','refresh'=>1));
+                Return array('msg'=>'修改成功,密码已经重置,请重新登入','refresh'=>1);
             }else {
-                Return C('this:ajax','修改成功,请刷新页面');
+                Return '修改成功,请刷新页面';
             }
         }elseif(E()) {
-            Return C('this:ajax',E(),1);
+            Return E(E());
         }
-        Return C('this:ajax','修改失败',1);
+        Return E('修改失败');
     }
     function info() {
         $array['userid']=C('admin:nowUser');
@@ -57,7 +57,7 @@ class admin_my {
         $array['infos']=C('cms:form:all','info');
         $array['infos']=C('cms:form:getColumnCreated',$array['infos'],'user');
         if(!count($array['infos'])) {
-            Return C('this:error','未增加用户属性');
+            Return E('未增加用户属性');
         }
         $array['allowsubmit']=0;
         foreach($array['infos'] as $key=>$info) {
@@ -80,10 +80,10 @@ class admin_my {
             }
         }
         if(!count($array['infos'])) {
-            Return C('this:error','无任何属性权限');
+            Return E('无任何属性权限');
         }
         $array['tabs']=C('cms:form:getTabs',$array['infos']);
-        V('my_info',$array);
+        Return V('my_info',$array);
     }
     function infoPost() {
         $array['userid']=C('admin:nowUser');
@@ -119,13 +119,13 @@ class admin_my {
         if(empty($msg) && count($my_edit_query)) {
             $my_edit_query['id']=$array['userid'];
             if(C('cms:user:edit',$my_edit_query)) {
-                Return C('this:ajax','保存成功');
+                Return '保存成功';
             }elseif(E()) {
-                Return C('this:ajax',E(),1);
+                Return E(E());
             }
-            Return C('this:ajax','保存失败',1);
+            Return E('保存失败');
         }else {
-            Return C('this:ajax',$msg,1);
+            Return E($msg);
         }
     }
 }

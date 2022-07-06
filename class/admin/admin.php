@@ -62,8 +62,7 @@ class admin {
         Return $auth;
     }
     function index() {
-        V('index',array('title'=>C('this:title')));
-        Return true;
+        Return V('index',array('title'=>C('this:title')));
     }
     function defaultPage() {
         if(isset($_GET['home']) && isset($GLOBALS['C']['admin']['load']) && $GLOBALS['C']['admin']['load']=='admin:index' && isset($_SERVER['QUERY_STRING'])){
@@ -122,7 +121,28 @@ class admin {
             }
         }
         $GLOBALS['C']['admin']['load']=$do;
-        C($do);
+        $return=C($do);
+        if($return===null || $return===true){
+            Return true;
+        }elseif(is_array($return)){
+            Return C('this:ajax',$return);
+        }elseif(is_string($return)){
+            if(C('cms:common:isAjax')) {
+                Return C('this:ajax',$return);
+            }else {
+                echo($return);
+            }
+        }elseif(!$return){
+            $error='error';
+            if(E()){
+                $error=E();
+            }
+            if(C('cms:common:isAjax')) {
+                Return C('this:ajax',$error,1);
+            }else {
+                Return C('this:error',$error);
+            }
+        }
         Return true;
     }
     function nologinActionCheck($do){
@@ -148,7 +168,7 @@ class admin {
         Return false;
     }
     function loadMenu(){
-        Return C('this:ajax',array('left'=>C('this:leftMenu'),'user'=>C('this:userNav'),'ico'=>C('this:icoNav')));
+        Return array('left'=>C('this:leftMenu'),'user'=>C('this:userNav'),'ico'=>C('this:icoNav'));
     }
     function check($do='',$userid=false,$admin_load=false) {
         if(C('this:nologinActionCheck',$do)) {
@@ -177,6 +197,9 @@ class admin {
         Return false;
     }
     function roleCheck($do='',$rolehash='',$check_role_enabled=true,$admin_load=false) {
+        if(C('this:publicActionCheck',$do)) {
+            Return true;
+        }
         if(!isset($GLOBALS['C']['admin']['role'][$rolehash])) {
             $GLOBALS['C']['admin']['role'][$rolehash]=C('cms:user:roleGet',$rolehash);
         }
@@ -297,24 +320,23 @@ class admin {
         }elseif(isset($_GET['classcms_form_id'])) {
             $formid=intval(@$_GET['classcms_form_id']);
         }else {
-            Return C('this:ajax','参数错误',1);
+            Return E('参数错误');
         }
         if(!C('this:csrfCheck',1)) {
             if(C('cms:common:isAjax')) {
-                Return C('this:ajax','非法提交,请刷新当前页面或重新登入系统',1,1001);
+                Return array('msg'=>'非法提交,请刷新当前页面或重新登入系统','error'=>1,'code'=>1001);
             }else {
-                Return C('this:error','非法提交,请刷新当前页面或重新登入系统');
+                Return E('非法提交,请刷新当前页面或重新登入系统');
             }
         }
         if(!$form=C('cms:form:build',$formid)) {
-            Return C('this:ajax','输入框不存在',1);
+            Return E('输入框不存在');
         }
         $form['auth']=C('this:formAuth',$form['id']);
         if(!isset($form['auth']['read']) || !$form['auth']['read']) {
-            Return C('this:ajax','无权限',1);
+            Return E('无权限');
         }
-        $ajax=C('cms:input:ajax',$form);
-        Return C('this:ajax',$ajax);
+        Return C('cms:input:ajax',$form);
     }
     function leftMenu() {
         $classes=C('cms:class:all');
@@ -439,8 +461,13 @@ class admin {
         Return true;
     }
     function error($msg='error',$ico='&#xe664;') {
-        V('error.php',array('msg'=>$msg,'ico'=>$ico));
-        Return true;
+        if(is_array($msg)){
+            if(!isset($msg['msg'])){ $msg['msg']='error'; } 
+            if(!isset($msg['ico'])){ $msg['ico']='&#xe664;'; }
+            Return V('error.php',$msg);
+        }else{
+            Return V('error.php',array('msg'=>$msg,'ico'=>$ico));
+        }
     }
     function head($title='') {
         $headhtml="\n".'<meta charset="utf-8"><title>'.$title.'</title><meta name="renderer" content="webkit">'."\n";
@@ -576,33 +603,33 @@ class admin {
         $array['msg']='';
         if(isset($_POST['userhash']) && isset($_POST['passwd'])) {
             if(empty($_POST['userhash'])) {
-                Return C('this:ajax','请填写用户名',1);
+                Return E('请填写用户名');
             }
             if(empty($_POST['passwd'])) {
-                Return C('this:ajax','请填写密码',1);
+                Return E('请填写密码');
             }
             $check=C('cms:user:checkUser',$_POST['userhash'],$_POST['passwd']);
             if(is_array($check)){
                 if($check['error']===0 && isset($check['userid'])) {
                     $userid=$check['userid'];
                 }else{
-                    Return C('this:ajax',$check['msg'],1);
+                    Return E($check['msg']);
                 }
             }elseif($check){
                 $userid=$check;
             }else{
-                Return C('this:ajax',E(),1);
+                Return E(E());
             }
             $token=C('cms:user:makeToken',$userid);
             if(C('this:adminCookie',$token)) {
                 C('this:csrfSet',1);
-                Return C('this:ajax',array('msg'=>'登入成功','token'=>$token));
+                Return array('msg'=>'登入成功','token'=>$token);
             }else {
-                Return C('this:ajax','登入失败',1);
+                Return E('登入失败');
             }
         }
         if(C('this:nowUser')){return C('cms:common:jump','?do=admin:index');}
-        V('login',$array);
+        Return V('login',$array);
     }
     function title() {
         Return 'ClassCMS-后台管理';
@@ -672,7 +699,7 @@ class admin {
                 setcookie('csrf'.C('this:cookieHash'),$value,array('expires'=>strtotime("+1 year"),'path'=>$GLOBALS['C']['SystemDir'],'domain'=>null,'secure'=>null,'httponly'=>true));
             }
         }
-        return true;
+        Return true;
     }
     function csrfValue() {
         if(isset($_COOKIE['csrf'.C('this:cookieHash')])) {

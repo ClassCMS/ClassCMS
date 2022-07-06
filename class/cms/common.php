@@ -51,10 +51,7 @@ class cms_common {
         }
     }
     function isAjax() {
-        if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            Return true;
-        }
-        Return false;
+        Return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
     }
     function markdown($code) {
         return false;
@@ -351,7 +348,7 @@ class cms_common {
         }
         Return $content;
     }
-    function download($url,$path,$timeout=999){
+    function download($url,$path,$timeout=999,$args=array()){
         if(!function_exists("curl_init")){
             return false;
         }
@@ -359,7 +356,9 @@ class cms_common {
         if(!$fp = @fopen($path, "w+")){
             return false;
         }
-        if(C('this:common:send',$url,array(),false,$timeout,array('CURLOPT_FILE'=>$fp))){
+        if(!isset($args['CURLOPT_FILE'])){ $args['CURLOPT_FILE']=$fp;}
+        if(!isset($args['CURLOPT_REFERER'])){ $args['CURLOPT_REFERER']=$url;}
+        if(C('this:common:send',$url,array(),false,$timeout,$args)){
             @fclose($fp);
             return true;
         }

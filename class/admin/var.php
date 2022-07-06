@@ -4,15 +4,15 @@ class admin_var {
     function index() {
         $array=C('cms:module:get',@$_GET['id']);
         if(!$array) {
-            Return C('this:error','模型不存在');
+            Return E('模型不存在');
         }
         $array['classinfo']=C('cms:class:get',$array['classhash']);
-        if(!$array['classinfo']['module']) {Return C('this:error',$array['classinfo']['classname'].' 应用无法配置模型');}
+        if(!$array['classinfo']['module']) {Return E($array['classinfo']['classname'].' 应用无法配置模型');}
         $array['vars']=C('cms:form:all','var',$array['hash'],$array['classhash']);
         $array['tabs']=C('cms:form:getTabs',$array['vars']);
         $array['breadcrumb']=C('this:module:breadcrumb',$array['classinfo'],$array,'变量');
         $array['title']=$array['modulename'].' 变量';
-        V('var_index',$array);
+        Return V('var_index',$array);
     }
     function editTab() {
         if($var=C('cms:form:get',@$_POST['varid'])){
@@ -27,12 +27,12 @@ class admin_var {
             $edit_tab_query['where']=$where;
             $edit_tab_query['tabname']=$tabname;
             if(update($edit_tab_query)) {
-                Return C('this:ajax','修改成功');
+                Return '修改成功';
             }else {
-                Return C('this:ajax','修改失败',1);
+                Return E('修改失败');
             }
         }else {
-            Return C('this:ajax','修改成功');
+            Return '修改成功';
         }
     }
     function tabOrder() {
@@ -52,15 +52,15 @@ class admin_var {
                     update($edit_tab_query);
                 }
             }
-            Return C('this:ajax','修改成功');
+            Return '修改成功';
         }else {
-            Return C('this:ajax','模型不存在',1);
+            Return E('模型不存在');
         }
     }
     function move() {
         if($var=C('cms:form:get',@$_POST['varid'])){
             if($var['kind']!='var') {
-                Return C('this:ajax','变量不存在',1);
+                Return E('变量不存在');
             }
             $varorder=explode('|',$_POST['varorder']);
             foreach($varorder as $key=>$varorderid) {
@@ -80,31 +80,30 @@ class admin_var {
             $edit_var_query['formorder']=0;
             $edit_var_query['taborder']=intval($_POST['movetotabindex']);
             update($edit_var_query);
-
-            Return C('this:ajax','已移动至分组 '.htmlspecialchars(trim($_POST['tabname'])));
+            Return '已移动至分组 '.htmlspecialchars(trim($_POST['tabname']));
         }else {
-            Return C('this:ajax','变量不存在',1);
+            Return E('变量不存在');
         }
     }
     function del() {
         if($var=C('cms:form:get',@$_POST['varid'])){
             if($var['kind']!='var') {
-                Return C('this:ajax','变量不存在',1);
+                Return E('变量不存在');
             }
             if(C('cms:form:del',@$_POST['varid'])){
-                Return C('this:ajax','删除成功');
+                Return '删除成功';
             }elseif(E()){
-                Return C('this:ajax',E(),1);
+                Return E(E());
             }
-            Return C('this:ajax','删除失败',1);
+            Return E('删除失败');
         }else {
-            Return C('this:ajax','变量不存在',1);
+            Return E('变量不存在');
         }
     }
     function order() {
         $module=C('cms:module:get',@$_POST['moduleid']);
         if(!$module) {
-            Return C('this:error','模型不存在');
+            Return E('模型不存在');
         }
         $varids=explode('|',$_POST['varidarray']);
         foreach($varids as $key=>$varid) {
@@ -116,15 +115,15 @@ class admin_var {
                 C('cms:form:edit',$var_up_query);
             }
         }
-        Return C('this:ajax','修改成功');
+        Return '修改成功';
     }
     function addPost() {
         $module=C('cms:module:get',@$_POST['moduleid']);
         if(!$module) {
-            Return C('this:ajax','模型不存在',1);
+            Return E('模型不存在');
         }
         if(!isset($_POST['vars']) || !is_array($_POST['vars'])) {
-            Return C('this:ajax','出错了',1);
+            Return E('出错了');
         }
         $vars=array();
         foreach($_POST['vars'] as $key=>$val) {
@@ -133,7 +132,7 @@ class admin_var {
             }
         }
         if(!isset($vars['formname'])) {
-           Return C('this:ajax','出错了',1);
+            Return E('出错了');
         }
         $msg='';
         foreach($vars['formname'] as $key=>$val) {
@@ -196,18 +195,18 @@ class admin_var {
             }
         }
         if(empty($msg)) {
-            Return C('this:ajax','提交数据有误',1);
+            Return E('提交数据有误');
         }else {
-            Return C('this:ajax',$msg);
+            Return $msg;
         }
     }
     function edit() {
         $array=C('cms:form:get',@$_GET['id']);
         if(!$array) {
-            Return C('this:error','变量不存在');
+            Return E('变量不存在');
         }
         if($array['kind']!='var') {
-            Return C('this:error','变量不存在');
+            Return E('变量不存在');
         }
         $array['var']=$array;
         $array['tips']=htmlspecialchars($array['tips']);
@@ -238,15 +237,15 @@ class admin_var {
             $array['roles'][$key]['_editabled']=C('this:roleCheck','admin:var:index',$thisrole['hash'],false);
         }
         $array['title']=$array['formname'].'['.$array['hash'].'] 修改';
-        V('var_edit',$array);
+        Return V('var_edit',$array);
     }
     function editpost() {
         if($var=C('cms:form:get',@$_POST['id'])){
             if($var['kind']!='var') {
-                Return C('this:ajax','变量不存在',1);
+                Return E('变量不存在');
             }
             if(!C('cms:form:allowFormName',$_POST['formname'])) {
-                Return C('this:ajax','变量名不允许包含特殊符号',1);
+                Return E('变量名不允许包含特殊符号');
             }
             $var_edit_array=array();
             $var_edit_array['id']=$_POST['id'];
@@ -255,7 +254,7 @@ class admin_var {
             if($input) {
                 $var_edit_array['inputhash']=$input['hash'];
             }else {
-                Return C('this:ajax','所选变量类型不存在',1);
+                Return E('所选变量类型不存在');
             }
             $var_edit_array['formwidth']=intval($_POST['formwidth']);
             $var_edit_array['enabled']=C('cms:input:post',array('inputhash'=>'switch','name'=>'enabled'));
@@ -270,12 +269,12 @@ class admin_var {
                     $val['auth']['all']=true;
                     $var_edit_array['config'][$val['name']]=C('cms:input:post',$val);
                     if($var_edit_array['config'][$val['name']]===false) {
-                        Return C('this:ajax','配置项:'.$val['configname'].' 不正确',1);
+                        Return E('配置项:'.$val['configname'].' 不正确');
                     }elseif(is_array($var_edit_array['config'][$val['name']])) {
                         if(isset($var_edit_array['config'][$val['name']]['error'])) {
-                            Return C('this:ajax','配置项:'.$val['configname'].' '.$var_edit_array['config'][$val['name']]['error'],1);
+                            Return E('配置项:'.$val['configname'].' '.$var_edit_array['config'][$val['name']]['error']);
                         }else {
-                            Return C('this:ajax','配置项:'.$val['configname'].' 不正确',1);
+                            Return E('配置项:'.$val['configname'].' 不正确');
                         }
                     }
                 }
@@ -316,35 +315,33 @@ class admin_var {
                         C('cms:article:setVar',$this_channel,$var['hash'],$var_edit_array['defaultvalue']);
                     }
                 }
-                Return C('this:ajax',array('msg'=>$msg,'refresh'=>1));
+                Return array('msg'=>$msg,'refresh'=>1);
             }else {
-                if(E()){Return C('this:ajax',E(),1);}
-                Return C('this:ajax','修改失败',1);
+                if(E()){Return E(E());}
+                Return E('修改失败');
             }
         }else {
-            Return C('this:ajax','变量不存在',1);
+            Return E('变量不存在');
         }
     }
     function ajax() {
         if(!$form=C('cms:form:build',@$_GET['id'])) {
-            Return C('this:ajax','输入框不存在',1);
+            Return E('输入框不存在');
         }
         if(@$_GET['confighash']=='defaultvalue') {
             $form['hash']='defaultvalue';
             $form['source']='admin_defaultvalue_setting';
             $form['auth']['all']=true;
-            $ajax=C('cms:input:ajax',$form);
-            Return C('this:ajax',$ajax);
+            Return C('cms:input:ajax',$form);
         }
         $configs=C('cms:form:configGet',$form['id']);
         foreach($configs as $config) {
             if($config['hash']==@$_GET['confighash']) {
                 $config['source']='admin_form_setting';
                 $config['auth']['all']=true;
-                $ajax=C('cms:input:ajax',$config);
-                Return C('this:ajax',$ajax);
+                Return C('cms:input:ajax',$config);
             }
         }
-        Return C('this:ajax','参数不存在',1);
+        Return E('参数不存在');
     }
 }

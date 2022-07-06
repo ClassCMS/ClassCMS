@@ -12,7 +12,7 @@ class admin_info {
                 $array['infos'][$key]['create']=0;
             }
         }
-        V('info_index',$array);
+        Return V('info_index',$array);
     }
     function editTab() {
         if($info=C('cms:form:get',@$_POST['infoid'])){
@@ -27,12 +27,12 @@ class admin_info {
             $edit_tab_query['where']=$where;
             $edit_tab_query['tabname']=$tabname;
             if(update($edit_tab_query)) {
-                Return C('this:ajax','修改成功');
+                Return '修改成功';
             }else {
-                Return C('this:ajax','修改失败',1);
+                Return E('修改失败');
             }
         }else {
-            Return C('this:ajax','修改成功');
+            Return '修改成功';
         }
     }
     function tabOrder() {
@@ -49,12 +49,12 @@ class admin_info {
                 update($edit_tab_query);
             }
         }
-        Return C('this:ajax','修改成功');
+        Return '修改成功';
     }
     function move() {
         if($info=C('cms:form:get',@$_POST['infoid'])){
             if($info['kind']!='info') {
-                Return C('this:ajax','属性不存在',1);
+                Return E('属性不存在');
             }
             $infoorder=explode('|',$_POST['infoorder']);
             foreach($infoorder as $key=>$infoorderid) {
@@ -75,24 +75,24 @@ class admin_info {
             $edit_info_query['taborder']=intval($_POST['movetotabindex']);
             update($edit_info_query);
 
-            Return C('this:ajax','已移动至分组 '.htmlspecialchars(trim($_POST['tabname'])));
+            Return '已移动至分组 '.htmlspecialchars(trim($_POST['tabname']));
         }else {
-            Return C('this:ajax','属性不存在',1);
+            Return E('属性不存在');
         }
     }
     function del() {
         if($info=C('cms:form:get',@$_POST['infoid'])){
             if($info['kind']!='info') {
-                Return C('this:ajax','属性不存在',1);
+                Return E('属性不存在');
             }
             if(C('cms:form:del',@$_POST['infoid'])){
-                Return C('this:ajax','删除成功');
+                Return '删除成功';
             }elseif(E()){
-                Return C('this:ajax',E(),1);
+                Return E(E());
             }
-            Return C('this:ajax','删除失败',1);
+            Return E('删除失败');
         }else {
-            Return C('this:ajax','属性不存在',1);
+            Return E('属性不存在');
         }
     }
     function order() {
@@ -106,11 +106,11 @@ class admin_info {
                 C('cms:form:edit',$info_up_query);
             }
         }
-        Return C('this:ajax','修改成功');
+        Return '修改成功';
     }
     function addPost() {
         if(!isset($_POST['infos']) || !is_array($_POST['infos'])) {
-            Return C('this:ajax','出错了',1);
+            Return E('出错了');
         }
         $infos=array();
         foreach($_POST['infos'] as $key=>$val) {
@@ -119,7 +119,7 @@ class admin_info {
             }
         }
         if(!isset($infos['formname'])) {
-           Return C('this:ajax','出错了',1);
+            Return E('出错了');
         }
         if(isset($_POST['enabled']) && $_POST['enabled']) {
             $_POST['enabled']=1;
@@ -193,7 +193,7 @@ class admin_info {
             }
         }
         if(empty($msg)) {
-            Return C('this:ajax','提交数据有误',1);
+            Return E('提交数据有误');
         }else {
             if($_POST['enabled']) {
                 $new_table_fields=C($GLOBALS['C']['DbClass'].':getfields','user');
@@ -201,16 +201,16 @@ class admin_info {
                     $msg='创建用户属性失败,请检查数据库权限<br>'.$msg;
                 }
             }
-            Return C('this:ajax',$msg);
+            Return $msg;
         }
     }
     function edit() {
         $array=C('cms:form:get',@$_GET['id']);
         if(!$array) {
-            Return C('this:error','属性不存在');
+            Return E('属性不存在');
         }
         if($array['kind']!='info') {
-            Return C('this:error','属性不存在');
+            Return E('属性不存在');
         }
         $array['info']=$array;
         $array['tips']=htmlspecialchars($array['tips']);
@@ -235,15 +235,15 @@ class admin_info {
             $array['roles'][$key]['_editabled']=C('this:roleCheck','admin:info:index',$thisrole['hash'],false);
         }
         $array['title']=$array['formname'].'['.$array['hash'].'] 修改';
-        V('info_edit',$array);
+        Return V('info_edit',$array);
     }
     function editPost() {
         if($info=C('cms:form:get',@$_POST['id'])){
             if($info['kind']!='info') {
-                Return C('this:ajax','属性不存在',1);
+                Return E('属性不存在');
             }
             if(!C('cms:form:allowFormName',$_POST['formname'])) {
-                Return C('this:ajax','属性名不允许包含特殊符号',1);
+                Return E('属性名不允许包含特殊符号');
             }
             $info_edit_array=array();
             $info_edit_array['id']=$_POST['id'];
@@ -252,7 +252,7 @@ class admin_info {
             if($input) {
                 $info_edit_array['inputhash']=$input['hash'];
             }else {
-                Return C('this:ajax','所选属性类型不存在',1);
+                Return E('所选属性类型不存在');
             }
             $info_edit_array['formwidth']=intval($_POST['formwidth']);
             $info_edit_array['enabled']=C('cms:input:post',array('inputhash'=>'switch','name'=>'enabled'));
@@ -267,12 +267,12 @@ class admin_info {
                     $val['auth']['all']=true;
                     $info_edit_array['config'][$val['name']]=C('cms:input:post',$val);
                     if($info_edit_array['config'][$val['name']]===false) {
-                        Return C('this:ajax','配置项:'.$val['configname'].' 不正确',1);
+                        Return E('配置项:'.$val['configname'].' 不正确');
                     }elseif(is_array($info_edit_array['config'][$val['name']])) {
                         if(isset($info_edit_array['config'][$val['name']]['error'])) {
-                            Return C('this:ajax','配置项:'.$val['configname'].' '.$info_edit_array['config'][$val['name']]['error'],1);
+                            Return E('配置项:'.$val['configname'].' '.$info_edit_array['config'][$val['name']]['error']);
                         }else {
-                            Return C('this:ajax','配置项:'.$val['configname'].' 不正确',1);
+                            Return E('配置项:'.$val['configname'].' 不正确');
                         }
                     }
                 }
@@ -316,35 +316,33 @@ class admin_info {
                         update($reset_query);
                     }
                 }
-                Return C('this:ajax',array('msg'=>$msg,'refresh'=>1));
+                Return array('msg'=>$msg,'refresh'=>1);
             }else {
-                if(E()){Return C('this:ajax',E(),1);}
-                Return C('this:ajax','修改失败',1);
+                if(E()){Return E(E());}
+                Return E('修改失败');
             }
         }else {
-            Return C('this:ajax','属性不存在',1);
+            Return E('属性不存在');
         }
     }
     function ajax() {
         if(!$form=C('cms:form:build',@$_GET['id'])) {
-            Return C('this:ajax','输入框不存在',1);
+            Return E('输入框不存在');
         }
         if(@$_GET['confighash']=='defaultvalue') {
             $form['hash']='defaultvalue';
             $form['source']='admin_defaultvalue_setting';
             $form['auth']['all']=true;
-            $ajax=C('cms:input:ajax',$form);
-            Return C('this:ajax',$ajax);
+            Return C('cms:input:ajax',$form);
         }
         $configs=C('cms:form:configGet',$form['id']);
         foreach($configs as $config) {
             if($config['hash']==@$_GET['confighash']) {
                 $config['source']='admin_form_setting';
                 $config['auth']['all']=true;
-                $ajax=C('cms:input:ajax',$config);
-                Return C('this:ajax',$ajax);
+                Return C('cms:input:ajax',$config);
             }
         }
-        Return C('this:ajax','参数不存在',1);
+        Return E('参数不存在');
     }
 }

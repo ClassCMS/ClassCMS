@@ -7,7 +7,7 @@ class shop {
         );
     }
     function auth() {
-        Return array('index'=>'浏览商店','downloadClass;installClass'=>'下载应用','upgradeClass;refreshClass;adminconfig'=>'更新应用');
+        Return array('index'=>'浏览商店','downloadClass;installClass'=>'下载应用','upgradeClass;refreshClass'=>'更新应用','adminconfig'=>'显示依赖应用信息');
     }
     function hook() {
         $hooks=array();
@@ -72,39 +72,40 @@ class shop {
         }
         $classhash=$_POST['classhash'];
         $url=$_POST['url'];
+        
         if(C('cms:class:get',$classhash)) {
-            Return C('cms:common:echoJson',array('msg'=>'应用已存在','error'=>1));
+            return E('应用已存在');
         }
         if (!function_exists("curl_init")){
-            Return C('cms:common:echoJson',array('msg'=>"服务器未安装Curl组件,无法下载应用文件",'error'=>1));
+            return E('服务器未安装Curl组件,无法下载应用文件');
         }
         if(!function_exists('zip_open') || !class_exists('ZipArchive')) {
-            Return C('cms:common:echoJson',array('msg'=>"未安装zip组件,无法解压安装包",'error'=>1));
+            return E('未安装zip组件,无法解压安装包');
         }
         $classdir=classDir($classhash);
         $path=cacheDir('shop');
         if(!cms_createdir($path)) {
-            Return C('cms:common:echoJson',array('msg'=>"创建缓存目录失败,无法下载",'error'=>1));
+            return E('创建缓存目录失败,无法下载');
         }
         $classfile=$path.md5($classhash.time()).'.class';
         if(!C('this:download',$url,$classfile)) {
-            Return C('cms:common:echoJson',array('msg'=>"下载失败",'error'=>1));
+            return E('下载失败');
         }
         if(isset($_POST['md5']) && !empty($_POST['md5']) && function_exists("md5_file")) {
             if($_POST['md5']!=@md5_file($classfile)) {
-                Return C('cms:common:echoJson',array('msg'=>"文件校验失败,请重新下载",'error'=>1));
+                return E('文件校验失败,请重新下载');
             }
         }
         if(C('cms:class:unzip',$classfile,$classdir)) {
             @unlink($classfile);
             if(C('cms:class:refresh',$classhash)) {
-                Return C('cms:common:echoJson',array('msg'=>"下载完成,请在应用管理页面中安装此应用"));
+                return '下载完成,请在应用管理页面中安装此应用';
             }else {
-                Return C('cms:common:echoJson',array('msg'=>"安装包格式错误,请重试",'error'=>1));
+                return E('安装包格式错误,请重试');
             }
         }else{
             @unlink($classfile);
-            Return C('cms:common:echoJson',array('msg'=>"安装包解压失败,请检查应用目录权限",'error'=>1));
+            return E('安装包解压失败,请检查应用目录权限');
         }
         Return ;
     }
@@ -114,41 +115,41 @@ class shop {
         }
         $classhash=$_POST['classhash'];
         if(!$classinfo=C('cms:class:get',$classhash)) {
-            Return C('cms:common:echoJson',array('msg'=>'应用不存在','error'=>1));
+            return E('应用不存在');
         }
         $old_version=$classinfo['classversion'];
         $new_version=@$_POST['version'];
         if($old_version>=$new_version) {
-            Return C('cms:common:echoJson',array('msg'=>"无需更新",'error'=>1));
+            return E('无需更新');
         }
         $url=$_POST['url'];
         if (!function_exists("curl_init")){
-            Return C('cms:common:echoJson',array('msg'=>"服务器未安装Curl组件,无法下载应用文件",'error'=>1));
+            return E('服务器未安装Curl组件,无法下载应用文件');
         }
         if(!function_exists('zip_open') || !class_exists('ZipArchive')) {
-            Return C('cms:common:echoJson',array('msg'=>"未安装zip组件,无法解压安装包",'error'=>1));
+            return E('未安装zip组件,无法解压安装包');
         }
         $classdir=classDir($classhash);
         $path=cacheDir('shop');
         if(!cms_createdir($path)) {
-            Return C('cms:common:echoJson',array('msg'=>"创建缓存目录失败,无法下载",'error'=>1));
+            return E('创建缓存目录失败,无法下载');
         }
         $classfile=$path.md5($classhash.time()).'.class';
         if(!C('this:download',$url,$classfile)) {
-            Return C('cms:common:echoJson',array('msg'=>"下载失败",'error'=>1));
+            return E('下载失败');
         }
         if(isset($_POST['md5']) && !empty($_POST['md5']) && function_exists("md5_file")) {
             if($_POST['md5']!=@md5_file($classfile)) {
-                Return C('cms:common:echoJson',array('msg'=>"文件校验失败,请重新下载",'error'=>1));
+                return E('文件校验失败,请重新下载');
             }
         }
         if(C('cms:class:unzip',$classfile,$classdir)) {
             @unlink($classfile);
             C('cms:common:opcacheReset');
-            Return C('cms:common:echoJson',array('msg'=>"下载完成"));
+            return '下载完成';
         }else{
             @unlink($classfile);
-            Return C('cms:common:echoJson',array('msg'=>"安装包解压失败,请检查应用目录权限",'error'=>1));
+            return E('安装包解压失败,请检查应用目录权限');
         }
     }
     function installClass() {
@@ -157,15 +158,15 @@ class shop {
         }
         $classhash=$_POST['classhash'];
         if(!$classinfo=C('cms:class:get',$classhash)) {
-            Return C('cms:common:echoJson',array('msg'=>'应用不存在','error'=>1));
+            return E('应用不存在');
         }
         if(!C('cms:class:requires',$classhash)) {
-            Return C('cms:common:echoJson',array('msg'=>'安装失败.请先安装依赖应用','error'=>1));
+            return E('安装失败.请先安装依赖应用');
         }
         if(C('cms:class:install',$classhash)) {
-            Return C('cms:common:echoJson',array('msg'=>"安装完成"));
+            return "安装完成";
         }else{
-            Return C('cms:common:echoJson',array('msg'=>"安装失败",'error'=>1));
+            return E('安装失败');
         }
     }
     function refreshClass() {
@@ -174,18 +175,18 @@ class shop {
         }
         $classhash=$_POST['classhash'];
         if(!$classinfo=C('cms:class:get',$classhash)) {
-            Return C('cms:common:echoJson',array('msg'=>'应用不存在','error'=>1));
+            return E('应用不存在');
         }
         $upgradeinfo=C('cms:class:upgrade',$classhash);
         if($upgradeinfo===true) {
-            Return C('cms:common:echoJson',array('msg'=>"更新完成"));
+            return "更新完成";
         }else {
-            Return C('cms:common:echoJson',array('msg'=>'更新失败.'.$upgradeinfo,'error'=>1));
+            return E('更新失败.'.$upgradeinfo);
         }
     }
     function adminconfig() {
         if(!$class=C('cms:class:get',$_POST['hash'])) {
-            Return C('cms:common:echoJson',array('msg'=>"error",'error'=>1));
+            return E('error');
         }
         $array=array();
         $array['requires']='';
@@ -247,7 +248,7 @@ class shop {
                 }
             }
         }
-        Return C('cms:common:echoJson',$array);
+        Return $array;
     }
     function shopInfo($data=array()) {
         foreach($_GET as $key=>$val) {$data[$key]=$val;}
@@ -292,20 +293,7 @@ class shop {
         $host=C('this:shopHost');
         $url='http://'.$host.'/shop/';
         if (function_exists("curl_init")){
-            $curl=curl_init();
-            curl_setopt($curl,CURLOPT_URL,$url);
-            curl_setopt($curl,CURLOPT_RETURNTRANSFER,1);
-            curl_setopt($curl,CURLOPT_POST,1);
-            curl_setopt($curl,CURLOPT_POSTFIELDS,C('this:shopInfo'));
-            curl_setopt($curl,CURLOPT_SSL_VERIFYPEER,FALSE);
-            curl_setopt($curl,CURLOPT_SSL_VERIFYHOST,FALSE);
-            curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,10);
-            curl_setopt($curl,CURLOPT_TIMEOUT,120);
-            curl_setopt($curl,CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
-            $content=curl_exec($curl);
-            $httpinfo=curl_getinfo($curl);
-            curl_close($curl);
-            if($httpinfo['http_code']>=300) {$content=false;}
+            $content=C('cms:common:send',$url,C('this:shopInfo'),1,120,array('CURLOPT_CONNECTTIMEOUT'=>10,'CURLOPT_SSL_VERIFYPEER'=>FALSE,'CURLOPT_SSL_VERIFYHOST'=>FALSE,'CURLOPT_HTTP_VERSION'=>CURL_HTTP_VERSION_1_0,'CURLOPT_RETURNTRANSFER'=>1));
         }else{
             $options['http'] = array('timeout'=>120,'method' => 'POST','header' => 'Content-type:application/x-www-form-urlencoded','content' =>http_build_query(C('this:shopInfo')));
             $content = @file_get_contents($url, false, stream_context_create($options));
@@ -351,24 +339,6 @@ class shop {
         if(!isset($checkurl['host']) || !in_array($checkurl['host'],$hosts)) {
             Return false;
         }
-        $curl=curl_init();
-        curl_setopt($curl,CURLOPT_URL,$url);
-        if(!$fp = @fopen ($filepath,'w+')) {
-            Return false;
-        }
-        curl_setopt($curl,CURLOPT_FILE, $fp);
-        curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,10);
-        curl_setopt($curl,CURLOPT_TIMEOUT,300);
-        curl_setopt($curl,CURLOPT_SSL_VERIFYPEER,FALSE);
-        curl_setopt($curl,CURLOPT_SSL_VERIFYHOST,FALSE);
-        curl_setopt($curl,CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
-        curl_setopt($curl,CURLOPT_POST,1);
-        curl_setopt($curl,CURLOPT_POSTFIELDS,C('this:shopInfo'));
-        $info=curl_exec($curl);
-        $httpinfo=curl_getinfo($curl);
-        curl_close($curl);
-        fclose($fp);
-        if($httpinfo['http_code']>=300) {@unlink($filepath);Return false;}
-        Return $info;
+        Return C('cms:common:download',$url,$filepath,300,array('CURLOPT_CONNECTTIMEOUT'=>10,'CURLOPT_SSL_VERIFYPEER'=>FALSE,'CURLOPT_SSL_VERIFYHOST'=>FALSE,'CURLOPT_HTTP_VERSION'=>CURL_HTTP_VERSION_1_0,'CURLOPT_POST'=>1,'CURLOPT_POSTFIELDS'=>C('this:shopInfo')));
     }
 }

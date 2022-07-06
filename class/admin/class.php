@@ -52,11 +52,11 @@ class admin_class {
                 $array['newclass'].=' <a class="layui-btn layui-btn-xs layui-btn-normal" href="?do=admin:class:config&hash='.$this_new.'">'.$this_name.'</a>';
             }
         }
-        V('class_index',$array);
+        Return V('class_index',$array);
     }
     function config() {
         $classhash=@$_GET['hash'];
-        if(!is_hash($classhash)) {Return C('this:error','error');}
+        if(!is_hash($classhash)) {Return E('error');}
         C('cms:class:refresh',$classhash);
         if($array['classinfo']=C('cms:class:get',$classhash)) {
             if(!is_file(classDir($classhash).$classhash.'.php')) {
@@ -65,7 +65,7 @@ class admin_class {
                     $del_class['table']='class';
                     $del_class['where']=array('hash'=>$array['classinfo']['hash']);
                     del($del_class);
-                    Return C('this:error','应用不存在,或此应用已卸载');
+                    Return E('应用不存在,或此应用已卸载');
                 }
                 $array['filenotfound']=1;
                 $array['new_version']=$array['classinfo']['classversion'];
@@ -77,7 +77,7 @@ class admin_class {
             }else {
                 $array['filenotfound']=0;
                 if(is_file(classDir($classhash).$classhash.'.config') && count(C('cms:class:config',$classhash))==0) {
-                    Return C('this:error',$classhash.'.config 文件解析错误');
+                    Return E($classhash.'.config 文件解析错误');
                 }
                 $array['new_version']=C('cms:class:config',$array['classinfo']['hash'],'version');
                 if($array['classinfo']['classversion']!=$array['new_version']) {
@@ -115,9 +115,9 @@ class admin_class {
                 $array['required_tips']='';
             }
             $array['roles']=C('cms:user:roleAll');
-            V('class_config',$array);
+            Return V('class_config',$array);
         }else {
-            Return C('this:error','应用不存在,或此应用已卸载');
+            Return E('应用不存在,或此应用已卸载');
         }
     }
     function permission() {
@@ -125,17 +125,17 @@ class admin_class {
             $array['roles']=C('cms:user:roleAll');
             $array['class_auth']=C($array['classinfo']['hash'].':auth');
             if(!$array['class_auth']) {
-                Return C('this:error','此应用无权限配置项');
+                Return E('此应用无权限配置项');
             }
             $array['title']=$array['classinfo']['classname'].' 权限';
-            V('class_permission',$array);
+            Return V('class_permission',$array);
         }else {
-            Return C('this:error','应用不存在,或此应用已卸载');
+            Return E('应用不存在,或此应用已卸载');
         }
     }
     function permissionPost() {
         if(!$class=C('cms:class:get',@$_POST['classhash'])) {
-            Return C('this:ajax','修改失败',1);
+            Return E('修改失败');
         }
         $roles=C('cms:user:roleAll');
         begin();
@@ -155,17 +155,17 @@ class admin_class {
             }
         }
         commit();
-        Return C('this:ajax','修改成功');
+        Return '修改成功';
     }
     function setting() {
         if($array['classinfo']=C('cms:class:get',@$_GET['hash'])) {
             if(!$array['classinfo']['enabled']){
-                Return C('this:error','应用未启用');
+                Return E('应用未启用');
             }
             C('cms:class:installConfig',$array['classinfo']['hash']);
             $configs=C($array['classinfo']['hash'].':config');
             if(!is_array($configs)) {
-                Return C('this:error','应用不存在设置选项');
+                Return E('应用不存在设置选项');
             }
             $new_configs=array();
             $configs_configs=array();
@@ -195,23 +195,23 @@ class admin_class {
                 }
             }
             if(!count($array['configs'])) {
-                Return C('this:error','应用不存在设置选项');
+                Return E('应用不存在设置选项');
             }
             $array['tabs']=C('cms:form:getTabs',$array['configs']);
             $array['title']=$array['classinfo']['classname'].' 设置';
-            V('class_setting',$array);
+            Return V('class_setting',$array);
         }else {
-            Return C('this:error','应用不存在,或此应用已卸载');
+            Return E('应用不存在,或此应用已卸载');
         }
     }
     function settingPost() {
         if($array['classinfo']=C('cms:class:get',@$_POST['classcms_classhash_'])) {
             if(!$array['classinfo']['enabled']){
-                Return C('this:ajax','应用未启用');
+                Return E('应用未启用');
             }
             $configs=C($array['classinfo']['hash'].':config');
             if(!is_array($configs)) {
-                Return C('this:ajax','应用不存在设置选项');
+                Return E('应用不存在设置选项');
             }
             $new_configs=array();
             $configs_configs=array();
@@ -253,61 +253,61 @@ class admin_class {
                 }
                 $install_route=C('cms:class:installRoute',$array['classinfo']['hash']);
                 if(is_string($install_route)) {
-                    Return C('this:ajax',$install_route,1);
+                    Return E($install_route);
                 }
                 $install_hook=C('cms:class:installHook',$array['classinfo']['hash']);
                 if(is_string($install_hook)) {
-                    Return C('this:ajax',$install_hook,1);
+                    Return E($install_hook);
                 }
-                Return C('this:ajax','保存成功');
+                Return '保存成功';
             }else {
-                Return C('this:ajax',$msg,1);
+                Return E($msg);
             }
         }else {
-            C('this:ajax','用户不存在',1);
+            Return E('应用不存在');
         }
     }
     function install() {
         $classhash=@$_POST['hash'];
         if(!C('cms:class:phpCheck',$classhash)) {
-            Return C('this:ajax','当前服务器PHP版本为:'.PHP_VERSION.'<br>此应用需要PHP版本为:'.C('cms:class:config',$classhash,'php'),1);
+            Return E('当前服务器PHP版本为:'.PHP_VERSION.'<br>此应用需要PHP版本为:'.C('cms:class:config',$classhash,'php'));
         }
         if(!C('cms:class:requires',$classhash)) {
-            Return C('this:ajax','安装失败.请先安装依赖应用',1);
+            Return E('安装失败.请先安装依赖应用');
         }
         $info=C('cms:class:install',$classhash);
         if($info===true) {
-            Return C('this:ajax','安装成功.');
+            Return '安装成功.';
         }elseif($info) {
-            Return C('this:ajax',$info,1);
+            Return E($info);
         }
-        Return C('this:ajax','安装失败.',1);
+        Return E('安装失败.');
     }
     function uninstall() {
         $classhash=@$_POST['hash'];
         C('cms:hook:unhook',$classhash);
         $info=C('cms:class:uninstall',$classhash);
         if($info===true) {
-            Return C('this:ajax','卸载成功');
+            Return '卸载成功';
         }elseif($info) {
-            Return C('this:ajax',$info,1);
+            Return E($info);
         }
-        Return C('this:ajax','卸载失败',1);
+        Return E('卸载失败');
     }
     function fileUpdate() {
         $classhash=@$_POST['hash'];
         $old_version=@$_POST['old_version'];
         $new_version=@$_POST['new_version'];
         if(!C('cms:class:requires',$classhash)) {
-            Return C('this:ajax','更新失败,请先安装依赖应用',1);
+            Return E('更新失败,请先安装依赖应用');
         }
         $info=C('cms:class:upgrade',$classhash);
         if($info===true) {
-            Return C('this:ajax','更新成功');
+            Return '更新成功';
         }elseif($info) {
-            Return C('this:ajax',$info,1);
+            Return E($info);
         }
-        Return C('this:ajax','更新失败',1);
+        Return E('更新失败');
     }
     function changeState() {
         $classhash=@$_POST['hash'];
@@ -316,22 +316,22 @@ class admin_class {
             C('cms:hook:unhook',$classhash);
             $info=C('cms:class:stop',$classhash);
             if($info===true) {
-                Return C('this:ajax','停用成功');
+                Return '停用成功';
             }elseif($info) {
-                Return C('this:ajax',$info);
+                Return $info;
             }
-            Return C('this:ajax','停用失败');
+            Return '停用失败';
         }else {
             if(!C('cms:class:requires',$classhash)) {
-                Return C('this:ajax','启用失败,请先安装依赖应用');
+                Return '启用失败,请先安装依赖应用';
             }
             $info=C('cms:class:start',$classhash);
             if($info===true) {
-                Return C('this:ajax','启用成功');
+                Return '启用成功';
             }elseif($info) {
-                Return C('this:ajax',$info);
+                Return $info;
             }
-            Return C('this:ajax','启用失败');
+            Return '启用失败';
         }
     }
     function menu() {
@@ -347,9 +347,9 @@ class admin_class {
                 $new_class['menu']=1;
             }
             update($new_class);
-            Return C('this:ajax','后台菜单设置成功');
+            Return '后台菜单设置成功';
         }
-        Return C('this:ajax','后台菜单设置失败',1);
+        Return E('后台菜单设置失败');
     }
     function order() {
         $classhash=@$_POST['hash'];
@@ -369,8 +369,8 @@ class admin_class {
                 }
             }
             C('cms:class:changeClassOrder',$classhash,$new_order);
-            Return C('this:ajax','置顶应用成功');
+            Return '置顶应用成功';
         }
-        Return C('this:ajax','置顶应用失败',1);
+        Return E('置顶应用失败');
     }
 }

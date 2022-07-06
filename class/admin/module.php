@@ -15,22 +15,22 @@ class admin_module {
     }
     function index() {
         if(!isset($_GET['classhash']) && !$_GET['classhash']=C('cms:class:defaultClass')) {
-            Return C('this:error','未安装模板应用');
+            Return E('未安装模板应用');
         }
         if(!$class=C('cms:class:get',$_GET['classhash'])) {
-            Return C('this:error',$_GET['classhash'].' 应用未安装');
+            Return E($_GET['classhash'].' 应用未安装');
         }
-        if(!$class['installed']) {Return C('this:error',$_GET['classhash'].' 应用未安装');}
-        if(!$class['module']) {Return C('this:error','此应用['.$_GET['classhash'].'] 未开启模型配置选项');}
+        if(!$class['installed']) {Return E($_GET['classhash'].' 应用未安装');}
+        if(!$class['module']) {Return E('此应用['.$_GET['classhash'].'] 未开启模型配置选项');}
         $array['modulelist']=C('cms:module:all',$_GET['classhash']);
         $array['classhash']=$class['hash'];
         $array['classname']=$class['classname'];
         $array['breadcrumb']=C('this:module:breadcrumb',$class);
         $array['title']=$array['classname'].'['.$array['classhash'].'] 模型';
-        V('module_index',$array);
+        Return V('module_index',$array);
     }
     function order() {
-        if(!is_hash(@$_POST['classhash'])) {Return C('this:ajax','error');}
+        if(!is_hash(@$_POST['classhash'])) {Return E('error');}
         $modulesarray=explode('|',$_POST['modulesarray']);
         foreach($modulesarray as $key=>$moduleid) {
             if(!empty($moduleid)) {
@@ -41,24 +41,24 @@ class admin_module {
                 C('cms:module:edit',$module_up_query);
             }
         }
-        Return C('this:ajax','修改成功');
+        Return '修改成功';
     }
     function add() {
         $array['classinfo']=C('cms:class:get',@$_GET['classhash']);
         if(!$array['classinfo']) {
-            Return C('this:error','error');
+            Return E('error');
         }
         $array['breadcrumb']=C('this:module:breadcrumb',$array['classinfo'],'','增加');
         $array['routes']=C('this:module:defaultRoute');
         $array['vars']=C('this:module:defaultVar');
         $array['columns']=C('this:module:defaultColumn');
-        V('module_add',$array);
+        Return V('module_add',$array);
     }
     function addPost() {
         $classinfo=C('cms:class:get',@$_POST['classhash']);
-        if(!$classinfo) {Return C('this:ajax','应用不存在',1);}
-        if(!$classinfo['installed']) {Return C('this:ajax','应用未安装',1);}
-        if(!$classinfo['module']) {Return C('this:ajax',$classinfo['classname'].' 应用无法配置模型',1);}
+        if(!$classinfo) {Return E('应用不存在');}
+        if(!$classinfo['installed']) {Return E('应用未安装');}
+        if(!$classinfo['module']) {Return E($classinfo['classname'].' 应用无法配置模型');}
         $where=array();
         $where['classhash']=$classinfo['hash'];
         $where['modulename']=htmlspecialchars($_POST['modulename']);
@@ -66,16 +66,16 @@ class admin_module {
         $same_name_query['table']='module';
         $same_name_query['where']=$where;
         if(one($same_name_query)) {
-            Return C('this:ajax','存在相同的模型名称',1);
+            Return E('存在相同的模型名称');
         }
         $module_add_array=array();
         $module_add_array['classhash']=$_POST['classhash'];
         if(!is_hash(@$_POST['hash'])) {
-            Return C('this:ajax','模型标识格式有误',1);
+            Return E('模型标识格式有误');
         }
         $module_add_array['hash']=$_POST['hash'];
         if(C('cms:module:get',$module_add_array['hash'],$module_add_array['classhash'])){
-            Return C('this:ajax','已存在该模型标识['.$module_add_array['hash'].']',1);
+            Return E('已存在该模型标识['.$module_add_array['hash'].']');
         }
         $module_add_array['modulename']=htmlspecialchars($_POST['modulename']);
         if($id=C('cms:module:add',$module_add_array)) {
@@ -140,16 +140,16 @@ class admin_module {
                     }
                 }
             }
-            Return C('this:ajax',array('msg'=>'增加成功','url'=>'?do=admin:module:config&id='.$id));
+            Return array('msg'=>'增加成功','url'=>'?do=admin:module:config&id='.$id);
         }else {
-            Return C('this:ajax','增加失败',1);
+            Return E('增加失败');
         }
     }
     function config() {
         $array['module']=C('cms:module:get',@$_GET['id']);
-        if(!$array['module']) {Return C('this:error','模型不存在');}
+        if(!$array['module']) {Return E('模型不存在');}
         $array['classinfo']=C('cms:class:get',$array['module']['classhash']);
-        if(!$array['classinfo']['module']) {Return C('this:error',$array['classinfo']['classname'].' 应用无法配置模型');}
+        if(!$array['classinfo']['module']) {Return E($array['classinfo']['classname'].' 应用无法配置模型');}
         $array['breadcrumb']=C('this:module:breadcrumb',$array['classinfo'],$array['module']);
         $array['routes']=C('cms:route:all',$array['module']['hash'],$array['module']['classhash']);
         $array['vars']=C('cms:form:all','var',$array['module']['hash'],$array['module']['classhash']);
@@ -174,7 +174,7 @@ class admin_module {
                 }
             }
         }
-        V('module_config',$array);
+        Return V('module_config',$array);
     }
     function editPost() {
         if($module=C('cms:module:get',@$_POST['id'])){
@@ -188,7 +188,7 @@ class admin_module {
                 $same_name_query['table']='module';
                 $same_name_query['where']=$where;
                 if(one($same_name_query)) {
-                    Return C('this:ajax','存在相同的模型名称',1);
+                    Return E('存在相同的模型名称');
                 }
                 $module_edit_array['modulename']=htmlspecialchars($_POST['modulename']);
             }
@@ -204,39 +204,39 @@ class admin_module {
             }
             $editreturn=C('cms:module:edit',$module_edit_array);
             if($editreturn===true) {
-                Return C('this:ajax','修改成功');
+                Return '修改成功';
             }elseif(is_string($editreturn)) {
-                Return C('this:ajax',$editreturn,1);
+                Return E($editreturn);
             }
-            Return C('this:ajax','修改失败',1);
+            Return E('修改失败');
         }else {
-            Return C('this:ajax','模型不存在',1);
+            Return E('模型不存在');
         }
     }
     function del() {
         if($module=C('cms:module:get',@$_POST['id'])){
             if($delreturn=C('cms:module:del',$module['hash'],$module['classhash'])) {
                 if($delreturn===true) {
-                    Return C('this:ajax','删除成功');
+                    Return '删除成功';
                 }elseif(is_numeric($delreturn)) {
                     $channel=C('cms:channel:get',$delreturn);
-                    Return C('this:ajax','删除失败,栏目 '.$channel['channelname'].' 下属栏目未删除<br>请先删除下属栏目',1);
+                    Return E('删除失败,栏目 '.$channel['channelname'].' 下属栏目未删除<br>请先删除下属栏目');
                 }elseif(is_string($delreturn)) {
-                    Return C('this:ajax',$delreturn,1);
+                    Return E($delreturn);
                 }else {
-                    Return C('this:ajax','删除失败',1);
+                    Return E('删除失败');
                 }
             }else {
-                Return C('this:ajax','删除失败',1);
+                Return E('删除失败');
             }
         }else {
-            Return C('this:ajax','模型不存在',1);
+            Return E('模型不存在');
         }
     }
     function permission() {
         $array['module']=C('cms:module:get',@$_GET['id']);
         if(!$array['module']) {
-            Return C('this:error','模型不存在');
+            Return E('模型不存在');
         }
         $array['classinfo']=C('cms:class:get',$array['module']['classhash']);
         $array['breadcrumb']=C('this:module:breadcrumb',$array['classinfo'],$array['module'],'权限');
@@ -260,12 +260,12 @@ class admin_module {
             $array['roles'][$key]['_editabled']=C('this:roleCheck','admin:module:permission',$thisrole['hash'],false);
         }
         $array['title']=$array['module']['modulename'].' 权限';
-        V('module_permission',$array);
+        Return V('module_permission',$array);
     }
     function permissionPost() {
         $module=C('cms:module:get',@$_POST['id']);
         if(!$module) {
-            Return C('this:ajax','模型不存在',1);
+            Return E('模型不存在');
         }
         $roles=C('cms:user:roleAll');
         foreach($roles as $role) {
@@ -278,7 +278,7 @@ class admin_module {
                 }
             }
         }
-        Return C('this:ajax','修改成功');
+        Return '修改成功';
     }
     function breadcrumb($class,$module='',$action='') {
         if(!is_array($class)) {

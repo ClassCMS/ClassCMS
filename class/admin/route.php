@@ -4,32 +4,32 @@ class admin_route {
     function index() {
         $array['module']=C('cms:module:get',@$_GET['id']);
         if(!$array['module']) {
-            Return C('this:error','模型不存在');
+            Return E('模型不存在');
         }
         $array['classinfo']=C('cms:class:get',$array['module']['classhash']);
         $array['routes']=C('cms:route:all',$array['module']['hash'],$array['module']['classhash']);
         $array['columns']=C('cms:form:all','column',$array['module']['hash'],$array['module']['classhash']);
         $array['breadcrumb']=C('this:module:breadcrumb',$array['classinfo'],$array['module'],'页面');
         $array['title']=$array['module']['modulename'].' 页面';
-        V('route_index',$array);
+        Return V('route_index',$array);
     }
     function add() {
         $array['module']=C('cms:module:get',@$_GET['moduleid']);
         if(!$array['module']) {
-            Return C('this:error','模型不存在');
+            Return E('模型不存在');
         }
         $array['classinfo']=C('cms:class:get',$array['module']['classhash']);
-        if(!$array['classinfo']['module']) {Return C('this:error',$array['classinfo']['classname'].' 应用无法配置模型');}
+        if(!$array['classinfo']['module']) {Return E($array['classinfo']['classname'].' 应用无法配置模型');}
         $array['breadcrumb']=C('this:module:breadcrumb',$array['classinfo'],$array['module']);
         $array['breadcrumb'][]=array('url'=>'?do=admin:route:index&id='.$array['module']['id'],'title'=>'页面');
         $array['breadcrumb'][]=array('url'=>'','title'=>' 增加');
         $array['title']='增加页面';
-        V('route_edit',$array);
+        Return V('route_edit',$array);
     }
     function edit() {
         $array['route']=C('cms:route:get',@$_GET['id']);
         if(!$array['route']){
-            Return C('this:error','页面不存在');
+            Return E('页面不存在');
         }
         $array['module']=C('cms:module:get',$array['route']['modulehash'],$array['route']['classhash']);
         $array['classinfo']=C('cms:class:get',$array['module']['classhash']);
@@ -37,30 +37,30 @@ class admin_route {
         $array['breadcrumb'][]=array('url'=>'?do=admin:route:index&id='.$array['module']['id'],'title'=>'页面');
         $array['breadcrumb'][]=array('url'=>'','title'=>$array['route']['hash'].' 修改');
         $array['title']=$array['route']['hash'].' 修改';
-        V('route_edit',$array);
+        Return V('route_edit',$array);
     }
     function addPost() {
         if(!$module=C('cms:module:get',intval($_POST['moduleid']))){
-            Return C('this:ajax','模型不存在',1);
+            Return E('模型不存在');
         }
         if(!$class=C('cms:class:get',$module['classhash'])) {
-            Return C('this:ajax','应用不存在',1);
+            Return E('应用不存在');
         }
         if(!C('cms:route:allow',@$_POST['uri'])) {
-            Return C('this:ajax','网址中不允许包含特殊字符',1);
+            Return E('网址中不允许包含特殊字符');
         }
         if(substr(@$_POST['uri'],0,1)!='/'){
-            Return C('this:ajax','网址必须以 / 开头',1);
+            Return E('网址必须以 / 开头');
         }
         if(!is_hash(@$_POST['hash'])) {
-            Return C('this:ajax','标识错误',1);
+            Return E('标识错误');
         }
         $route=C('cms:route:get',$_POST['hash'],$module['hash'],$module['classhash']);
         if($route) {
-            Return C('this:ajax','增加失败,已存在此页面标识',1);
+            Return E('增加失败,已存在此页面标识');
         }
         if(empty($_POST['classfunction']) && empty($_POST['classview'])) {
-            Return C('this:ajax','方法名或模板文件,请填写其中一项',1);
+            Return E('方法名或模板文件,请填写其中一项');
         }
         $route_add_array=array();
         $route_add_array['hash']=$_POST['hash'];
@@ -74,23 +74,23 @@ class admin_route {
         $route_add_array['classfunction']=$_POST['classfunction'];
         $route_add_array['classview']=$_POST['classview'];
         if(C('cms:route:add',$route_add_array)) {
-            Return C('this:ajax','增加成功');
+            Return '增加成功';
         }else {
-            Return C('this:ajax','增加失败',1);
+            Return E('增加失败');
         }
     }
     function editPost() {
         if(!$route=C('cms:route:get',intval($_POST['id']))) {
-            Return C('this:ajax','页面不存在',1);
+            Return E('页面不存在');
         }
         if(!C('cms:route:allow',@$_POST['uri'])) {
-            Return C('this:ajax','网址中不允许包含特殊字符',1);
+            Return E('网址中不允许包含特殊字符');
         }
         if(substr(@$_POST['uri'],0,1)!='/'){
-            Return C('this:ajax','网址必须以 / 开头',1);
+            Return E('网址必须以 / 开头');
         }
         if(empty($_POST['classfunction']) && empty($_POST['classview'])) {
-            Return C('this:ajax','函数名或模板文件,请填写其中一项',1);
+            Return E('方法名或模板文件,请填写其中一项');
         }
         $route_edit_array=array();
         $route_edit_array['id']=$_POST['id'];
@@ -99,16 +99,16 @@ class admin_route {
         $route_edit_array['classfunction']=$_POST['classfunction'];
         $route_edit_array['classview']=$_POST['classview'];
         if(C('cms:route:edit',$route_edit_array)) {
-            Return C('this:ajax','修改成功');
+            Return '修改成功';
         }else {
-            Return C('this:ajax','修改失败',1);
+            Return E('修改失败');
         }
     }
     function del() {
         if(C('cms:route:del',@$_POST['id'])){
-            Return C('this:ajax','删除成功');
+            Return '删除成功';
         }else {
-            Return C('this:ajax','删除失败',1);
+            Return E('删除失败');
         }
     }
     function order() {
@@ -122,6 +122,6 @@ class admin_route {
                 update($route_up_query);
             }
         }
-        Return C('this:ajax','修改成功');
+        Return '修改成功';
     }
 }

@@ -3,7 +3,7 @@ if(!defined('ClassCms')) {exit();}
 class admin_article {
     function home() {
         if(!$array['channel']=C('this:article:channelGet',@$_GET['cid'])) {
-            Return C('this:error','栏目不存在或无法访问');
+            Return E('栏目不存在或无法访问');
         }
         $array['columns']=C('cms:form:all','column',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
         $array['columns']=C('cms:form:getColumnCreated',$array['columns'],$array['channel']['_module']['table']);
@@ -24,14 +24,14 @@ class admin_article {
         if(C('this:article:varEnabled',$array['channel']['_module'])) {
             Return C('this:article:varEdit');
         }
-        Return C('this:error','字段或变量权限未开放');
+        Return E('字段或变量权限未开放');
     }
     function index() {
         if(!$array['channel']=C('this:article:channelGet',@$_GET['cid'])) {
-            Return C('this:error','栏目不存在或无法访问');
+            Return E('栏目不存在或无法访问');
         }
         if(!C('this:moduleAuth',$array['channel']['_module'],'list')) {
-            Return C('this:error','无权限');
+            Return E('无权限');
         }
         if(C('this:moduleAuth',$array['channel']['_module'],'add')) {$array['auth']['add']=1;}else{$array['auth']['add']=0;}
         if(C('this:moduleAuth',$array['channel']['_module'],'var')) {$array['auth']['var']=1;}else {$array['auth']['var']=0;}
@@ -42,7 +42,7 @@ class admin_article {
         $array['columns']=C('cms:form:all','column',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
         $array['columns']=C('cms:form:getColumnCreated',$array['columns'],$array['channel']['_module']['table']);
         if(count($array['columns'])==0) {
-            Return C('this:error','未配置模型字段');
+            Return E('未配置模型字段');
         }
         $GLOBALS['admin']['articleAction']='index';
         $array['viewbutton']=1;
@@ -80,24 +80,24 @@ class admin_article {
         }
         $article_query['source']='admin';
         $array['articles']=C('cms:article:get',$article_query);
-        V('article_index',$array);
+        Return V('article_index',$array);
     }
     function edit() {
         if(!$array['channel']=C('this:article:channelGet',@$_GET['cid'])) {
-            Return C('this:error','栏目不存在或无法访问');
+            Return E('栏目不存在或无法访问');
         }
         if(C('cms:common:verify',@$_GET['id'],'id')) {
             $GLOBALS['admin']['articleAction']='edit';
             $array['breadcrumb']=C('this:article:breadcrumb',$array['channel'],'修改');
             $array['id']=$_GET['id'];
             if(!$article=C('this:article:editEnabled',$array['channel']['id'],$array['id'])) {
-                Return C('this:error','文章不存在');
+                Return E('文章不存在');
             }
             $array['title']=$array['channel']['channelname'].' 修改';
         }else {
             $GLOBALS['admin']['articleAction']='add';
             $array['id']=false;
-            if(!C('this:moduleAuth',$array['channel']['_module'],'add')) {Return C('this:error','无权限');}
+            if(!C('this:moduleAuth',$array['channel']['_module'],'add')) {Return E('无权限');}
             if(C('this:moduleAuth',$array['channel']['_module'],'list')) {
                 $array['breadcrumb']=C('this:article:breadcrumb',$array['channel'],'增加');
             }else {
@@ -147,25 +147,25 @@ class admin_article {
             }
         }
         $array['tabs']=C('cms:form:getTabs',$array['columns']);
-        V('article_edit',$array);
+        Return V('article_edit',$array);
     }
     function editSave() {
         if(!C('this:csrfCheck',1)) {
-            Return C('this:ajax','非法提交,请刷新当前页面或重新登入系统',1,1001);
+            Return array('msg'=>'非法提交,请刷新当前页面或重新登入系统','error'=>1,'code'=>1001);
         }
         if(!$array['channel']=C('this:article:channelGet',@$_POST['cid'])) {
-            Return C('this:ajax','栏目不存在或无法访问',1);
+            Return E('栏目不存在或无法访问');
         }
         if(C('cms:common:verify',@$_POST['id'],'id')) {
             $article_id=$_POST['id'];
             $array['breadcrumb']=C('this:article:breadcrumb',$array['channel'],'修改');
             if(!$article=C('this:article:editEnabled',$array['channel']['id'],$article_id)) {
-                Return C('this:ajax','文章不存在',1);
+                Return E('文章不存在');
             }
         }else {
             $article_id=false;
             if(!C('this:moduleAuth',$array['channel']['_module'],'add')) {
-                Return C('this:ajax','无权限',1);
+                Return E('无权限');
             }
         }
         $array['columns']=C('cms:form:all','column',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
@@ -199,51 +199,51 @@ class admin_article {
             }
         }
         if(!empty($errormsg)) {
-            Return C('this:ajax',$errormsg,1);
+            Return E($errormsg);
         }
         if(!$article_id) {
             $new_article['uid']=C('this:nowUser');
             $id=C('cms:article:add',$new_article);
             if(is_numeric($id)) {
                 if(C('this:moduleAuth',$array['channel']['_module'],'edit')) {
-                    Return C('this:ajax',array('msg'=>'增加成功','url'=>'?do=admin:article:edit&cid='.$array['channel']['id'].'&id='.$id));
+                    Return array('msg'=>'增加成功','id'=>$id,'url'=>'?do=admin:article:edit&cid='.$array['channel']['id'].'&id='.$id);
                 }else {
-                    Return C('this:ajax',array('msg'=>'增加成功'));
+                    Return '增加成功';
                 }
             }else {
                 if(is_string($id)) {
-                    Return C('this:ajax',$id,1);
+                    Return E($id);
                 }
                 if(E()){
-                    Return C('this:ajax',E(),1);
+                    Return E(E());
                 }
-                Return C('this:ajax','增加失败',1);
+                Return E('增加失败');
             }
         }else {
             $new_article['id']=$article_id;
             $editreturn=C('cms:article:edit',$new_article);
             if($editreturn===true) {
-                Return C('this:ajax',array('msg'=>'保存成功'));
+                Return '保存成功';
             }else {
                 if(is_string($editreturn)) {
-                    Return C('this:ajax',$editreturn,1);
+                    Return E($editreturn);
                 }
                 if(E()){
-                    Return C('this:ajax',E(),1);
+                    Return E(E());
                 }
-                Return C('this:ajax','保存失败',1);
+                Return E('保存失败');
             }
         }
     }
     function del() {
         if(!C('this:csrfCheck',1)) {
-            Return C('this:ajax','非法提交,请刷新当前页面或重新登入系统',1,1001);
+            Return array('msg'=>'非法提交,请刷新当前页面或重新登入系统','error'=>1,'code'=>1001);
         }
         if(!$array['channel']=C('this:article:channelGet',@$_POST['cid'])) {
-            Return C('this:ajax','栏目不存在或无法访问',1);
+            Return E('栏目不存在或无法访问');
         }
         if(!C('this:moduleAuth',$array['channel']['_module'],'del')) {
-            Return C('this:ajax','无权限',1);
+            Return E('无权限');
         }
         $ids=explode(';',@$_POST['ids']);
         $limit=C('this:moduleAuth',$array['channel']['_module'],'limit|false');
@@ -258,23 +258,23 @@ class admin_article {
                 }
                 $delreturn=C('cms:article:del',$article_del_query);
                 if(is_string($delreturn)) {
-                    Return C('this:ajax',$delreturn,1);
+                    Return E($delreturn);
                 }elseif(!$delreturn) {
                     if(E()){
-                        Return C('this:ajax',E(),1);
+                        Return E(E());
                     }
-                    Return C('this:ajax','删除失败',1);
+                    Return E('删除失败');
                 }
             }
         }
-        Return C('this:ajax','删除成功');
+        Return '删除成功';
     }
     function varEdit() {
         if(!$array['channel']=C('this:article:channelGet',@$_GET['cid'])) {
-            Return C('this:error','栏目不存在或无法访问');
+            Return E('栏目不存在或无法访问');
         }
         if(!C('this:moduleAuth',$array['channel']['_module'],'var')) {
-            Return C('this:error','无权限');
+            Return E('无权限');
         }
         $GLOBALS['admin']['articleAction']='var';
         $array['columns']=C('cms:form:all','column',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
@@ -315,20 +315,20 @@ class admin_article {
             $array['vars']=$varsColumns;
         }
         if(!count($array['vars'])) {
-            Return C('this:error','无变量');
+            Return E('无变量');
         }
         $array['tabs']=C('cms:form:getTabs',$array['vars']);
-        V('article_var',$array);
+        Return V('article_var',$array);
     }
     function varSave() {
         if(!C('this:csrfCheck',1)) {
-            Return C('this:ajax','非法提交,请刷新当前页面或重新登入系统',1,1001);
+            Return array('msg'=>'非法提交,请刷新当前页面或重新登入系统','error'=>1,'code'=>1001);
         }
         if(!$array['channel']=C('this:article:channelGet',@$_POST['cid'])) {
-            Return C('this:ajax','栏目不存在或无法访问',1);
+            Return E('栏目不存在或无法访问');
         }
         if(!C('this:moduleAuth',$array['channel']['_module'],'var')) {
-            Return C('this:ajax','保存失败,无权限',1);
+            Return E('保存失败,无权限');
         }
         $array['vars']=C('cms:form:all','var',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
         $msg='';
@@ -360,18 +360,17 @@ class admin_article {
             foreach($channel_edit as $var_name=>$var_value) {
                 $savetrturn=C('cms:article:setVar',$array['channel']['id'],$var_name,$var_value);
                 if(is_string($savetrturn)) {
-                    Return C('this:ajax',$savetrturn,1);
+                    Return E($savetrturn);
                 }elseif(!$savetrturn) {
                     if(E()){
-                        Return C('this:ajax',E(),1);
+                        Return E(E());
                     }
-                    Return C('this:ajax','保存失败',1);
+                    Return E('保存失败');
                 }
-                
             }
-            Return C('this:ajax','保存成功');
+            Return '保存成功';
         }else {
-            Return C('this:ajax',$msg,1);
+            Return E($msg);
         }
         
     }
