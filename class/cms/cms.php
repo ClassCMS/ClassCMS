@@ -681,17 +681,27 @@ function classDir($classhash='') {
     }
     Return $GLOBALS['C']['SystemRoot'].$GLOBALS['C']['ClassDir'].DIRECTORY_SEPARATOR.$classhash.DIRECTORY_SEPARATOR;
 }
-function cacheDir($path='') {
+function cacheDir($path='',$create=false) {
+    $path=str_replace(array('/','\\'),DIRECTORY_SEPARATOR,$path);
     if(stripos($GLOBALS['C']['CacheDir'],'/')!==false || stripos($GLOBALS['C']['CacheDir'],'\\')!==false) {
         if(empty($path)) {
-            Return rtrim($GLOBALS['C']['CacheDir'],'/\\').DIRECTORY_SEPARATOR;
+            $fullpath=rtrim($GLOBALS['C']['CacheDir'],'/\\').DIRECTORY_SEPARATOR;
+        }else{
+            $fullpath=rtrim($GLOBALS['C']['CacheDir'],'/\\').DIRECTORY_SEPARATOR.$path.DIRECTORY_SEPARATOR;
         }
-        Return rtrim($GLOBALS['C']['CacheDir'],'/\\').DIRECTORY_SEPARATOR.$path.DIRECTORY_SEPARATOR;
+    }else{
+        if(empty($path)) {
+            $fullpath=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['CacheDir'].DIRECTORY_SEPARATOR;
+        }else{
+            $fullpath=$GLOBALS['C']['SystemRoot'].$GLOBALS['C']['CacheDir'].DIRECTORY_SEPARATOR.$path.DIRECTORY_SEPARATOR;
+        }
     }
-    if(empty($path)) {
-        Return $GLOBALS['C']['SystemRoot'].$GLOBALS['C']['CacheDir'].DIRECTORY_SEPARATOR;
+    if($create){
+        if(!cms_createdir($fullpath)){
+            return false;
+        }
     }
-    Return $GLOBALS['C']['SystemRoot'].$GLOBALS['C']['CacheDir'].DIRECTORY_SEPARATOR.$path.DIRECTORY_SEPARATOR;
+    return $fullpath;
 }
 function class_getParameters($args) {
     $class=explode(':',$args['class']);

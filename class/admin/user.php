@@ -108,7 +108,7 @@ class admin_user {
         }
         $addreturn=C('cms:user:add',$user_add_array);
         if(is_numeric($addreturn)) {
-            Return '增加成功';
+            Return array('msg'=>'增加成功','id'=>$addreturn,'hash'=>$user_add_array['hash']);
         }elseif(is_string($addreturn)){
             Return E($addreturn);
         }elseif(E()){
@@ -257,8 +257,8 @@ class admin_user {
             Return E('角色标识格式有误');
         }
         $role_add_array['hash']=$_POST['hash'];
-        if(C('cms:user:roleAdd',$role_add_array)) {
-            Return '增加成功';
+        if($id=C('cms:user:roleAdd',$role_add_array)) {
+            Return array('msg'=>'增加成功','hash'=>$role_add_array['hash'],'id'=>$id);
         }elseif(E()) {
             Return E(E());
         }

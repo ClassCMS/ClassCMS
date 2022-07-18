@@ -140,7 +140,7 @@ class admin_module {
                     }
                 }
             }
-            Return array('msg'=>'增加成功','url'=>'?do=admin:module:config&id='.$id);
+            Return array('msg'=>'增加成功','id'=>$id,'url'=>'?do=admin:module:config&id='.$id);
         }else {
             Return E('增加失败');
         }
@@ -326,7 +326,7 @@ class admin_module {
                 array('title'=>'标题','hash'=>'title','inputhash'=>'text'),
                 array('title'=>'关键词','hash'=>'keywords','inputhash'=>'text'),
                 array('title'=>'描述','hash'=>'description','inputhash'=>'textarea'),
-                array('title'=>'内容','hash'=>'content','inputhash'=>$editorhash),
+                array('title'=>'内容','hash'=>'content','inputhash'=>$editorhash)
             );
     }
     function defaultColumn() {
@@ -341,7 +341,7 @@ class admin_module {
                 array('title'=>'描述','hash'=>'description','inputhash'=>'textarea'),
                 array('title'=>'内容','hash'=>'content','inputhash'=>$editorhash),
                 array('title'=>'图片','hash'=>'pic','inputhash'=>'imgupload','checked'=>0),
-                array('title'=>'时间','hash'=>'datetime','inputhash'=>'datetime','checked'=>0),
+                array('title'=>'时间','hash'=>'datetime','inputhash'=>'datetime','checked'=>0)
             );
     }
 }

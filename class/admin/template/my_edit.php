@@ -87,7 +87,9 @@
                         {
                             parent.location.reload();
                             layui.admin.events.reload();
+                            return;
                         }
+                        layui.admin.events.loadmenu();
                         layui.layer.close(confirm);
                     },function(){
                         layui.admin.events.back();

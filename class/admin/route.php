@@ -73,8 +73,8 @@ class admin_route {
         $route_add_array['enabled']=C('cms:input:post',array('inputhash'=>'switch','name'=>'enabled'));
         $route_add_array['classfunction']=$_POST['classfunction'];
         $route_add_array['classview']=$_POST['classview'];
-        if(C('cms:route:add',$route_add_array)) {
-            Return '增加成功';
+        if($id=C('cms:route:add',$route_add_array)) {
+            Return array('msg'=>'增加成功','id'=>$id);
         }else {
             Return E('增加失败');
         }

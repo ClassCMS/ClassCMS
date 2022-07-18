@@ -308,6 +308,9 @@ class admin {
                 $return=$args[0];
             }
         }
+        if(!isset($return['error'])){
+            $return['error']=0;
+        }
         if(C('cms:common:echoJson',$return)) {
             Return true;
         }
@@ -477,7 +480,7 @@ class admin {
         $headhtml.=C('this:css');
         $headhtml.=C('layui:js')."\n";
         $headhtml.=C('this:csrfJs')."\n";
-        $headhtml.='<script>layui.config({base: \''.template_url().'static/\',version:\'3.1\'}).extend({index: \'lib/index\'}).use([\'index\',\'form\'],function(){});</script>'."\n";
+        $headhtml.='<script>layui.config({base: \''.template_url().'static/\',version:\'3.3\'}).extend({index: \'lib/index\'}).use([\'index\',\'form\'],function(){});</script>'."\n";
         Return $headhtml;
     }
     function css($check=1) {
@@ -622,8 +625,7 @@ class admin {
             }
             $token=C('cms:user:makeToken',$userid);
             if(C('this:adminCookie',$token)) {
-                C('this:csrfSet',1);
-                Return array('msg'=>'登入成功','token'=>$token);
+                Return array('msg'=>'登入成功','token'=>$token,'csrf'=>C('this:csrfSet',1),'cookiehash'=>C('this:cookieHash'));
             }else {
                 Return E('登入失败');
             }
@@ -690,6 +692,7 @@ class admin {
             }else {
                 $value=substr(md5(@$GLOBALS['C']['SiteHash'].rand(10041989,19891004)),0,8);
                 setcookie('csrf'.C('this:cookieHash'),$value,strtotime("+1 year"),$GLOBALS['C']['SystemDir'],null,null,true);
+                Return $value;
             }
         }else{
             if(empty($value)) {
@@ -697,6 +700,7 @@ class admin {
             }else {
                 $value=substr(md5(@$GLOBALS['C']['SiteHash'].rand(10041989,19891004)),0,8);
                 setcookie('csrf'.C('this:cookieHash'),$value,array('expires'=>strtotime("+1 year"),'path'=>$GLOBALS['C']['SystemDir'],'domain'=>null,'secure'=>null,'httponly'=>true));
+                Return $value;
             }
         }
         Return true;
