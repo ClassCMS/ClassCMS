@@ -99,6 +99,9 @@ class admin {
         }
         $classinfo=C('cms:class:get',$doclass[0]);
         if(!$classinfo || !$classinfo['enabled']) {
+            if($doclass[0]=='admin' && $doclass[1]=='login'){
+                Return C('this:error','数据库连接失败');
+            }
             if(C('cms:common:isAjax')) {
                 Return C('this:ajax','无权限',1,1001);
             }else {

@@ -69,6 +69,7 @@ class cms {
                         $GLOBALS['C']['route_view'][$thisroute['classfunction']]=$thisroute['classview'];
                         if(isset($article) && $article) {
                             $GLOBALS['C']['route_view_article'][$thisroute['classfunction']]=C('this:nowArticle',$GLOBALS['C']['channel'],$article);
+                            $GLOBALS['C']['article']=$GLOBALS['C']['route_view_article'][$thisroute['classfunction']];
                         }
                         $inited=true;
                     }
@@ -206,7 +207,7 @@ class cms {
     }
 }
 function ClassCms_init() {
-    define('ClassCms',1);
+    if(!defined('ClassCms')){define('ClassCms',1);}
     if(!isset($GLOBALS['C']['UrlRewrite'])) {$GLOBALS['C']['UrlRewrite']=1;}
     if(!isset($GLOBALS['C']['SiteHash'])) {$GLOBALS['C']['SiteHash']=md5(dirname(__FILE__));}
     if(!isset($GLOBALS['C']['ClassDir'])) {$GLOBALS['C']['ClassDir']='class';}
@@ -1337,7 +1338,10 @@ class cms_database {
         $this->kind=$db_info['kind'];
         $this->connectError=false;
         if($db_info['kind']=='sqlitepdo'){
-            $this->databaselink = new PDO('sqlite:' . $db_info['file']);
+            if(stripos($db_info['file'],'/')===false && stripos($db_info['file'],'\\')===false) {
+                $db_info['file']=$GLOBALS['C']['SystemRoot'].$db_info['file'];
+            }
+            $this->databaselink = new PDO('sqlite:'.$db_info['file']);
             $this->databaselink->setAttribute(constant('PDO::ATTR_ORACLE_NULLS'),constant('PDO::NULL_TO_STRING'));
         }elseif($db_info['kind']=='mysqlpdo') {
             if(!isset($db_info['dbname']) || empty($db_info['dbname']) || isset($GLOBALS['C']['DbInfo']['createdb'])) {$dbinfo='';}else {$dbinfo='dbname='.$db_info['dbname'];}
