@@ -1625,7 +1625,7 @@ class cms_database {
                 $where='where '.$where;
             }
         }
-        $this->query('SELECT count(*) FROM '.$this->prefix($this->escape($table)).' '.$where.'  limit 1');
+        $this->query('SELECT count(*) FROM '.$this->prefix($this->escape($table)).' '.$where.' limit 1');
         if($total=$this->fetchone()) {
             if(isset($total['count(*)'])) {
                 Return intval($total['count(*)']);
@@ -1655,7 +1655,7 @@ class cms_database {
         if(isset($strarray['offset']) && !empty($strarray['offset'])) {$offset=intval($strarray['offset']);}else {$offset='';}
         if(isset($strarray['column']) && !empty($strarray['column'])) {$column=$this->escape($strarray['column']);}else {$column='*';}
         $limitsql='';
-        if(!empty($offset)) {$limitsql='limit '.$offset.',1';}
+        if(!empty($offset)) {$limitsql='limit '.$offset.',1';}else{$limitsql='limit 1';};
         $this->query("SELECT $column FROM $table $where $group $order $limitsql");
         return $this->fetchone();
     }
@@ -1979,13 +1979,18 @@ class cms_database {
         $this->query("alter table $table drop $name;");
         Return true;
     }
-    function addIndex($table,$name){
+    function addIndex($table,$name,$columns=''){
         $table=$this->prefix($table);
         $name=$this->escape($name);
+        if(empty($columns)){
+            $columns=$name;
+        }else{
+            $columns=$this->escape($columns);
+        }
         if($this->kind=='sqlitepdo') {
-            $this->query("CREATE INDEX {$table}__$name ON $table ($name);");
+            $this->query("CREATE INDEX {$table}__$name ON $table ($columns);");
         }elseif($this->kind=='mysqlpdo' || $this->kind=='mysql') {
-            $this->query("alter table $table add INDEX $name ($name);");
+            $this->query("alter table $table add INDEX $name ($columns);");
         }
         Return true;
     }

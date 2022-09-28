@@ -611,6 +611,9 @@ class admin {
             if(empty($_POST['userhash'])) {
                 Return E('请填写用户名');
             }
+            if(!is_hash($_POST['userhash'])){
+                Return E('用户名格式不正确');
+            }
             if(empty($_POST['passwd'])) {
                 Return E('请填写密码');
             }

@@ -18,6 +18,17 @@ class cms_common {
         if(@$_SERVER["REMOTE_ADDR"]=='::1') {$_SERVER["REMOTE_ADDR"]='127.0.0.1';}
         Return @$_SERVER["REMOTE_ADDR"];
     }
+    function url(){
+        if(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"]=='on'){
+            $url='https://';
+        }else{
+            $url='http://';
+        }
+        $url.=C('cms:common:serverName');
+        $url.=C('cms:common:serverPort');
+        $url.=$_SERVER['REQUEST_URI'];
+        return $url;
+    }
     function echoJson($array=array()) {
         echo(json_encode($array));
         Return true;
