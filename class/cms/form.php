@@ -195,6 +195,7 @@ class cms_form {
         }
         unset($form_edit_query['config']);
         if(update($form_edit_query)) {
+            unset($GLOBALS['C']['form'][$form_edit_query['id']]);
             if(isset($input_config)) {
                 foreach($input_config as $this_config) {
                     if(isset($form_config[$this_config['hash']]) && !is_array($form_config[$this_config['hash']])) {
@@ -263,7 +264,7 @@ class cms_form {
         $fields=C($GLOBALS['C']['DbClass'].':getfields',$module['table']);
         $column_sql=C('this:input:sql',$form);
         if(isset($fields[$form['hash']])) {
-            if($column_sql<>$fields[$form['hash']]['Type']) {
+            if($column_sql && $column_sql<>$fields[$form['hash']]['Type']) {
                 C($GLOBALS['C']['DbClass'].':editField',$module['table'],$form['hash'],$column_sql);
             }
         }else {
@@ -281,7 +282,7 @@ class cms_form {
         $GLOBALS['C']['DbInfo']['showerror']=0;
         $fields=C($GLOBALS['C']['DbClass'].':getfields',$module['table']);
         if(isset($fields[$form['hash']])) {
-                C($GLOBALS['C']['DbClass'].':delField',$module['table'],$form['hash']);
+            C($GLOBALS['C']['DbClass'].':delField',$module['table'],$form['hash']);
         }
         $GLOBALS['C']['DbInfo']['showerror']=$showerror;
         Return true;
@@ -295,7 +296,7 @@ class cms_form {
         $fields=C($GLOBALS['C']['DbClass'].':getfields','user');
         $column_sql=C('this:input:sql',$form);
         if(isset($fields[$form['hash']])) {
-            if($column_sql<>$fields[$form['hash']]['Type']) {
+            if($column_sql && $column_sql<>$fields[$form['hash']]['Type']) {
                 C($GLOBALS['C']['DbClass'].':editField','user',$form['hash'],$column_sql);
             }
         }else {

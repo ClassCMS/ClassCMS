@@ -47,7 +47,11 @@ layui.use(['form'],function(){
         },done: function(res){
             if (res.error==0)
             {
-                layui.admin.events.reload();
+                if (res.link) {
+                    window.location.href=res.link;
+                }else{
+                    layui.admin.events.reload();
+                }
                 return ;
             }
         }});

@@ -41,7 +41,13 @@ class cms {
                 if($matched) {
                     if(isset($GLOBALS['C']['GET'])) {
                         foreach($GLOBALS['C']['GET'] as $key=>$this_get) {
+                            if($GLOBALS['C']['MatchUri']===1){
+                                $this_get=strtolower($this_get);
+                            }
                             if(substr($key,0,2)=='$.') {
+                                if($GLOBALS['C']['MatchUri']===1 && isset($channel[substr($key,2)])){
+                                    $channel[substr($key,2)]=strtolower($channel[substr($key,2)]);
+                                }
                                 if(!isset($channel[substr($key,2)]) || $this_get!=$channel[substr($key,2)]) {
                                     $matched=false;
                                     break;
@@ -215,10 +221,9 @@ function ClassCms_init() {
     if(!isset($GLOBALS['C']['CacheDir'])) {$GLOBALS['C']['CacheDir']='cache';}
     if(!isset($GLOBALS['C']['Debug'])) {$GLOBALS['C']['Debug']=false;}
     if(!isset($GLOBALS['C']['DbClass'])) {$GLOBALS['C']['DbClass']='cms:database';}
-    if(!isset($GLOBALS['C']['MatchUri'])) {$GLOBALS['C']['MatchUri']=true;}
+    if(!isset($GLOBALS['C']['MatchUri'])) {$GLOBALS['C']['MatchUri']=1;}
     if(!isset($GLOBALS['C']['LoadHooks'])) {$GLOBALS['C']['LoadHooks']=true;}
     if(!isset($GLOBALS['C']['LoadRoutes'])) {$GLOBALS['C']['LoadRoutes']=true;}
-    if(!isset($GLOBALS['C']['MatchUri'])) {$GLOBALS['C']['MatchUri']=true;}
     if(!isset($GLOBALS['C']['Domain'])) {$GLOBALS['C']['Domain']='';}
     if(!isset($GLOBALS['C']['TemplateClass'])) {$GLOBALS['C']['TemplateClass']='';}
     $GLOBALS['C']['start_time']=microtime(true);
@@ -635,7 +640,9 @@ function matchUri($uri) {
     }
     $uri=uridecode(urlencode($uri));
     if(strpos($uri,')')===false) {
-        if($uri==$GLOBALS['C']['uri']) {
+        if($GLOBALS['C']['MatchUri']===1 && strtolower($uri)==strtolower($GLOBALS['C']['uri'])){
+            Return true;
+        }elseif($uri==$GLOBALS['C']['uri']) {
             Return true;
         }else {
             Return false;
@@ -648,7 +655,8 @@ function matchUri($uri) {
             $uri=str_replace($getval,'($+?)',$uri);
         }
         $uri=str_replace(array('.','($+?)'),array('\.','(.+?)'),$uri);
-        @preg_match_all('/class-cms-uri-start-'.$uri.'-class-cms-uri-end/','class-cms-uri-start-'.$GLOBALS['C']['uri'].'-class-cms-uri-end',$ifmatch);
+        if($GLOBALS['C']['MatchUri']===1){$i='i';}else{$i='';}
+        @preg_match_all('/class-cms-uri-start-'.$uri.'-class-cms-uri-end/'.$i,'class-cms-uri-start-'.$GLOBALS['C']['uri'].'-class-cms-uri-end',$ifmatch);
         if(isset($ifmatch[1][0])) {
             foreach($getarray[1] as $getkey=>$getval) {
                 $GLOBALS['C']['GET'][$getval]=urldecode($ifmatch[1+$getkey][0]);
@@ -1327,7 +1335,9 @@ function fetchone($query){
 function fetchall($query){
     Return C($GLOBALS['C']['DbClass'].':fetchall',$query);
 }
+
 class cms_database {
+    public $kind,$connectError,$Stmt,$Sql,$databaselink;
     function __construct(){
         if(!isset($GLOBALS['C']['DbInfo']['showerror'])) {$GLOBALS['C']['DbInfo']['showerror']=@$GLOBALS['C']['Debug'];}
         if(!isset($GLOBALS['C']['DbInfo']['prefix'])) {$GLOBALS['C']['DbInfo']['prefix']='';}

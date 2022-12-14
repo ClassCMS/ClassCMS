@@ -255,6 +255,7 @@ class cms_article {
         if(!$channel=C('this:channel:get',$config['cid'])) {
             Return false;
         }
+        $config['cid']=$channel['id'];
         if(!$module=C('this:module:get',$channel['modulehash'],$channel['classhash'])) {
             Return false;
         }

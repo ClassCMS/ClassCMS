@@ -13,6 +13,7 @@ class cms_common {
     function jump($url='',$time=0) {
         if(empty($url) && isset($_SERVER['HTTP_REFERER'])) {$url=htmlspecialchars($_SERVER['HTTP_REFERER']);}
 	    echo("<meta http-equiv=refresh content='".$time."; url=".$url."'>");
+        return true;
     }
     function ip() {
         if(@$_SERVER["REMOTE_ADDR"]=='::1') {$_SERVER["REMOTE_ADDR"]='127.0.0.1';}
@@ -158,6 +159,29 @@ class cms_common {
         }
         Return true;
     }
+    function delDir($path){
+        if (is_dir($path)) {
+            $dirs=scandir($path);
+            foreach ($dirs as $dir) {
+                if ($dir!='.' && $dir!='..') {
+                    $sonDir = $path.'/'.$dir;
+                    if(is_dir($sonDir)) {
+                        if(!C('this:common:delDir',$sonDir)){
+                            return false;
+                        }
+                    }else{
+                        if(!@unlink($sonDir)){
+                            return false;
+                        }
+                    }
+                }
+            }
+            if(!@rmdir($path)){
+                return false;
+            }
+        }
+        return true;
+    }
     function upload($name,$path='',$filename='') {
         if(!isset($_FILES[$name])) {Return array('error'=>1,'message'=>'no '.$name);}
         $path=trim($path);
@@ -189,10 +213,14 @@ class cms_common {
                 $allfiles[$filekey]['message']=$file['name'].' 文件太大.';
             }elseif($file['error']==3 || $file['error']==4 || $file['error']==5) {
                 $allfiles[$filekey]['message']=$file['name'].' 上传失败.';
-            }elseif($file['error']==0) {
+            }elseif($file['error']==0 || empty($file['error'])) {
                 
             }else {
-                $allfiles[$filekey]['message']=$file['name'].' 未知错误.';
+                if(is_string($file['error'])){
+                    $allfiles[$filekey]['message']=$file['name'].' '.$file['error'].'.';
+                }else{
+                    $allfiles[$filekey]['message']=$file['name'].' 未知错误.';
+                }
                 $allfiles[$filekey]['error']=8;
             }
             $temp_arr=explode(".", $file['name']);
@@ -206,7 +234,11 @@ class cms_common {
             $allfiles[$filekey]['save_name']=str_replace($replace_key,$replace_value,$filename);
             if(empty($allfiles[$filekey]['message'])) {
                 if (!$allfiles[$filekey]['url']=C('this:common:uploadMove',$file['tmp_name'],$allfiles[$filekey]['save_path'],$allfiles[$filekey]['save_name'])) {
-                    $allfiles[$filekey]['message']=$file['name'].' 保存文件失败.';
+                    if(E()){
+                        $allfiles[$filekey]['message']=$file['name'].' '.E().'.';
+                    }else{
+                        $allfiles[$filekey]['message']=$file['name'].' 保存文件失败.';
+                    }
                     $allfiles[$filekey]['error']=6;
                     $allfiles[$filekey]['url']='';
                 }
@@ -250,7 +282,7 @@ class cms_common {
             $file_ext = strtolower(array_pop($temp_arr));
             $uploadExt=C('this:common:uploadExt');
             if(!in_array($file_ext,$uploadExt)) {
-                Return false;
+                return E('不允许的文件类型');
             }
         }
         if(empty($path)) {
@@ -267,7 +299,7 @@ class cms_common {
             $filename =iconv('UTF-8', 'GBK//IGNORE', $filename);
         }
         if(!file_exists($allpath) && !cms_createdir($allpath)) {
-            Return false;
+            return E('上传目录创建失败');
         }
         $allpath=rtrim($allpath,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$filename;
         if(version_compare(PHP_VERSION,'5.3.4','<') && stripos($allpath,chr(0))){Return false;}
