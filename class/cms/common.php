@@ -265,7 +265,7 @@ class cms_common {
         Return 104857600;
     }
     function uploadExt() {
-        Return array('gif','jpg','jpeg','png','bmp','blob','psd','webp','doc','docx','xls','xlsx','ppt','txt','zip','7z','gz','bz2','pdf','rar','tar','torrent','exe','apk','ipa','swf','flv','mp3','mp4','wav','wma','wmv','mid','avi','mpg','asf');
+        Return array('gif','jpg','jpeg','png','bmp','ico','blob','psd','webp','doc','docx','xls','xlsx','ppt','txt','zip','7z','gz','bz2','pdf','rar','tar','torrent','exe','apk','ipa','swf','flv','mp3','mp4','wav','wma','wmv','mid','avi','mpg','asf');
     }
     function uploadMove($tempfile,$path='',$filename='') {
         if(!is_file($tempfile)) {

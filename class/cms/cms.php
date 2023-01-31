@@ -41,10 +41,10 @@ class cms {
                 if($matched) {
                     if(isset($GLOBALS['C']['GET'])) {
                         foreach($GLOBALS['C']['GET'] as $key=>$this_get) {
-                            if($GLOBALS['C']['MatchUri']===1){
-                                $this_get=strtolower($this_get);
-                            }
                             if(substr($key,0,2)=='$.') {
+                                if($GLOBALS['C']['MatchUri']===1){
+                                    $this_get=strtolower($this_get);
+                                }
                                 if($GLOBALS['C']['MatchUri']===1 && isset($channel[substr($key,2)])){
                                     $channel[substr($key,2)]=strtolower($channel[substr($key,2)]);
                                 }
@@ -72,6 +72,18 @@ class cms {
                     }
                     $GLOBALS['C']['channel']=C('this:nowChannel',$thisroute['classhash'],$channel);
                     if(isset($thisroute['classview']) && !empty($thisroute['classview'])) {
+                        preg_match_all('/[(](.*)[)]/U',$thisroute['classview'],$classviewargs);
+                        foreach ($classviewargs[1] as $key => $classviewarg) {
+                            if(substr($classviewarg,0,2)=='$.') {
+                                if(isset($channel[substr($classviewarg,2)])){
+                                    $thisroute['classview']=str_replace($classviewargs[0][$key],$channel[substr($classviewarg,2)],$thisroute['classview']);
+                                }
+                            }elseif(substr($classviewarg,0,1)=='$') {
+                                if(isset($article[substr($classviewarg,1)])){
+                                    $thisroute['classview']=str_replace($classviewargs[0][$key],$article[substr($classviewarg,1)],$thisroute['classview']);
+                                }
+                            }
+                        }
                         $GLOBALS['C']['route_view'][$thisroute['classfunction']]=$thisroute['classview'];
                         if(isset($article) && $article) {
                             $GLOBALS['C']['route_view_article'][$thisroute['classfunction']]=C('this:nowArticle',$GLOBALS['C']['channel'],$article);
@@ -79,6 +91,7 @@ class cms {
                         }
                         $inited=true;
                     }
+                    $thisroute=C('this:nowRoute',$thisroute);
                     if($inited) {
                         C($thisroute['classfunction']);
                     }else {
@@ -106,6 +119,7 @@ class cms {
                     $_GET[$key]=$val;
                 }
             }
+            $thisroute=C('this:nowRoute',$thisroute);
             if($inited) {
                 C($thisroute['classfunction']);
             }else {
@@ -118,6 +132,9 @@ class cms {
             }
             Return $inited;
         }
+    }
+    function nowRoute($route){
+        return $route;
     }
     function nowChannel($classhash,$channel) {
         Return $channel;
@@ -160,13 +177,6 @@ class cms {
     function nowUri() {
         if(isset($GLOBALS['C']['uri'])) {
             Return $GLOBALS['C']['uri'];
-        }
-        if (isset($_SERVER['HTTP_X_ORIGINAL_URL'])) {
-            $_SERVER['REQUEST_URI'] = $_SERVER['HTTP_X_ORIGINAL_URL'];
-        }elseif(isset($_SERVER['HTTP_X_REWRITE_URL'])) {
-            $_SERVER['REQUEST_URI'] = $_SERVER['HTTP_X_REWRITE_URL'];
-        }elseif(isset($_SERVER['HTTP_REQUEST_URI'])) {
-            $_SERVER['REQUEST_URI'] = $_SERVER['HTTP_REQUEST_URI'];
         }
         $noarguri=explode('?',$_SERVER['REQUEST_URI']);
         $uri='/'.ltrim($noarguri[0],'/');
@@ -225,7 +235,6 @@ function ClassCms_init() {
     if(!isset($GLOBALS['C']['LoadHooks'])) {$GLOBALS['C']['LoadHooks']=true;}
     if(!isset($GLOBALS['C']['LoadRoutes'])) {$GLOBALS['C']['LoadRoutes']=true;}
     if(!isset($GLOBALS['C']['Domain'])) {$GLOBALS['C']['Domain']='';}
-    if(!isset($GLOBALS['C']['TemplateClass'])) {$GLOBALS['C']['TemplateClass']='';}
     $GLOBALS['C']['start_time']=microtime(true);
     $GLOBALS['C']['start_memory']=round(memory_get_usage()/1024/1024, 2).'MB';
     if($GLOBALS['C']['Debug']) {ini_set('display_errors','On');error_reporting(E_ALL);}else {ini_set('display_errors','Off');}
@@ -521,7 +530,11 @@ function V($file,$vars=array(),$classhash='') {
 }
 function P($do,$classhash=false,$userid=false) {
     if(!$classhash) {$classhash=I();}
-    Return C('admin:check',$classhash.':'.$do,$userid);
+    if(substr($do,0,strlen($classhash)+1)==$classhash.':'){
+        Return C('admin:check',$do,$userid);
+    }else{
+        Return C('admin:check',$classhash.':'.$do,$userid);
+    }
 }
 function E($msg=null){
     if($msg===null){
