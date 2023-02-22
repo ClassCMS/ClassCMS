@@ -2590,6 +2590,73 @@ class admin_input {
         }
         Return false;
     }
+    function user($action,$config=array()) {
+        if($action=='form' || $action=='view' || $action=='post' || $action=='ajax') {
+            $config['table']='user';
+            $config['idcolumn']='id';
+            $config['idtype']=1;
+            $config['titlecolumn']='userhash';
+            if($config['showname']){
+                $config['titlecolumns']='username;'.$config['titlecolumns'];
+            }
+            if($config['showhash']){
+                $config['titlecolumns']='hash;'.$config['titlecolumns'];
+            }
+            $config['titlecolumns']=rtrim($config['titlecolumns'],';');
+            if(isset($config['roles']) && $config['roles']){
+                $roles=array_filter(explode(';',$config['roles']));
+                foreach ($roles as $role) {
+                    $config['where']['520;'][]=array('rolehash'=>$role);
+                    $config['where']['520;'][]=array('rolehash%'=>$role.';');
+                    $config['where']['520;'][]=array('rolehash%'=>';'.$role.';');
+                    $config['where']['520;'][]=array('rolehash%'=>';'.$role);
+                }
+            }
+        }
+        switch($action) {
+            case 'name':
+                Return '用户选择';
+            case 'hash':
+                Return 'user';
+            case 'group':
+                Return '用户';
+            case 'sql':
+                if($config['multiple']) {Return 'text';}
+                Return 'int(9)';
+            case 'form':
+                $config['inputhash']='database';
+                Return C('cms:input:form',$config);
+            case 'ajax':
+                $config['inputhash']='database';
+                Return C('cms:input:ajax',$config);
+            case 'view':
+                $config['inputhash']='database';
+                Return C('cms:input:view',$config);
+            case 'post':
+                $config['inputhash']='database';
+                $postvalue=C('cms:input:post',$config);
+                if(!strlen($postvalue) && !$config['multiple']){
+                    $postvalue=0;
+                }
+                if(isset($config['nonull']) && $config['nonull'] && !$postvalue) {return false;}
+                Return $postvalue;
+            case 'config':
+                $infos=C('cms:form:all','info');
+                $infos_values=array();
+                foreach($infos as $info) {
+                    $infos_values[]=$info['hash'].':'.$info['formname'];
+                }
+                Return array(
+                        array('configname'=>'多选','hash'=>'multiple','inputhash'=>'switch','tips'=>'切换多选会丢失数据,请提前确认'),
+                        array('configname'=>'角色','hash'=>'roles','inputhash'=>'rolecheckbox','tips'=>'需要显示的账号角色类型','defaultvalue'=>''),
+                        array('configname'=>'数量','hash'=>'pagesize','inputhash'=>'number','tips'=>'选择页显示的用户数量','defaultvalue'=>'10'),
+                        array('configname'=>'账号','hash'=>'showhash','inputhash'=>'switch','tips'=>'显示账号','defaultvalue'=>1),
+                        array('configname'=>'昵称','hash'=>'showname','inputhash'=>'switch','tips'=>'显示昵称','defaultvalue'=>1),
+                        array('configname'=>'属性','hash'=>'titlecolumns','inputhash'=>'checkbox','tips'=>'在选择页显示的其它用户属性,如邮箱,qq等信息','defaultvalue'=>'','values'=>$infos_values),
+                    );
+        }
+        Return false;
+    }
     function userSelect($action,$config=array()) {
         if($action=='form' || $action=='view' || $action=='post') {
             if(!isset($config['showtype'])) {$config['showtype']=1;}
@@ -2622,7 +2689,7 @@ class admin_input {
             case 'hash':
                 Return 'userselect';
             case 'group':
-                Return '系统';
+                Return '用户';
             case 'sql':
                 Return 'int(9)';
             case 'form':
@@ -2678,7 +2745,7 @@ class admin_input {
             case 'hash':
                 Return 'usercheckbox';
             case 'group':
-                Return '系统';
+                Return '用户';
             case 'sql':
                 Return 'text';
             case 'form':
@@ -2741,7 +2808,7 @@ class admin_input {
             case 'hash':
                 Return 'roleselect';
             case 'group':
-                Return '系统';
+                Return '用户';
             case 'sql':
                 Return 'varchar(32)';
             case 'form':
@@ -2799,7 +2866,7 @@ class admin_input {
             case 'hash':
                 Return 'rolecheckbox';
             case 'group':
-                Return '系统';
+                Return '用户';
             case 'sql':
                 Return 'varchar(255)';
             case 'form':
@@ -2822,7 +2889,17 @@ class admin_input {
         if($action=='form' || $action=='view' || $action=='post' || $action=='ajax') {
             if(!isset($config['idcolumn']) || empty($config['idcolumn'])) {$config['idcolumn']='id';}
             if(!isset($config['titlecolumns']) || empty($config['titlecolumns'])) {$config['titlecolumns']='title';}
-            $config['titlecolumns']=explode(';',$config['titlecolumns']);
+            $config['titlecolumns']=array_filter(explode(';',$config['titlecolumns']));
+            if(is_array($config['where'])){
+                $sqlwhere=$config['where'];
+            }else{
+                $wheres=array_filter(explode(';',$config['where']));
+                $sqlwhere=array();
+                foreach ($wheres as $where) {
+                    $thiswhere=explode('|',$where);
+                    $sqlwhere[$thiswhere[0]]=$thiswhere[1];
+                }
+            }
         }
         switch($action) {
             case 'name':
@@ -2849,7 +2926,10 @@ class admin_input {
                         $article_query['table']=$config['table'];
                         if(!empty($config['order'])) {$article_query['order']=$config['order'];}
                         if(!empty($val)) {
-                            $article_query['where']=where($config['idcolumn'],$val);
+                            if(count($sqlwhere)){
+                                $article_query['where']=$sqlwhere;
+                            }
+                            $article_query['where'][$config['idcolumn']]=$val;
                             if($article=one($article_query)) {
                                 $article['id_va1ue_classcms']=str_replace(';','\\;',$article[$config['idcolumn']]);
                                 $articles[]=$article;
@@ -2880,6 +2960,9 @@ class admin_input {
                     $html='';
                     $article_query=array();
                     $article_query['table']=$config['table'];
+                    if(count($sqlwhere)){
+                        $article_query['where']=$sqlwhere;
+                    }
                     if(!empty($config['order'])) {$article_query['order']=$config['order'];}
                     if(isset($_POST['keyword']) && !empty($_POST['keyword'])) {
                         $keywordwhere=array();
@@ -2903,7 +2986,7 @@ class admin_input {
                         }
                         foreach($config['titlecolumns'] as $thistitle) {
                             if(!isset($articles[0][$thistitle])) {
-                                $html.='<tr><td colspan='.(count($config['titlecolumns'])+1).'>[无字段 '.htmlspecialchars($thistitle).']</td></tr>';
+                                $html.='<tr><td colspan='.(count($config['titlecolumns'])+1).'>[无字段:'.htmlspecialchars($thistitle).']</td></tr>';
                                 $articles=array();
                             }
                         }
@@ -3020,7 +3103,10 @@ class admin_input {
                         $list_query=array();
                         $list_query['table']=$config['table'];
                         if(!empty($config['order'])) {$list_query['order']=$config['order'];}
-                        $list_query['where']=where($config['idcolumn'],$val);
+                        if(count($sqlwhere)){
+                            $article_query['where']=$sqlwhere;
+                        }
+                        $list_query['where'][$config['idcolumn']]=$val;
                         if($article=one($list_query)) {
                             $articles[]=$article;
                         }else {
@@ -3066,6 +3152,7 @@ class admin_input {
                         array('configname'=>'数据类型','hash'=>'idtype','inputhash'=>'radio','tips'=>'数据字段在数据库中的类型.切换类型会丢失信息,请提前确认好保存类型.','defaultvalue'=>'1','values'=>"1:数字\n2:文字",'savetype'=>1),
                         array('configname'=>'标题字段','hash'=>'titlecolumn','inputhash'=>'text','tips'=>'对应数据所显示的标题,请确保数据库表中拥有此字段','defaultvalue'=>'title','nonull'=>1),
                         array('configname'=>'显示字段','hash'=>'titlecolumns','inputhash'=>'tags','tips'=>'数据选择页显示的字段,请确保数据库表中拥有这些字段','defaultvalue'=>'title','min'=>1),
+                        array('configname'=>'条件','hash'=>'where','inputhash'=>'tags','tips'=>'数据查询条件','defaultvalue'=>'','column'=>2,'columntips'=>'字段,如:status status> status%;值:如 1'),
                         array('configname'=>'排序','hash'=>'order','inputhash'=>'text','tips'=>'如:id asc','defaultvalue'=>''),
                         array('configname'=>'多选','hash'=>'multiple','inputhash'=>'switch','tips'=>'更改单选多选会丢失数据,请提前确认保存类型'),
                         array('configname'=>'显示数量','hash'=>'pagesize','inputhash'=>'number','tips'=>'每页显示的数据数量','defaultvalue'=>'10'),

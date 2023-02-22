@@ -1674,9 +1674,20 @@ class cms_database {
         }
         if(isset($strarray['where']) && !empty($strarray['where'])) {$where='where '.$strarray['where'];}else {$where='';}
         if(isset($strarray['group']) && !empty($strarray['group'])) {$group='group by '.$this->escape($strarray['group']);}else {$group='';}
-        if(isset($strarray['order']) && !empty($strarray['order'])) {$order='order by '.$this->escape($strarray['order']);}else {$order='';}
         if(isset($strarray['offset']) && !empty($strarray['offset'])) {$offset=intval($strarray['offset']);}else {$offset='';}
         if(isset($strarray['column']) && !empty($strarray['column'])) {$column=$this->escape($strarray['column']);}else {$column='*';}
+        if(isset($strarray['order']) && !empty($strarray['order'])) {
+            $order='order by '.$this->escape($strarray['order']);
+            if(strtolower($order)=='order by rand'){
+                if($this->kind=='sqlitepdo') {
+                    $order='order by random()';
+                }elseif($this->kind=='mysqlpdo' || $this->kind=='mysql') {
+                    $order='order by rand()';
+                }
+            }
+        }else {
+            $order='';
+        }
         $limitsql='';
         if(!empty($offset)) {$limitsql='limit '.$offset.',1';}else{$limitsql='limit 1';};
         $this->query("SELECT $column FROM $table $where $group $order $limitsql");
@@ -1700,11 +1711,22 @@ class cms_database {
         }
         if(isset($strarray['where']) && !empty($strarray['where'])) {$where='where '.$strarray['where'];}else {$where='';}
         if(isset($strarray['group']) && !empty($strarray['group'])) {$group='group by '.$this->escape($strarray['group']);}else {$group='';}
-        if(isset($strarray['order']) && !empty($strarray['order'])) {$order='order by '.$this->escape($strarray['order']);}else {$order='';}
         if(isset($strarray['offset']) && !empty($strarray['offset'])) {$offset=intval($strarray['offset']);}else {$offset='';}
         if(isset($strarray['limit']) && !empty($strarray['limit'])) {$limit=intval($strarray['limit']);}else {$limit='';}
         if(isset($strarray['page'])) {$page=$strarray['page'];}else {$page='';}
         if(isset($strarray['optimize']) && $strarray['optimize']) {$optimize=$strarray['optimize'];}else {$optimize=false;}
+        if(isset($strarray['order']) && !empty($strarray['order'])) {
+            $order='order by '.$this->escape($strarray['order']);
+            if(strtolower($order)=='order by rand'){
+                if($this->kind=='sqlitepdo') {
+                    $order='order by random()';
+                }elseif($this->kind=='mysqlpdo' || $this->kind=='mysql') {
+                    $order='order by rand()';
+                }
+            }
+        }else {
+            $order='';
+        }
         if($optimize) {
             $column='id';
         }else {

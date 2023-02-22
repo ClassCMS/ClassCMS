@@ -59,7 +59,7 @@
 
 {if $classinfo.author}
     <tr id="author">
-        <td align="right">开发者:</td>
+        <td align="right">作者:</td>
         <td>
             {$classinfo.author}{if isset($classinfo.url) && ($classinfo.url)} [<a href="{$classinfo.url}" target="_blank" style="color:blue" rel="nofollow noreferrer">{ltrim($classinfo.url,"//")}</a>]{/if}
         </td>

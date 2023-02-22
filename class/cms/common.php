@@ -108,6 +108,12 @@ class cms_common {
         }
         Return true;
     }
+    function serverHttps() {
+        if(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"]=='on'){
+          return true;
+        }
+        Return true;
+    }
     function serverName() {
         if(isset($_SERVER['HTTP_HOST'])){
             if(stripos($_SERVER['HTTP_HOST'],']')) {

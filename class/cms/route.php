@@ -157,7 +157,7 @@ class cms_route {
             }
         }
         if(empty($domain)){$domain=server_name();}
-        if((isset($route['HTTPS']) && $route['HTTPS']=='on') || (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"]=='on')){
+        if(C('cms:common:serverHttps')){
             Return 'https://'.$domain.server_port().$route['uri'];
         }else{
             Return 'http://'.$domain.server_port().$route['uri'];

@@ -51,6 +51,10 @@ class admin {
             C('cms:input:add','this:input:articleunlimit');
             C('cms:input:add','this:input:articletree');
         }
+        if(version_compare($old_version,'3.8','<')) {
+            C('cms:input:add','this:input:user');
+            update('table','input','where',where('hash',array('userselect','usercheckbox','roleselect','rolecheckbox')),'groupname','用户');
+        }
     }
     function auth() {
         $auth=array();

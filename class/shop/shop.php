@@ -35,7 +35,12 @@ class shop {
                     $homeroute=array();
                 }
             }
-            V('config',array('hash'=>$class['hash'],'classname'=>$class['classname'],'homeroute'=>count($homeroute)));
+            if(isset($_GET['nobread']) && $_GET['nobread']==1){
+                $nobread=true;
+            }else{
+                $nobread=false;
+            }
+            V('config',array('hash'=>$class['hash'],'classname'=>$class['classname'],'homeroute'=>count($homeroute),'nobread'=>$nobread));
         }
     }    
     function index() {
@@ -59,7 +64,9 @@ class shop {
         }else {
             $array['html']=1;
         }
-        if(isset($GLOBALS['shop']['bread'])) {
+        if(isset($_GET['nobread'])){
+            $array['breadcrumb']=false;
+        }elseif(isset($GLOBALS['shop']['bread'])) {
             $array['breadcrumb']=array_merge(array(array('title'=>'应用商店','url'=>'?do=shop:index&action=home')),$GLOBALS['shop']['bread']);
         }else {
             $array['breadcrumb']=array(array('title'=>'应用商店','url'=>'?do=shop:index&action=home'));
@@ -99,7 +106,7 @@ class shop {
         if(C('cms:class:unzip',$classfile,$classdir)) {
             @unlink($classfile);
             if(C('cms:class:refresh',$classhash)) {
-                return '下载完成,请在应用管理页面中安装此应用';
+                return '下载完成,请点击"管理",安装此应用';
             }else {
                 return E('安装包格式错误,请重试');
             }
@@ -235,16 +242,16 @@ class shop {
                         }
                     }
                     if($thisclass['enabled'] && $versioncheck){
-                        $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-normal" href="?do=admin:class:config&hash='.$requireclasshash.'"><i class="layui-icon layui-icon-ok"></i>'.$require.'</a> ';
+                        $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-normal" data-state="1" data-hash="'.$requireclasshash.'"><i class="layui-icon layui-icon-ok"></i>'.$require.'</a> ';
                     }elseif(!$versioncheck){
-                        $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-primary" href="?do=admin:class:config&hash='.$requireclasshash.'"><i class="layui-icon layui-icon-ok"></i>'.$require.' [不兼容]</a> ';
+                        $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-primary" data-state="3" data-hash="'.$requireclasshash.'"><i class="layui-icon layui-icon-ok"></i>'.$require.' [不兼容]</a> ';
                     }elseif(!$thisclass['installed']){
-                        $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-primary" href="?do=admin:class:config&hash='.$requireclasshash.'"><i class="layui-icon layui-icon-close"></i>'.$require.' [未安装]</a> ';
+                        $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-primary" data-state="2" data-hash="'.$requireclasshash.'"><i class="layui-icon layui-icon-close"></i>'.$require.' [未安装]</a> ';
                     }elseif(!$thisclass['enabled']){
-                        $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-primary" href="?do=admin:class:config&hash='.$requireclasshash.'"><i class="layui-icon layui-icon-close"></i>'.$require.' [未启用]</a> ';
+                        $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-primary" data-state="2" data-hash="'.$requireclasshash.'"><i class="layui-icon layui-icon-close"></i>'.$require.' [未启用]</a> ';
                     }
                 }else {
-                    $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-primary" href="?do=shop:index&action=detail&classhash='.$requireclasshash.'"><i class="layui-icon layui-icon-close"></i>'.$require.' [未下载]</a> ';
+                    $array['requires'].='<a class="layui-btn layui-btn-xs layui-btn-primary" data-state="4" data-hash="'.$requireclasshash.'"><i class="layui-icon layui-icon-close"></i>'.$require.' [未下载]</a> ';
                 }
             }
         }
@@ -257,7 +264,7 @@ class shop {
         if(is_array($class_configs) && count($class_configs)) {
             foreach($class_configs as $key=>$class_config) {if($key<100) {$data['_'.$class_config['hash']]=$class_config['value'];}}
         }
-        $data['_domain']=@server_name();$data['_hash']=@$GLOBALS['C']['SiteHash'];$data['_ip']=C('cms:common:ip');$data['_uid']=C('admin:nowuser');$data['_referer']=@$_SERVER['HTTP_REFERER'];$data['_ua']=@$_SERVER['HTTP_USER_AGENT'];$data['_php']=@PHP_VERSION;$data['_os']=@php_uname('s');$data['_time']=time();
+        $data['_domain']=@server_name();$data['_hash']=@$GLOBALS['C']['SiteHash'];$data['_ip']=C('cms:common:ip');$data['_uid']=C('admin:nowuser');$data['_referer']=@$_SERVER['HTTP_REFERER'];$data['_ua']=@$_SERVER['HTTP_USER_AGENT'];$data['_php']=@PHP_VERSION;$data['_os']=@php_uname('s');$data['_time']=time();if($aff=@file_get_contents(classDir(I()).'aff.txt')){$data['_aff']=$aff;}
         if($classes=C('cms:class:all')) {
             $data['_classes']='';
             foreach($classes as $key=>$class) {if($key<300) {$data['_classes'].=$class['hash'].','.$class['classversion'].','.$class['enabled'].'|';}}

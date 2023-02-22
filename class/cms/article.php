@@ -86,13 +86,6 @@ class cms_article {
             }
         }
         $config['order']=str_replace(';',',',$config['order']);
-        if($config['order']=='rand') {
-            if($GLOBALS['C']['DbInfo']['kind']=='sqlitepdo') {
-                $config['order']='random()';
-            }else {
-                $config['order']='rand()';
-            }
-        }
         if(!isset($config['pagesize'])) {
             if(isset($channel['pagesize']) && is_numeric($channel['pagesize'])) {
                 $config['pagesize']=$channel['pagesize'];
