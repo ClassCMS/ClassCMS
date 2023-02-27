@@ -112,7 +112,7 @@ class cms_common {
         if(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"]=='on'){
           return true;
         }
-        Return true;
+        Return false;
     }
     function serverName() {
         if(isset($_SERVER['HTTP_HOST'])){

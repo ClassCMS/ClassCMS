@@ -110,7 +110,7 @@ layui.use(['index','form'],function(){
                 layui.layer.msg('请先选择');
                 return;
             }
-            layui.layer.confirm('是否删除', {
+            layui.layer.confirm('是否删除?', {
               btn: ['删除','取消'],skin:'layer-danger',title:'请确认',shadeClose:1}, function(){
                 layui.admin.req({type:'post',url:"?do=admin:article:del",data:{ ids: ids,cid:{$channel.id}},async:true,beforeSend:function(){
                     layui.admin.load('删除中...');

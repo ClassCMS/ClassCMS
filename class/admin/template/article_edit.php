@@ -114,7 +114,7 @@
     <script>
     layui.use(['index'],function(){
         layui.$('.articledel').click(function(){
-            layui.layer.confirm('是否删除', {
+            layui.layer.confirm('是否删除?', {
               btn: ['删除','取消'],skin:'layer-danger',title:'请确认',shadeClose:1}, function(){
                 layui.admin.req({type:'post',url:"?do=admin:article:del",data:{ ids: {$id},cid:{$channel.id}},async:true,beforeSend:function(){
                     layui.admin.load('删除中...');
