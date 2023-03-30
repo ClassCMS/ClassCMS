@@ -221,7 +221,7 @@ class admin_var {
 
         $array['breadcrumb']=C('this:module:breadcrumb',$array['classinfo'],$array['module']);
         $array['breadcrumb'][]=array('url'=>'?do=admin:var:index&id='.$array['module']['id'],'title'=>'变量');
-        $array['breadcrumb'][]=array('url'=>'','title'=>$array['formname'].'['.$array['hash'].'] 管理');
+        $array['breadcrumb'][]=array('url'=>'','title'=>$array['formname'].'['.$array['hash'].'] 修改');
 
         $array['defaultvalue_form']=C('cms:form:build',$array['id']);
         $array['defaultvalue_form']['value']=$array['defaultvalue'];
@@ -278,10 +278,9 @@ class admin_var {
                         }
                     }
                 }
-                $var_defaultvalue_form=array('inputhash'=>$var['inputhash'],'name'=>'defaultvalue','source'=>'admin_defaultvalue_setting');
-                foreach($var_config as $val) {
-                    $var_defaultvalue_form[$val['hash']]=$val['value'];
-                }
+                $var_defaultvalue_form=C('cms:form:build',$var['id']);
+                $var_defaultvalue_form['hash']='defaultvalue';
+                $var_defaultvalue_form['source']='admin_defaultvalue_setting';
                 $var_defaultvalue_form['value']=$var['defaultvalue'];
                 $var_defaultvalue_form['auth']['all']=true;
                 $var_edit_array['defaultvalue']=C('cms:input:post',$var_defaultvalue_form);

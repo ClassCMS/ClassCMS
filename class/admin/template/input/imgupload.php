@@ -6,7 +6,7 @@
     <p id="{$name}_imgupload_text" style="text-align:center">点击上传{if $multiple}多张图片{/if}，或将图片拖拽到此处</p>
   {/if}
 </div>
-  <div {if !$value} class="layui-hide"{/if} id="{$name}_imgupload_view"  style="border-top: 1px solid #e2e2e2;">
+  <div {if !$value} class="layui-hide"{/if} id="{$name}_imgupload_view"  style="border-top: 1px solid #e2e2e2;background: #f2f2f2;">
     {loop $pics as $pic}
         <p style="display:inline-block;position:relative;padding:5px">
             <img src="{$pic}" style="max-width:100%;max-height: {$height}px;{if $multiple}cursor:move;{/if}">

@@ -276,10 +276,9 @@ class admin_info {
                         }
                     }
                 }
-                $info_defaultvalue_form=array('inputhash'=>$info['inputhash'],'name'=>'defaultvalue','source'=>'admin_defaultvalue_setting');
-                foreach($info_config as $val) {
-                    $info_defaultvalue_form[$val['hash']]=$val['value'];
-                }
+                $info_defaultvalue_form=C('cms:form:build',$info['id']);
+                $info_defaultvalue_form['hash']='defaultvalue';
+                $info_defaultvalue_form['source']='admin_defaultvalue_setting';
                 $info_defaultvalue_form['value']=$info['defaultvalue'];
                 $info_defaultvalue_form['auth']['all']=true;
                 $info_edit_array['defaultvalue']=C('cms:input:post',$info_defaultvalue_form);

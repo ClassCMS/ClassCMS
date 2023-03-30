@@ -242,7 +242,7 @@ class cms_article {
         if(!isset($config['cid'])) {
             Return false;
         }
-        if(isset($config['uid']) && empty($config['uid'])){
+        if(!isset($config['uid']) || empty($config['uid'])){
             $config['uid']=0;
         }
         if(!$channel=C('this:channel:get',$config['cid'])) {

@@ -273,7 +273,7 @@ class admin_column {
         foreach($array['roles'] as $key=>$thisrole) {
             $array['roles'][$key]['_editabled']=C('this:roleCheck','admin:column:index',$thisrole['hash'],false);
         }
-        $array['title']=$array['formname'].'['.$array['hash'].'] 管理';
+        $array['title']=$array['formname'].'['.$array['hash'].'] 修改';
         Return V('column_edit',$array);
     }
     function editPost() {
@@ -315,10 +315,9 @@ class admin_column {
                         }
                     }
                 }
-                $column_defaultvalue_form=array('inputhash'=>$column['inputhash'],'name'=>'defaultvalue','source'=>'admin_defaultvalue_setting');
-                foreach($column_config as $val) {
-                    $column_defaultvalue_form[$val['hash']]=$val['value'];
-                }
+                $column_defaultvalue_form=C('cms:form:build',$column['id']);
+                $column_defaultvalue_form['hash']='defaultvalue';
+                $column_defaultvalue_form['source']='admin_defaultvalue_setting';
                 $column_defaultvalue_form['value']=$column['defaultvalue'];
                 $column_defaultvalue_form['auth']['all']=true;
                 $column_edit_array['defaultvalue']=C('cms:input:post',$column_defaultvalue_form);

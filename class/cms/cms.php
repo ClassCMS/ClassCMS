@@ -898,7 +898,7 @@ function include_template($template_config) {
             if(stripos($template_config['filepath'],'.php')===false){$content.='.php ';}
         }
         $cached=save_template($template_config['filepath'],$content,$template_config['cache'],'template'.DIRECTORY_SEPARATOR.$template_config['class']);
-        if($cached && $content) {
+        if($cached && $content!==false) {
             Return $cachefile;
         }
     }

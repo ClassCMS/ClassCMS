@@ -2595,7 +2595,7 @@ class admin_input {
             $config['table']='user';
             $config['idcolumn']='id';
             $config['idtype']=1;
-            $config['titlecolumn']='userhash';
+            $config['titlecolumn']='hash';
             if($config['showname']){
                 $config['titlecolumns']='username;'.$config['titlecolumns'];
             }
