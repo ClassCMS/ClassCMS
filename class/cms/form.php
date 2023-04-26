@@ -52,9 +52,9 @@ class cms_form {
         }else {
             if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
             $where['hash']=$hash;
-            if(!empty($classhash)) {$where['classhash']=$classhash;}
-            if(!empty($modulehash)) {$where['modulehash']=$modulehash;}
             if(!empty($kind)) {$where['kind']=$kind;}
+            if(!empty($classhash) && $kind!='info') {$where['classhash']=$classhash;}
+            if(!empty($modulehash)) {$where['modulehash']=$modulehash;}
         }
         $form_query['where']=$where;
         if($form=one($form_query)) {
