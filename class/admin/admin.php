@@ -315,8 +315,11 @@ class admin {
                 $return=$args[0];
             }
         }
-        if(!isset($return['error'])){
+        if(!isset($return['error']) && !isset($return['_no_return_error'])){
             $return['error']=0;
+        }
+        if(isset($return['_no_return_error'])){
+            unset($return['_no_return_error']);
         }
         if(C('cms:common:echoJson',$return)) {
             Return true;
