@@ -83,6 +83,16 @@ class cms_common {
         }
         Return true;
     }
+    function wait($hash='') {
+        $hash=md5($hash.substr($GLOBALS['C']['SiteHash'],0,8));
+        if(!$GLOBALS['C']['wait'][$hash]=@fopen(cacheDir('wait/'.substr($hash,0,4),1).$hash,'w+')){
+            return false;
+        }
+        if(!@flock($GLOBALS['C']['wait'][$hash],LOCK_EX)){
+            return false;
+        }
+        return true;
+    }
     function filesizeString($size=0,$precision=0) {
         if($size<1024){return $size.'Byte';}
         if($size<1048576){return round($size/1024,$precision).'KB';}
