@@ -426,14 +426,23 @@ class admin {
             }
             $html.='</a>';
         }
+        $ifson=false;
         if(isset($child['child']) && is_array($child['child']) && count($child['child'])) {
-            $html.="\n<dl class=\"layui-nav-child\">\n";
+            $sonhtml='';
             foreach($child['child'] as $this_child) {
-                $html.=C('this:childMenu',$classhash,$this_child,$times+1);
+                if($thishtml=C('this:childMenu',$classhash,$this_child,$times+1)){
+                    $sonhtml.=$thishtml;
+                    $ifson=true;
+                }
             }
-            $html.="</dl>\n";
+            if($ifson){
+                $html.="\n<dl class=\"layui-nav-child\">\n".$sonhtml."</dl>\n";
+            }
         }
         if($times) {$html.="</dd>\n";}else {$html.="</li>\n";}
+        if(empty($child['url']) && !$ifson){
+            return '';
+        }
         Return $html;
     }
     function menu() {
