@@ -248,7 +248,7 @@ function ClassCms_init() {
     _stripslashes();
     if(isset($GLOBALS['C']['DbInfo']) && is_array($GLOBALS['C']['DbInfo'])) {
         if($GLOBALS['C']['LoadHooks']) {
-            $hooks=all(array('table'=>'hook','order'=>'classorder desc,hookorder desc,id asc','where'=>array('enabled'=>1,'classenabled'=>1)));
+            $hooks=all(array('table'=>'hook','order'=>'hookorder desc,classorder desc,id asc','where'=>array('enabled'=>1,'classenabled'=>1)));
             foreach($hooks as $hook) {
                 $hook['hookedfunction']=strtolower($hook['hookedfunction']);
                 if(!empty($hook['hookedfunction']) && !isset($GLOBALS['hook'][$hook['hookedfunction']][$hook['classhash'].':'.$hook['hookname']])) {
