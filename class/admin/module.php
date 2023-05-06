@@ -36,7 +36,6 @@ class admin_module {
             if(!empty($moduleid)) {
                 $module_up_query=array();
                 $module_up_query['id']=$moduleid;
-                $module_up_query['classhash']=$_POST['classhash'];
                 $module_up_query['moduleorder']=count($modulesarray)-$key;
                 C('cms:module:edit',$module_up_query);
             }
