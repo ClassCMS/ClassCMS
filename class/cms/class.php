@@ -280,11 +280,13 @@ class cms_class {
                     if(is_array($hook) && isset($hook['hookname']) && isset($hook['hookedfunction'])) {
                         if(!isset($hook['enabled'])) {$hook['enabled']=1;}
                         if(!isset($hook['requires'])) {$hook['requires']='';}
+                        if(!isset($hook['hookorder'])) {$hook['hookorder']=1;}
                         $newhook=array();
                         $newhook['hookname']=$hook['hookname'];
                         $newhook['classhash']=$classhash;
                         $newhook['hookedfunction']=$hook['hookedfunction'];
                         $newhook['requires']=$hook['requires'];
+                        $newhook['hookorder']=$hook['hookorder'];
                         $newhook['enabled']=$hook['enabled'];
                         C('this:hook:add',$newhook);
                     }
