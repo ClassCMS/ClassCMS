@@ -124,9 +124,11 @@
         },done: function(res){
             if (res.error==0)
             {
-                var confirm=layer.confirm(res.msg, {btn: ['好的','返回'],shadeClose:1},function(){layui.layer.close(confirm);},function(){
-                    layui.admin.events.back();
-                    });
+                {if isset($hash)}
+                var confirm=layer.confirm(res.msg, {btn: ['好的','返回'],shadeClose:1},function(){layui.layer.close(confirm);},function(){ layui.admin.events.back(); });
+                {else}
+                var confirm=layer.confirm(res.msg, {btn: ['管理','返回'],shadeClose:1},function(){window.location='?do=admin:user:edit&id='+res.id;},function(){ layui.admin.events.back(); });
+                {/if}
             }
         }});
       return false;
