@@ -769,41 +769,73 @@ function hook_requires($args,$requires) {
     if(isset($GLOBALS['C']['c_error'])){$old_c_error=$GLOBALS['C']['c_error'];}else{$old_c_error=false;}
     foreach ($requires as $require) {
         $thisrequire=explode('=',$require);
+        $kind=substr($thisrequire[0],-1);
+        if($kind!='<' && $kind!='>' && $kind!='!'){
+            $kind='=';
+        }else{
+            $thisrequire[0]=rtrim($thisrequire[0],'<>!');
+        }
         $names=explode('.',$thisrequire[0]);
         $names[0]=strtolower($names[0]);
         if(isset($thisrequire[1])){$value=$thisrequire[1];}else{$value=null;}
-        if($names[0]=='get'){
+        if($names[0]=='get' && $kind=='='){
             if(!isset($names[1]) || !isset($_GET[$names[1]])){return false;}
             if($value!==null && $_GET[$names[1]]!=$value){return false;}
-        }elseif($names[0]=='post'){
+        }elseif($names[0]=='post' && $kind=='='){
             if(!isset($names[1]) || !isset($_POST[$names[1]])){return false;}
             if($value!==null && $_POST[$names[1]]!=$value){return false;}
-        }elseif($names[0]=='p'){
+        }elseif($names[0]=='p' && $kind=='='){
             if(!isset($names[1])){return false;}
             if($value===null){if(!P($names[1],$classhash)){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;}}elseif($value==0){if(P($names[1],$classhash)){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;}}else{if(!P($names[1],$classhash)){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;}}
-        }elseif($names[0]=='config'){
+        }elseif($names[0]=='config' && $kind=='='){
             if(!isset($names[1])){return false;}
             if($value!==null){if(config($names[1],false,$classhash)!=$value){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;}}elseif(!config($names[1],false,$classhash)){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;}
-        }elseif($names[0]=='globals'){
-            if(count($names)==2){
-                if($value===null){if(!isset($GLOBALS[$names[1]])){return false;}}elseif(!isset($GLOBALS[$names[1]]) || $GLOBALS[$names[1]]!=$value){return false;}
-            }elseif(count($names)==3){
-                if($value===null){if(!isset($GLOBALS[$names[1]][$names[2]])){return false;}}elseif(!isset($GLOBALS[$names[1]][$names[2]]) || $GLOBALS[$names[1]][$names[2]]!=$value){return false;}
-            }elseif(count($names)==4){
-                if($value===null){if(!isset($GLOBALS[$names[1]][$names[2]][$names[3]])){return false;}}elseif(!isset($GLOBALS[$names[1]][$names[2]][$names[3]]) || $GLOBALS[$names[1]][$names[2]][$names[3]]!=$value){return false;}
-            }elseif(count($names)==5){
-                if($value===null){if(!isset($GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]])){return false;}}elseif(!isset($GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]) || $GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]!=$value){return false;}
-            }
-        }elseif($names[0]=='args'){
-            if(count($names)==2){
-                if($value===null){if(!isset($args[$names[1]]) || $args[$names[1]]===false){return false;}}elseif(!isset($args[$names[1]]) || $args[$names[1]]!=$value){return false;}
-            }elseif(count($names)==3){
-                if($value===null){if(!isset($args[$names[1]][$names[2]]) || $args[$names[1]][$names[2]]===false){return false;}}elseif(!isset($args[$names[1]][$names[2]]) || $args[$names[1]][$names[2]]!=$value){return false;}
-            }elseif(count($names)==4){
-                if($value===null){if(!isset($args[$names[1]][$names[2]][$names[3]]) || $args[$names[1]][$names[2]][$names[3]]===false){return false;}}elseif(!isset($args[$names[1]][$names[2]][$names[3]]) || $args[$names[1]][$names[2]][$names[3]]!=$value){return false;}
-            }elseif(count($names)==5){
-                if($value===null){if(!isset($args[$names[1]][$names[2]][$names[3]][$names[4]]) || $args[$names[1]][$names[2]][$names[3]][$names[4]]===false){return false;}}elseif(!isset($args[$names[1]][$names[2]][$names[3]][$names[4]]) || $args[$names[1]][$names[2]][$names[3]][$names[4]]!=$value){return false;}
-            }
+        }elseif($names[0]=='globals' && $kind=='='){
+            if(count($names)==2){ if($value===null){if(!isset($GLOBALS[$names[1]]) || !$GLOBALS[$names[1]]){return false;}}elseif(!isset($GLOBALS[$names[1]]) || $GLOBALS[$names[1]]!=$value){return false;} }elseif(count($names)==3){ if($value===null){if(!isset($GLOBALS[$names[1]][$names[2]]) || !$GLOBALS[$names[1]][$names[2]]){return false;}}elseif(!isset($GLOBALS[$names[1]][$names[2]]) || $GLOBALS[$names[1]][$names[2]]!=$value){return false;} }elseif(count($names)==4){ if($value===null){if(!isset($GLOBALS[$names[1]][$names[2]][$names[3]]) || !$GLOBALS[$names[1]][$names[2]][$names[3]]){return false;}}elseif(!isset($GLOBALS[$names[1]][$names[2]][$names[3]]) || $GLOBALS[$names[1]][$names[2]][$names[3]]!=$value){return false;} }elseif(count($names)==5){ if($value===null){if(!isset($GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]) || !$GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]){return false;}}elseif(!isset($GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]) || $GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]!=$value){return false;} }
+        }elseif($names[0]=='args' && $kind=='='){
+            if(count($names)==2){ if($value===null){if(!isset($args[$names[1]]) || !$args[$names[1]]){return false;}}elseif(!isset($args[$names[1]]) || $args[$names[1]]!=$value){return false;} }elseif(count($names)==3){ if($value===null){if(!isset($args[$names[1]][$names[2]]) || !$args[$names[1]][$names[2]]){return false;}}elseif(!isset($args[$names[1]][$names[2]]) || $args[$names[1]][$names[2]]!=$value){return false;} }elseif(count($names)==4){ if($value===null){if(!isset($args[$names[1]][$names[2]][$names[3]]) || !$args[$names[1]][$names[2]][$names[3]]){return false;}}elseif(!isset($args[$names[1]][$names[2]][$names[3]]) || $args[$names[1]][$names[2]][$names[3]]!=$value){return false;} }elseif(count($names)==5){ if($value===null){if(!isset($args[$names[1]][$names[2]][$names[3]][$names[4]]) || !$args[$names[1]][$names[2]][$names[3]][$names[4]]){return false;}}elseif(!isset($args[$names[1]][$names[2]][$names[3]][$names[4]]) || $args[$names[1]][$names[2]][$names[3]][$names[4]]!=$value){return false;} }
+        }elseif($names[0]=='!get' || ($names[0]=='get' && $kind=='!')){
+            if(isset($_GET[@$names[1]]) && $value==null && $_GET[$names[1]]){return false;}
+            if(isset($_GET[@$names[1]]) && $_GET[$names[1]]==$value){return false;}
+        }elseif($names[0]=='!post' || ($names[0]=='post' && $kind=='!')){
+            if(isset($_POST[@$names[1]]) && $value==null && $_POST[$names[1]]){return false;}
+            if(isset($_POST[@$names[1]]) && $_POST[$names[1]]==$value){return false;}
+        }elseif($names[0]=='!p' || ($names[0]=='p' && $kind=='!')){
+            if(!isset($names[1])){return false;}
+            if($value===null){ if(P($names[1],$classhash)){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;} }elseif($value==0){ if(!P($names[1],$classhash)){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;} }else{ if(P($names[1],$classhash)){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;} }
+        }elseif($names[0]=='!config' || ($names[0]=='config' && $kind=='!')){
+            if(!isset($names[1])){return false;}
+            if($value!==null){ if(config($names[1],false,$classhash)==$value){ if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false; } }elseif(config($names[1],false,$classhash)){ if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false; }
+        }elseif($names[0]=='!globals' || ($names[0]=='globals' && $kind=='!')){
+            if(count($names)==2){ if($value===null){if(isset($GLOBALS[$names[1]]) && $GLOBALS[$names[1]]){return false;}}elseif(isset($GLOBALS[$names[1]]) && $GLOBALS[$names[1]]==$value){return false;} }elseif(count($names)==3){ if($value===null){if(isset($GLOBALS[$names[1]][$names[2]]) && $GLOBALS[$names[1]][$names[2]]){return false;}}elseif(isset($GLOBALS[$names[1]][$names[2]]) && $GLOBALS[$names[1]][$names[2]]==$value){return false;} }elseif(count($names)==4){ if($value===null){if(isset($GLOBALS[$names[1]][$names[2]][$names[3]]) && $GLOBALS[$names[1]][$names[2]][$names[3]]){return false;}}elseif(isset($GLOBALS[$names[1]][$names[2]][$names[3]]) && $GLOBALS[$names[1]][$names[2]][$names[3]]==$value){return false;} }elseif(count($names)==5){ if($value===null){if(isset($GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]) && $GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]){return false;}}elseif(isset($GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]) && $GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]==$value){return false;} }
+        }elseif($names[0]=='!args' || ($names[0]=='args' && $kind=='!')){
+            if(count($names)==2){ if($value===null){if(isset($args[$names[1]]) && $args[$names[1]]){return false;}}elseif(isset($args[$names[1]]) && $args[$names[1]]==$value){return false;} }elseif(count($names)==3){ if($value===null){if(isset($args[$names[1]][$names[2]]) && $args[$names[1]][$names[2]]){return false;}}elseif(isset($args[$names[1]][$names[2]]) && $args[$names[1]][$names[2]]==$value){return false;} }elseif(count($names)==4){ if($value===null){if(isset($args[$names[1]][$names[2]][$names[3]]) && $args[$names[1]][$names[2]][$names[3]]){return false;}}elseif(isset($args[$names[1]][$names[2]][$names[3]]) && $args[$names[1]][$names[2]][$names[3]]==$value){return false;} }elseif(count($names)==5){ if($value===null){if(isset($args[$names[1]][$names[2]][$names[3]][$names[4]]) && $args[$names[1]][$names[2]][$names[3]][$names[4]]){return false;}}elseif(isset($args[$names[1]][$names[2]][$names[3]][$names[4]]) && $args[$names[1]][$names[2]][$names[3]][$names[4]]==$value){return false;} }
+        }elseif($names[0]=='get' && $kind=='>'){
+            if(!isset($_GET[@$names[1]])){return false;}
+            if($_GET[$names[1]]<$value){return false;}
+        }elseif($names[0]=='post' && $kind=='>'){
+            if(!isset($_POST[@$names[1]])){return false;}
+            if($_POST[$names[1]]<$value){return false;}
+        }elseif($names[0]=='config' && $kind=='>'){
+            if(!isset($names[1])){return false;}
+            if(config($names[1],false,$classhash)<$value){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;}
+        }elseif($names[0]=='globals' && $kind=='>'){
+            if(count($names)==2){ if(!isset($GLOBALS[$names[1]]) || $GLOBALS[$names[1]]<$value){ return false; } }elseif(count($names)==3){ if(!isset($GLOBALS[$names[1]][$names[2]]) || $GLOBALS[$names[1]][$names[2]]<$value){ return false; } }elseif(count($names)==4){ if(!isset($GLOBALS[$names[1]][$names[2]][$names[3]]) || $GLOBALS[$names[1]][$names[2]][$names[3]]<$value){ return false; } }elseif(count($names)==5){ if(!isset($GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]) || $GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]<$value){ return false; } }
+        }elseif($names[0]=='args' && $kind=='>'){
+            if(count($names)==2){ if(!isset($args[$names[1]]) || $args[$names[1]]<$value){ return false; } }elseif(count($names)==3){ if(!isset($args[$names[1]][$names[2]]) || $args[$names[1]][$names[2]]<$value){ return false; } }elseif(count($names)==4){ if(!isset($args[$names[1]][$names[2]][$names[3]]) || $args[$names[1]][$names[2]][$names[3]]<$value){ return false; } }elseif(count($names)==5){ if(!isset($args[$names[1]][$names[2]][$names[3]][$names[4]]) || $args[$names[1]][$names[2]][$names[3]][$names[4]]<$value){ return false; } }
+        }elseif($names[0]=='get' && $kind=='<'){
+            if(!isset($_GET[@$names[1]])){return false;}
+            if($_GET[$names[1]]>$value){return false;}
+        }elseif($names[0]=='post' && $kind=='<'){
+            if(!isset($_POST[@$names[1]])){return false;}
+            if($_POST[$names[1]]>$value){return false;}
+        }elseif($names[0]=='config' && $kind=='<'){
+            if(!isset($names[1])){return false;}
+            if(config($names[1],false,$classhash)>$value){if($old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}return false;}
+        }elseif($names[0]=='globals' && $kind=='<'){
+            if(count($names)==2){ if(!isset($GLOBALS[$names[1]]) || $GLOBALS[$names[1]]>$value){ return false; } }elseif(count($names)==3){ if(!isset($GLOBALS[$names[1]][$names[2]]) || $GLOBALS[$names[1]][$names[2]]>$value){ return false; } }elseif(count($names)==4){ if(!isset($GLOBALS[$names[1]][$names[2]][$names[3]]) || $GLOBALS[$names[1]][$names[2]][$names[3]]>$value){ return false; } }elseif(count($names)==5){ if(!isset($GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]) || $GLOBALS[$names[1]][$names[2]][$names[3]][$names[4]]>$value){ return false; } }
+        }elseif($names[0]=='args' && $kind=='<'){
+            if(count($names)==2){ if(!isset($args[$names[1]]) || $args[$names[1]]>$value){ return false; } }elseif(count($names)==3){ if(!isset($args[$names[1]][$names[2]]) || $args[$names[1]][$names[2]]>$value){ return false; } }elseif(count($names)==4){ if(!isset($args[$names[1]][$names[2]][$names[3]]) || $args[$names[1]][$names[2]][$names[3]]>$value){ return false; } }elseif(count($names)==5){ if(!isset($args[$names[1]][$names[2]][$names[3]][$names[4]]) || $args[$names[1]][$names[2]][$names[3]][$names[4]]>$value){ return false; } }
         }
     }
     if(isset($old_c_error) && $old_c_error){$GLOBALS['C']['c_error']=$old_c_error;}
