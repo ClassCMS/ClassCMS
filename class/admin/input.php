@@ -554,9 +554,19 @@ class admin_input {
                 if($config['column']<1) {$config['column']=1;}
                 if(!isset($config['norepet'])) {$config['norepet']=0;}
                 if(isset($config['nonull']) && $config['nonull'] && !($config['min'])) {$config['min']=1;}
+                if(isset($config['regulars']) && $config['regulars']){$regulars=explode(';',$config['regulars']); }else{ $regulars=array(); }
                 if($config['column']==1) {
                     if(isset($_POST[$config['name']]) && is_array($_POST[$config['name']])) {
                         foreach($_POST[$config['name']] as $key=>$val) {
+                            if(isset($regulars[0]) && $regulars[0] && $val){
+                                if(is_hash($regulars[0])) {
+                                    if(!C('cms:common:verify',$val,$regulars[0])) {
+                                        Return false;
+                                    }
+                                }elseif(!preg_match($regulars[0],$val)) {
+                                    Return false;
+                                }
+                            }
                             $_POST[$config['name']][$key]=str_replace(';',' ',$val);
                             if(empty($_POST[$config['name']][$key])) {
                                 unset($_POST[$config['name']][$key]);
@@ -579,6 +589,16 @@ class admin_input {
                     if(isset($_POST[$config['name']]) && is_array($_POST[$config['name']])) {
                         foreach($_POST[$config['name']] as $key=>$val) {
                             $val=str_replace(array(';','|'),' ',$val);
+                            $regularkey=$key%$config['column'];
+                            if(isset($regulars[$regularkey]) && $regulars[$regularkey]){
+                                if(is_hash($regulars[$regularkey])) {
+                                    if(!C('cms:common:verify',$val,$regulars[$regularkey])) {
+                                        Return false;
+                                    }
+                                }elseif(!preg_match($regulars[$regularkey],$val)) {
+                                    Return false;
+                                }
+                            }
                             $columns[]=$val;
                             if(($key+1)%$config['column']==0) {
                                 if(implode('|',$columns)!=str_repeat('|',$config['column']-1)) {
@@ -617,7 +637,8 @@ class admin_input {
                 Return array(
                             array('configname'=>'多行显示','hash'=>'showstyle','inputhash'=>'switch','tips'=>'每项单独一行显示,如列数大于1则自动开启多行显示'),
                             array('configname'=>'列数','hash'=>'column','inputhash'=>'number','tips'=>'单项内文本框数量,更改列数会丢失数据,请提前确认列数','defaultvalue'=>'1'),
-                            array('configname'=>'提示','hash'=>'columntips','inputhash'=>'text','tips'=>'每列文本框的输入提示,使用;号分隔,如: 姓名;年龄;性别,','defaultvalue'=>''),
+                            array('configname'=>'效验','hash'=>'regulars','inputhash'=>'text','tips'=>'每列文本框的数据效验,使用;号分隔,如:id;hash,常见类型:id,email,phone,hash,也可输入正则表达式','defaultvalue'=>''),
+                            array('configname'=>'提示','hash'=>'columntips','inputhash'=>'text','tips'=>'每列文本框的placeholder,使用;号分隔,如: 姓名;年龄;性别','defaultvalue'=>''),
                             array('configname'=>'宽度','hash'=>'width','inputhash'=>'text','tips'=>'每列文本框的输入框的宽度,使用;号分隔,如:300px;200px;100px,也可使用百分比'),
                             array('configname'=>'不允许重复','hash'=>'norepet','inputhash'=>'switch','tips'=>'开启后,不允许出现重复的内容'),
                             array('configname'=>'允许排序','hash'=>'sortable','inputhash'=>'switch','tips'=>'允许拖曳图标排序','defaultvalue'=>'1'),
