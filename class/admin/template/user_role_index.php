@@ -80,7 +80,7 @@ layui.use(['index','sortable'],function(){
     });
     layui.$('.roledel').click(function(){
         delrolehash=layui.$(this).attr('rel');
-        layui.layer.confirm('是否删除此角色:'+layui.$(this).parents('tr').find('td').eq(0).text(), {
+        layui.layer.confirm('是否删除此角色:'+layui.$(this).parents('tr').find('td').eq(0).text().replace('<','&lt;').replace('>','&gt;'), {
           btn: ['删除','取消'],skin:'layer-danger',title:'请确认'}, function(){
             layui.admin.req({type:'post',url:"?do=admin:user:roleDel",data:{ hash: delrolehash},async:true,beforeSend:function(){
                 layui.admin.load('删除中...');
@@ -93,7 +93,7 @@ layui.use(['index','sortable'],function(){
         });
     });
 });
-    </script>
+</script>
 {this:body:~()}
 </body>
 </html>
