@@ -181,11 +181,11 @@ class cms {
         $noarguri=explode('?',$_SERVER['REQUEST_URI']);
         $uri='/'.ltrim($noarguri[0],'/');
         $uri=substr($uri,strlen($GLOBALS['C']['SystemDir'])-1);
+        if(stripos(@$_SERVER['SERVER_SOFTWARE'],'iis')) {
+            $uri=uridecode(urlencode(iconv("gb2312","utf-8//IGNORE",$uri)));
+        }
         if(!$GLOBALS['C']['UrlRewrite']) {
             if(empty($uri) || $uri=='/' || $uri=='/'.$GLOBALS['C']['Indexfile']) {$uri='/'.$GLOBALS['C']['Indexfile'].'/';}
-            if(stripos(@$_SERVER['SERVER_SOFTWARE'],'iis')) {
-                $uri=uridecode(urlencode(iconv("gb2312","utf-8//IGNORE",$uri)));
-            }
             $uri=substr($uri,strlen('/'.$GLOBALS['C']['Indexfile']));
         }
         Return $uri;
