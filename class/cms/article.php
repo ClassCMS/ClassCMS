@@ -14,7 +14,7 @@ class cms_article {
             Return array();
         }
         if(!isset($config['classhash'])) {$config['classhash']=I(-1);}
-        if(!isset($config['all'])) {$config['all']=0;}elseif($config['all']==='1') {$config['all']=1;}
+        if(!isset($config['all'])) {$config['all']=0;}elseif($config['all']==='1') {$config['all']=1;}elseif($config['all']==='2') {$config['all']=2;}
         if(!isset($config['enabled'])) {$config['enabled']=1;}
         if($config['all'] && !isset($config['cids'])) {
             if(isset($config['cid'])) {
@@ -36,6 +36,7 @@ class cms_article {
                 Return array();
             }
             if($config['all']===1) {$channel=$cids_channel;}
+            if($config['all']===2) {unset($config['cid']);}
             $config['modulehash']=$cids_channel['modulehash'];
             $config['classhash']=$cids_channel['classhash'];
         }
