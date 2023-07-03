@@ -229,6 +229,7 @@ class admin_var {
         $array['defaultvalue_form']['source']='admin_defaultvalue_setting';
         $array['defaultvalue_form']['auth']['all']=true;
         $array['defaultvalue_form']['ajax_url']='?do=admin:var:ajax&id='.$array['id'].'&confighash=defaultvalue&csrf='.C('admin:csrfForm');
+        $array['defaultvalue_form']['nonull']=0;
 
         $array['admin_role_name']=C('cms:user:$admin_role');
         $array['input_auths']=C('cms:input:auth',array('inputhash'=>$array['inputhash']));
@@ -283,6 +284,7 @@ class admin_var {
                 $var_defaultvalue_form['source']='admin_defaultvalue_setting';
                 $var_defaultvalue_form['value']=$var['defaultvalue'];
                 $var_defaultvalue_form['auth']['all']=true;
+                $var_defaultvalue_form['nonull']=0;
                 $var_edit_array['defaultvalue']=C('cms:input:post',$var_defaultvalue_form);
                 if(is_array($var_edit_array['defaultvalue']) && isset($var_edit_array['defaultvalue']['error'])) {
                     $var_edit_array['defaultvalue']=false;

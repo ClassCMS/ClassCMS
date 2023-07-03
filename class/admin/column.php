@@ -266,6 +266,7 @@ class admin_column {
         $array['defaultvalue_form']['source']='admin_defaultvalue_setting';
         $array['defaultvalue_form']['auth']['all']=true;
         $array['defaultvalue_form']['ajax_url']='?do=admin:column:ajax&id='.$array['id'].'&confighash=defaultvalue&csrf='.C('admin:csrfForm');
+        $array['defaultvalue_form']['nonull']=0;
 
         $array['admin_role_name']=C('cms:user:$admin_role');
         $array['input_auths']=C('cms:input:auth',array('inputhash'=>$array['inputhash']));
@@ -320,6 +321,7 @@ class admin_column {
                 $column_defaultvalue_form['source']='admin_defaultvalue_setting';
                 $column_defaultvalue_form['value']=$column['defaultvalue'];
                 $column_defaultvalue_form['auth']['all']=true;
+                $column_defaultvalue_form['nonull']=0;
                 $column_edit_array['defaultvalue']=C('cms:input:post',$column_defaultvalue_form);
                 if(is_array($column_edit_array['defaultvalue']) && isset($column_edit_array['defaultvalue']['error'])) {
                     $column_edit_array['defaultvalue']=false;
