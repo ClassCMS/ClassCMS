@@ -141,6 +141,7 @@ class cms_module {
         $del_module_query['where']=array('classhash'=>$module['classhash'],'hash'=>$module['hash']);
         del($del_module_query);
         commit();
+        unset($GLOBALS['C']['moduleTableCreate'][$hash.'|'.$classhash]);
         Return true;
     }
     function reload($hash=0,$classhash='') {
@@ -156,6 +157,9 @@ class cms_module {
     }
     function tableCreate($hash=0,$classhash='') {
         if(empty($classhash) || !is_hash($classhash)) {$classhash=I(-1);}
+        if(isset($GLOBALS['C']['moduleTableCreate'][$hash.'|'.$classhash])) {
+            Return true;
+        }
         if(!$module=C('this:module:get',$hash,$classhash)) {
             Return false;
         }
@@ -173,6 +177,7 @@ class cms_module {
             C($GLOBALS['C']['DbClass'].':addField',$module['table'],'uid','int(11)','NOT NULL DEFAULT 0');
             C($GLOBALS['C']['DbClass'].':addIndex',$module['table'],'uid');
         }
+        $GLOBALS['C']['moduleTableCreate'][$hash.'|'.$classhash]=1;
         Return true;
     }
     function authStr($module,$action) {

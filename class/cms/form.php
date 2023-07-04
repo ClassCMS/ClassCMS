@@ -146,6 +146,7 @@ class cms_form {
         if($form_add_query['kind']=='info' && $form_add_query['enabled'] && $formidid) {
             C('this:form:infoReset',$formidid);
         }
+        unset($GLOBALS['C']['formlist'][$form_add_query['kind'].'|'.$form_add_query['modulehash'].'|'.$form_add_query['classhash']]);
         Return $formidid;
     }
     function edit($form_edit_query) {
@@ -212,6 +213,7 @@ class cms_form {
             }
             Return true;
         }
+        unset($GLOBALS['C']['formlist'][$form['kind'].'|'.$form['modulehash'].'|'.$form['classhash']]);
         Return false;
     }
     function del($id) {
@@ -239,6 +241,7 @@ class cms_form {
         foreach($roles as $role) {
             C('this:user:authDelAll',array('rolehash'=>$role['hash'],'authkind'=>C('this:form:authStr',$form)));
         }
+        unset($GLOBALS['C']['formlist'][$form['kind'].'|'.$form['modulehash'].'|'.$form['classhash']]);
         $form_del_query=array();
         $form_del_query['table']='form';
         $form_del_query['where']=array('id'=>$id);
