@@ -2,15 +2,15 @@
 if(!defined('ClassCms')) {exit();}
 class cms_input {
     function all() {
-        if(isset($GLOBALS['Inputs']) && $GLOBALS['Inputs']) {
-            Return $GLOBALS['Inputs'];
+        if(isset($GLOBALS['C']['inputlist']) && $GLOBALS['C']['inputlist']) {
+            Return $GLOBALS['C']['inputlist'];
         }
         $list_query=array();
         $list_query['table']='input';
         $list_query['where']=array('enabled'=>1,'classenabled'=>1);
         $list_query['order']='inputorder asc,id asc';
         $inputlist=all($list_query);
-        $GLOBALS['Inputs']=$inputlist;
+        $GLOBALS['C']['inputlist']=$inputlist;
         Return $inputlist;
     }
     function tree() {
@@ -85,7 +85,7 @@ class cms_input {
         }
         $input_add_query['enabled']=1;
         $input_add_query['classenabled']=1;
-        unset($GLOBALS['Inputs']);
+        unset($GLOBALS['C']['inputlist']);
         if(C('this:input:get',$input_add_query['hash'])){Return false;}
         $input_add_query['table']='input';
         Return insert($input_add_query);
@@ -94,7 +94,7 @@ class cms_input {
         if(!$input=C('this:input:get',$hash)) {
             Return false;
         }
-        unset($GLOBALS['Inputs']);
+        unset($GLOBALS['C']['inputlist']);
         $where=array();
         $where['hash']=strtolower($hash);
         $del_input_query=array();

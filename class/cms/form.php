@@ -129,7 +129,6 @@ class cms_form {
         if(C('this:form:get',$form_add_query['hash'],$form_add_query['kind'],$form_add_query['modulehash'],$form_add_query['classhash'])){Return false;}
         $form_add_query['table']='form';
         if(isset($form_add_query['config'])) {
-            $form_config=array();
             $form_config=$form_add_query['config'];
             unset($form_add_query['config']);
         }

@@ -421,49 +421,25 @@ class cms_class {
         Return $updateinfo;
     }
     function removeClassConfig($classhash) {
-        $del_hook=array();
-        $del_hook['table']='hook';
-        $del_hook['where']=array('classhash'=>$classhash);
-        del($del_hook);
-        $del_auth=array();
-        $del_auth['table']='auth';
-        $del_auth['where']=array('classhash'=>$classhash);
-        del($del_auth);
-        $del_route=array();
-        $del_route['table']='route';
-        $del_route['where']=array('classhash'=>$classhash);
-        del($del_route);
-        $del_input=array();
-        $del_input['table']='input';
-        $del_input['where']=array('classhash'=>$classhash);
-        del($del_input);
-        $del_channel=array();
-        $del_channel['table']='channel';
-        $del_channel['where']=array('classhash'=>$classhash);
-        del($del_channel);
-        $del_form=array();
-        $del_form['table']='form';
-        $del_form['where']=array('classhash'=>$classhash);
-        del($del_form);
-        $del_config=array();
-        $del_config['table']='config';
-        $del_config['where']=array('classhash'=>$classhash);
-        del($del_config);
-        $modules=all(array('table'=>'module','where'=>where('classhash',$classhash)));
-        foreach($modules as $module) {
-            $module['table']='article_'.$module['classhash'].'_'.$module['hash'];
-            if(strlen($module['table'])>54) {
-                $module['table']=substr($module['table'],0,54);
+        $systemTable=C('this:install:defaultTable');
+        $modules=all('table','module','where',where('classhash',$classhash));
+        foreach ($modules as $key => $module) {
+            $module=C('cms:module:get',$module['hash'],$classhash);
+            $fields=C($GLOBALS['C']['DbClass'].':getfields',$module['table']);
+            if(is_array($fields) && count($fields) && !isset($systemTable[$module['table']])) {
+                C($GLOBALS['C']['DbClass'].':delTable',$module['table']);
             }
-            C($GLOBALS['C']['DbClass'].':delTable',$module['table']);
         }
-        $del_module=array();
-        $del_module['table']='module';
-        $del_module['where']=array('classhash'=>$classhash);
-        del($del_module);
+        del(array('table'=>'hook','where'=>array('classhash'=>$classhash)));
+        del(array('table'=>'auth','where'=>array('classhash'=>$classhash)));
+        del(array('table'=>'route','where'=>array('classhash'=>$classhash)));
+        del(array('table'=>'input','where'=>array('classhash'=>$classhash)));
+        del(array('table'=>'channel','where'=>array('classhash'=>$classhash)));
+        del(array('table'=>'form','where'=>array('classhash'=>$classhash)));
+        del(array('table'=>'config','where'=>array('classhash'=>$classhash)));
+        del(array('table'=>'module','where'=>array('classhash'=>$classhash)));
         if(is_file(classDir($classhash).$classhash.'.php')) {
             if($tables=C($classhash.':table')) {
-                $systemTable=C('this:install:defaultTable');
                 if(is_array($tables)) {
                     foreach($tables as $tablename=>$table) {
                         if(is_array($table) && !isset($systemTable[$tablename])) {
@@ -611,11 +587,11 @@ class cms_class {
         Return true;
     }
     function data($classhash) {
+        $data['config']=all('table','config','where',where('classhash',$classhash));
         $data['module']=all('table','module','where',where('classhash',$classhash));
         $data['form']=all('table','form','where',where('classhash',$classhash));
         $data['route']=all('table','route','where',where('classhash',$classhash));
         $data['channel']=all('table','channel','where',where('classhash',$classhash));
-        $data['config']=all('table','config','where',where('classhash',$classhash));
         $data['hook']=all('table','hook','where',where('classhash',$classhash));
         $data['input']=all('table','input','where',where('classhash',$classhash));
         $data['auth']=all('table','auth','where',where('classhash',$classhash));
