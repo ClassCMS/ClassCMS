@@ -623,7 +623,7 @@ class admin_input {
                 if($config['column']>1) {$config['showstyle']=1;}
                 if($config['showstyle']==0 && isset($config['source']) && $config['source']=='adminlist') {
                     $html='';
-                    $values=explode(';',$config['value']);
+                    $values=array_filter(explode(';',$config['value']));
                     foreach($values as $val) {
                         $html.='<button type="button" class="layui-btn layui-btn-xs layui-btn-normal">'.$val.'</button> ';
                     }

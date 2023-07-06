@@ -46,6 +46,7 @@ foreach($values as $thisvalues) {
             }
             html=layui.$('#{$name}_newitem').html().replace(/classcms_name/g,"name");
             layui.$('#{$name}_itemlist').append(html);
+            layui.$('#{$name}_itemlist .tagsitem:last input:first').focus();
         });
         layui.$('#{$name}_itemlist').on('click','.delbutton',function(){
             layui.$(this).parent().remove();
