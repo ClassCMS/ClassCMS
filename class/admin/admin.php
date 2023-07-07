@@ -542,32 +542,70 @@ class admin {
         }
         Return $items;
     }
-    function breadcrumb($links='',$home='') {
-        $html='';
-        $isLayuiForm=false;
-        if(empty($home)) {
-            $html.='<a href="'.C('this:defaultPage').'"><i class="layui-icon layui-icon-home"></i></a>';
-        }else {
-            $html.=$home;
+    function breadcrumb($links='') {
+        if(!$links){
+            return '';
         }
+        if(is_string($links)){
+            return '<a><cite>'.$links.'</cite></a>';
+        }
+        $html='<a href="'.C('this:defaultPage').'"><i class="layui-icon layui-icon-home"></i></a>';
+        $isLayuiForm=false;
         if(is_array($links)) {
             foreach($links as $key=>$val) {
                 if(is_string($val)){$val=array('title'=>$val);}
                 if(!isset($val['title'])) {
-                    $val['title']='<i class="layui-icon layui-icon-align-left"></i>';
+                    $val['title']='';
+                }
+                if(isset($val['function']) && !empty($val['function'])){
+                    $functions=explode(':',$val['function']);
+                    if(count($functions)==2){
+                        if(!P($functions[1],$functions[0])){
+                            $val['title']='';
+                        }
+                    }elseif(count($functions)==3){
+                        if(!P($functions[1].':'.$functions[2],$functions[0])){
+                            $val['title']='';
+                        }
+                    }
+                    if(!isset($val['url']) || empty($val['url'])){
+                        $val['url']='?do='.$val['function'];
+                    }elseif(substr($val['url'],0,1)=='&'){
+                        $val['url']='?do='.$val['function'].$val['url'];
+                    }
                 }
                 if(($key+1)==count($links)) {
                     $val['url']='';
                 }
-                if(isset($val['list']) && count($val['list'])>1){
+                if(empty($val['title'])){
+                    
+                }elseif(isset($val['list']) && count($val['list'])>1){
                     $isLayuiForm=true;
                     $html.='<a><div class="layui-inline _classlist"><div class="layui-input-inline"><select lay-filter="breadcrumb_'.$key.'">';
                     foreach ($val['list'] as $thislist) {
+                        if(is_string($thislist)){$thislist=array('title'=>$thislist);}
                         if(!isset($thislist['url'])){$thislist['url']='';}
                         if(!isset($thislist['title'])){$thislist['title']='';}
-                        if($thislist['url']==$val['url']){
+                        if(isset($thislist['function']) && !empty($thislist['function'])){
+                            $functions=explode(':',$thislist['function']);
+                            if(count($functions)==2){
+                                if(!P($functions[1],$functions[0])){
+                                    $thislist['title']='';
+                                }
+                            }elseif(count($functions)==3){
+                                if(!P($functions[1].':'.$functions[2],$functions[0])){
+                                    $thislist['title']='';
+                                }
+                            }
+                            if(!isset($thislist['url']) || empty($thislist['url'])){
+                                $thislist['url']='?do='.$thislist['function'];
+                            }elseif(substr($thislist['url'],0,1)=='&'){
+                                $thislist['url']='?do='.$thislist['function'].$thislist['url'];
+                            }
+                        }
+                        if($thislist['url']==$val['url'] && $thislist['title']){
                             $html.='<option value="'.$thislist['url'].'" selected>'.$thislist['title'].'</option>';
-                        }else{
+                        }elseif($thislist['title']){
                             $html.='<option value="'.$thislist['url'].'">'.$thislist['title'].'</option>';
                         }
                     }
