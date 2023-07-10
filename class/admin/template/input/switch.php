@@ -1,8 +1,7 @@
 <?php if(!defined('ClassCms')) {exit();}?>
-<input type="checkbox"  lay-filter="{$name}_switch{if isset($article.id)}_{$article.id}{/if}" {if isset($value) && $value} checked{/if}{if $disabled} disabled{/if} lay-skin="switch"  lay-text="{$opentips}|{$closetips}">
+<input type="checkbox" lay-filter="{$name}_switch{if isset($article.id)}_{$article.id}{/if}" {if isset($value) && $value} checked{/if}{if $disabled} disabled{/if} lay-skin="switch"  lay-text="{$opentips}|{$closetips}">
 
 {if !$disabled}
-{if isset($source) && $source=='adminlist'}
 <script>
 layui.use(['index','form','jquery'], function(){
     layui.form.on('switch({$name}_switch{if isset($article.id)}_{$article.id}{/if})', function(obj){
@@ -17,5 +16,4 @@ layui.use(['index','form','jquery'], function(){
     });
 });
 </script>
-{/if}
 {/if}

@@ -357,6 +357,11 @@ class admin_input {
                 echo('<input type="checkbox" name="'. $config['name'].'" '. $config['value'].' '. $config['disabled'].' lay-skin="switch"  lay-text="'. $config['opentips'].'|'. $config['closetips'].'">');
                 Return '';
             case 'view':
+                if(isset($config['source']) && $config['source']=='adminlist'){
+                    $config['disabled']=false;
+                }else{
+                    $config['disabled']=true;
+                }
                 V('input/switch',$config);
                 Return ;
             case 'ajax':
