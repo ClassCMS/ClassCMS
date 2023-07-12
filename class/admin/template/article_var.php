@@ -3,9 +3,6 @@
 <html>
 <head>{this:head($title)}</head>
 <body>
-
-
-
   <div class="layui-fluid">
     <div class="layui-row">
 
@@ -74,7 +71,7 @@
 <script>layui.use(['index'],function(){
     layui.form.on('submit(form-submit)', function(data){
         layui.$('button[lay-filter=form-submit]').blur();
-        layui.admin.req({type:'post',url:"?do=admin:article:varSave",data:data.field,async:true,beforeSend:function(){
+        layui.admin.req({type:'post',url:"{$url.varSave}",data:data.field,async:true,beforeSend:function(){
             layui.admin.load('提交中...');
         },done: function(res){
             if (res.error==0)

@@ -1,7 +1,8 @@
 <?php
 if(!defined('ClassCms')) {exit();}
 class admin_article {
-    function home() {
+    function home($array=array()) {
+        if(isset($array['cid'])){ $_GET['cid']=$array['cid']; }
         if(!$array['channel']=C('this:article:channelGet',@$_GET['cid'])) {
             Return E('栏目不存在或无法访问');
         }
@@ -15,18 +16,19 @@ class admin_article {
         }
         if(count($array['columns'])) {
             if(C('this:moduleAuth',$array['channel']['_module'],'list')) {
-                Return C('this:article:index');
+                Return C('this:article:index',$array);
             }
             if(C('this:moduleAuth',$array['channel']['_module'],'add')) {
-                Return C('this:article:edit');
+                Return C('this:article:edit',$array);
             }
         }
         if(C('this:article:varEnabled',$array['channel']['_module'])) {
-            Return C('this:article:varEdit');
+            Return C('this:article:varEdit',$array);
         }
         Return E('字段或变量权限未开放');
     }
-    function index() {
+    function index($array=array()) {
+        if(isset($array['cid'])){ $_GET['cid']=$array['cid']; }
         if(!$array['channel']=C('this:article:channelGet',@$_GET['cid'])) {
             Return E('栏目不存在或无法访问');
         }
@@ -34,18 +36,26 @@ class admin_article {
             Return E('无权限');
         }
         if(C('this:moduleAuth',$array['channel']['_module'],'add')) {$array['auth']['add']=1;}else{$array['auth']['add']=0;}
-        if(C('this:moduleAuth',$array['channel']['_module'],'var')) {$array['auth']['var']=1;}else {$array['auth']['var']=0;}
         if(C('this:moduleAuth',$array['channel']['_module'],'edit')) {$array['auth']['edit']=1;}else {$array['auth']['edit']=0;}
         if(C('this:moduleAuth',$array['channel']['_module'],'del')) {$array['auth']['del']=1;}else {$array['auth']['del']=0;}
-        $array['varEnabled']=C('this:article:varEnabled',$array['channel']['_module']);
-        $array['breadcrumb']=C('this:article:breadcrumb',$array['channel']);
+        if(C('this:moduleAuth',$array['channel']['_module'],'var')) {
+            $array['auth']['var']=1;
+            $array['auth']['var']=C('this:article:varEnabled',$array['channel']['_module']);
+        }else {
+            $array['auth']['var']=0;
+        }
+        if(!isset($array['breadcrumb'])){
+            $array['breadcrumb']=C('this:article:breadcrumb',$array['channel']);
+        }
         $array['columns']=C('cms:form:all','column',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
         $array['columns']=C('cms:form:getColumnCreated',$array['columns'],$array['channel']['_module']['table']);
-        if(count($array['columns'])==0) {
+        if(!count($array['columns'])) {
             Return E('未配置模型字段');
         }
         $GLOBALS['admin']['articleAction']='index';
-        $array['viewbutton']=1;
+        if(!isset($array['viewbutton'])){
+            $array['viewbutton']=1;
+        }
         foreach($array['columns'] as $key=>$column) {
             $array['columns'][$key]=C('cms:form:build',$column['id']);
             if($column['hash']=='title' && $column['inputhash']=='text' && $array['channel']['enabled'] && $array['channel']['_module']['enabled']) {
@@ -70,7 +80,9 @@ class admin_article {
         if(!C('cms:route:get','article',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash'])) {
             $array['viewbutton']=0;
         }
-        $article_query=array();
+        if(isset($array['article_query'])){
+            $article_query=$array['article_query'];
+        }
         $article_query['cid']=$array['channel']['id'];
         $article_query['page']='page';
         $article_query['channelurl']='';
@@ -80,38 +92,65 @@ class admin_article {
         }
         $article_query['source']='admin';
         $array['articles']=C('cms:article:get',$article_query);
+        if(!isset($array['url']['add'])){ $array['url']['add']='?do=admin:article:edit&cid='.$array['channel']['id']; }
+        if(!$array['url']['add']){ $array['auth']['add']=0; }
+        if(!isset($array['url']['edit'])){ $array['url']['edit']='?do=admin:article:edit&cid='.$array['channel']['id'].'&id=(id)'; }
+        if(!$array['url']['edit']){ $array['auth']['edit']=0; }
+        if(!isset($array['url']['del'])){ $array['url']['del']='?do=admin:article:del'; }
+        if(!$array['url']['del']){ $array['auth']['del']=0; }
+        if(!isset($array['url']['var'])){ $array['url']['var']='?do=admin:article:varEdit&cid='.$array['channel']['id']; }
+        if(!$array['url']['var']){ $array['auth']['var']=0; }
         Return V('article_index',$array);
     }
-    function edit() {
+    function edit($array=array()) {
+        if(isset($array['cid'])){ $_GET['cid']=$array['cid']; }
         if(!$array['channel']=C('this:article:channelGet',@$_GET['cid'])) {
             Return E('栏目不存在或无法访问');
         }
+        if(isset($array['id'])){ $_GET['id']=$array['id']; }
         if(C('cms:common:verify',@$_GET['id'],'id')) {
             $GLOBALS['admin']['articleAction']='edit';
-            $array['breadcrumb']=C('this:article:breadcrumb',$array['channel'],'修改');
+            if(!isset($array['breadcrumb'])){
+                $array['breadcrumb']=C('this:article:breadcrumb',$array['channel'],'修改');
+            }
             $array['id']=$_GET['id'];
             if(!$article=C('this:article:editEnabled',$array['channel']['id'],$array['id'])) {
                 Return E('文章不存在');
             }
-            $array['title']=$array['channel']['channelname'].' 修改';
+            if(!isset($array['title'])){
+                $array['title']=$array['channel']['channelname'].' 修改';
+            }
         }else {
             $GLOBALS['admin']['articleAction']='add';
             $array['id']=false;
             if(!C('this:moduleAuth',$array['channel']['_module'],'add')) {Return E('无权限');}
             if(C('this:moduleAuth',$array['channel']['_module'],'list')) {
-                $array['breadcrumb']=C('this:article:breadcrumb',$array['channel'],'增加');
+                if(!isset($array['breadcrumb'])){
+                    $array['breadcrumb']=C('this:article:breadcrumb',$array['channel'],'增加');
+                }
             }else {
-                $array['breadcrumb']=C('this:article:breadcrumb',$array['channel']);
+                if(!isset($array['breadcrumb'])){
+                    $array['breadcrumb']=C('this:article:breadcrumb',$array['channel']);
+                }
             }
-            $array['title']=$array['channel']['channelname'].' 增加';
+            if(!isset($array['title'])){
+                $array['title']=$array['channel']['channelname'].' 增加';
+            }
         }
-        if(C('this:moduleAuth',$array['channel']['_module'],'var')) {$array['auth']['var']=1;}else {$array['auth']['var']=0;}
         if(C('this:moduleAuth',$array['channel']['_module'],'del')) {$array['auth']['del']=1;}else {$array['auth']['del']=0;}
         if(C('this:moduleAuth',$array['channel']['_module'],'edit')) {$array['auth']['edit']=1;}else {$array['auth']['edit']=0;}
         if(C('this:moduleAuth',$array['channel']['_module'],'list')) {$array['auth']['list']=1;}else {$array['auth']['list']=0;}
-        $array['varEnabled']=C('this:article:varEnabled',$array['channel']['_module']);
+        if(C('this:moduleAuth',$array['channel']['_module'],'var')) {
+            $array['auth']['var']=1;
+            $array['auth']['var']=C('this:article:varEnabled',$array['channel']['_module']);
+        }else {
+            $array['auth']['var']=0;
+        }
         $array['columns']=C('cms:form:all','column',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
         $array['columns']=C('cms:form:getColumnCreated',$array['columns'],$array['channel']['_module']['table']);
+        if(!count($array['columns'])) {
+            Return E('未配置模型字段');
+        }
         $array['allowsubmit']=0;
         foreach($array['columns'] as $key=>$column) {
             $array['columns'][$key]=C('cms:form:build',$column['id']);
@@ -132,33 +171,42 @@ class admin_article {
             }
         }
         if($array['id']) {
-            if(isset($_SERVER['HTTP_REFERER'])){
-                $referer_parse=parse_url($_SERVER['HTTP_REFERER']);
-                if(isset($referer_parse['host']) && $referer_parse['host']==C('cms:common:serverName')){
-                    $array['referer']=$_SERVER['HTTP_REFERER'];
+            if(!isset($array['referer'])){
+                if(isset($_SERVER['HTTP_REFERER'])){
+                    $referer_parse=parse_url($_SERVER['HTTP_REFERER']);
+                    if(isset($referer_parse['host']) && $referer_parse['host']==C('cms:common:serverName')){
+                        $array['referer']=$_SERVER['HTTP_REFERER'];
+                    }
                 }
             }
             if($editColumns=C('this:article:editColumns:~',$array['columns'])) {
                 $array['columns']=$editColumns;
             }
+            if(!isset($array['url']['del'])){ $array['url']['del']='?do=admin:article:del'; }
+            if(!$array['url']['del']){ $array['auth']['del']=0; }
         }else {
             if($addColumns=C('this:article:addColumns:~',$array['columns'])) {
                 $array['columns']=$addColumns;
             }
         }
+        if(!isset($array['url']['save'])){ $array['url']['save']='?do=admin:article:editSave'; }
+        if(!$array['url']['save']){ $array['allowsubmit']=0; }
+        if(!isset($array['url']['var'])){ $array['url']['var']='?do=admin:article:varEdit&cid='.$array['channel']['id']; }
+        if(!$array['url']['var']){ $array['auth']['var']=0; }
         $array['tabs']=C('cms:form:getTabs',$array['columns']);
         Return V('article_edit',$array);
     }
-    function editSave() {
+    function editSave($array=array()) {
+        if(isset($array['cid'])){ $_POST['cid']=$array['cid']; }
         if(!C('this:csrfCheck',1)) {
             Return array('msg'=>'非法提交,请刷新当前页面或重新登入系统','error'=>1,'code'=>1001);
         }
         if(!$array['channel']=C('this:article:channelGet',@$_POST['cid'])) {
             Return E('栏目不存在或无法访问');
         }
+        if(isset($array['id'])){ $_POST['id']=$array['id']; }
         if(C('cms:common:verify',@$_POST['id'],'id')) {
             $article_id=$_POST['id'];
-            $array['breadcrumb']=C('this:article:breadcrumb',$array['channel'],'修改');
             if(!$article=C('this:article:editEnabled',$array['channel']['id'],$article_id)) {
                 Return E('文章不存在');
             }
@@ -206,7 +254,14 @@ class admin_article {
             $id=C('cms:article:add',$new_article);
             if(is_numeric($id)) {
                 if(C('this:moduleAuth',$array['channel']['_module'],'edit')) {
-                    Return array('msg'=>'增加成功','id'=>$id,'url'=>'?do=admin:article:edit&cid='.$array['channel']['id'].'&id='.$id);
+                    if(!isset($array['url']['edit'])){
+                        $array['url']['edit']='?do=admin:article:edit&cid='.$array['channel']['id'].'&id=(id)';
+                    }
+                    if($array['url']['edit']){
+                        Return array('msg'=>'增加成功','id'=>$id,'url'=>str_replace("(id)",$id,$array['url']['edit']));
+                    }else{
+                        Return array('msg'=>'增加成功','id'=>$id);
+                    }
                 }else {
                     Return '增加成功';
                 }
@@ -235,7 +290,8 @@ class admin_article {
             }
         }
     }
-    function del() {
+    function del($array=array()) {
+        if(isset($array['cid'])){ $_POST['cid']=$array['cid']; }
         if(!C('this:csrfCheck',1)) {
             Return array('msg'=>'非法提交,请刷新当前页面或重新登入系统','error'=>1,'code'=>1001);
         }
@@ -245,6 +301,7 @@ class admin_article {
         if(!C('this:moduleAuth',$array['channel']['_module'],'del')) {
             Return E('无权限');
         }
+        if(isset($array['ids'])){ $_POST['ids']=$array['ids']; }
         $ids=explode(';',@$_POST['ids']);
         $limit=C('this:moduleAuth',$array['channel']['_module'],'limit|false');
         $uid=C('this:nowUser');
@@ -269,7 +326,8 @@ class admin_article {
         }
         Return '删除成功';
     }
-    function varEdit() {
+    function varEdit($array=array()) {
+        if(isset($array['cid'])){ $_GET['cid']=$array['cid']; }
         if(!$array['channel']=C('this:article:channelGet',@$_GET['cid'])) {
             Return E('栏目不存在或无法访问');
         }
@@ -286,11 +344,19 @@ class admin_article {
             }
         }
         if(count($array['columns']) && (C('this:moduleAuth',$array['channel']['_module'],'list') || C('this:moduleAuth',$array['channel']['_module'],'add'))) {
-            $array['breadcrumb']=C('this:article:breadcrumb',$array['channel'],'设置');
-            $array['title']=$array['channel']['channelname'].' 设置';
+            if(!isset($array['breadcrumb'])){
+                $array['breadcrumb']=C('this:article:breadcrumb',$array['channel'],'设置');
+            }
+            if(!isset($array['title'])){
+                $array['title']=$array['channel']['channelname'].' 设置';
+            }
         }else {
-            $array['breadcrumb']=C('this:article:breadcrumb',$array['channel']);
-            $array['title']=$array['channel']['channelname'].'';
+            if(!isset($array['breadcrumb'])){
+                $array['breadcrumb']=C('this:article:breadcrumb',$array['channel']);
+            }
+            if(!isset($array['title'])){
+                $array['title']=$array['channel']['channelname'].'';
+            }
         }
         $array['vars']=C('cms:form:all','var',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
         $array['allowsubmit']=0;
@@ -317,10 +383,13 @@ class admin_article {
         if(!count($array['vars'])) {
             Return E('无变量');
         }
+        if(!isset($array['url']['varSave'])){ $array['url']['varSave']='?do=admin:article:varSave'; }
+        if(!$array['url']['varSave']){ $array['allowsubmit']=0; }
         $array['tabs']=C('cms:form:getTabs',$array['vars']);
         Return V('article_var',$array);
     }
-    function varSave() {
+    function varSave($array=array()) {
+        if(isset($array['cid'])){ $_POST['cid']=$array['cid']; }
         if(!C('this:csrfCheck',1)) {
             Return array('msg'=>'非法提交,请刷新当前页面或重新登入系统','error'=>1,'code'=>1001);
         }
@@ -372,7 +441,6 @@ class admin_article {
         }else {
             Return E($msg);
         }
-        
     }
     function channelGet($cid=0) {
         if(!$channel=C('cms:channel:get',$cid)) {
@@ -384,15 +452,12 @@ class admin_article {
         if(!$class=C('cms:class:get',$channel['classhash'])) {
             Return false;
         }
-        if(!$class['module']) {
-            Return false;
-        }
         if(!$class['enabled'] && !P('class:changestate')) {
             Return false;
         }
         Return $channel;
     }
-    function editEnabled($cid,$id,$userid=0) {
+    function editEnabled($cid=0,$id=0,$userid=0) {
         if(!$channel=C('this:article:channelGet',$cid)) {
             Return false;
         }
@@ -413,7 +478,8 @@ class admin_article {
         }
         Return $article;
     }
-    function varEnabled($module) {
+    function varEnabled($module=0) {
+        if(!$module) {Return false;}
         if(!C('this:moduleAuth',$module,'var')) {
             Return false;
         }

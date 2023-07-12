@@ -7,13 +7,12 @@
 <div class="layui-fluid">
     <div class="layui-row">
         <div class="layui-card">
-
         <div class="layui-card-header">
                 <div class="layui-row">
                     <div id="cms-breadcrumb">{this:breadcrumb($breadcrumb)}</div>
                     <div id="cms-right-top-button">
-                            {if $auth.add}<a href="?do=admin:article:edit&cid={$channel.id}" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-add-1"></i><b>增加</b></a>{/if}
-                            {if $varEnabled}<a href="?do=admin:article:varEdit&cid={$channel.id}" class="layui-btn layui-btn-sm layui-btn-danger">设置</a>{/if}
+                            {if $auth.add}<a href="{$url.add}" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-add-1"></i><b>增加</b></a>{/if}
+                            {if $auth.var}<a href="{$url.var}" class="layui-btn layui-btn-sm layui-btn-danger">设置</a>{/if}
                     </div>
                 </div>
             </div>
@@ -49,7 +48,7 @@
                         {/loop}
                         <td class="btn">
                             {if $viewbutton && $channel.enabled && $channel._module.enabled}<a class="layui-btn layui-btn-sm layui-btn-primary{if !$article.link || $article.link=='#'} layui-btn-disabled{/if}"{if $article.link && $article.link!='#'} href="{$article.link}" target="_blank"{/if}>浏览</a>{/if}
-                            {if $auth.edit}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:article:edit&cid={$article.cid}&id={$article.id}">修改</a>{/if}
+                            {if $auth.edit}<a class="layui-btn layui-btn-sm layui-btn-primary" href="<?php echo(str_replace('(id)',$article['id'],$url['edit'])); ?>">修改</a>{/if}
                             {if $auth.del}<a class="layui-btn layui-btn-sm layui-btn-primary articledel">删除</a>{/if}
                         </td>
                         </tr>
@@ -112,7 +111,7 @@ layui.use(['index','form'],function(){
             }
             layui.layer.confirm('是否删除?', {
               btn: ['删除','取消'],skin:'layer-danger',title:'请确认',shadeClose:1}, function(){
-                layui.admin.req({type:'post',url:"?do=admin:article:del",data:{ ids: ids,cid:{$channel.id}},async:true,beforeSend:function(){
+                layui.admin.req({type:'post',url:"{$url.del}",data:{ ids: ids,cid:{$channel.id}},async:true,beforeSend:function(){
                     layui.admin.load('删除中...');
                 },done: function(res){
                     if (res.error==0)

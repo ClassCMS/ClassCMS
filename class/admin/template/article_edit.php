@@ -20,7 +20,7 @@
                 <div id="cms-breadcrumb">{this:breadcrumb($breadcrumb)}</div>
                 <div id="cms-right-top-button">
                     {if ($id && $auth.del)}<a class="layui-btn layui-btn-sm layui-btn-danger articledel"><i class="layui-icon layui-icon-close"></i><b>删除</b></a>{/if}
-                    {if !$auth.list && $varEnabled}<a href="?do=admin:article:varEdit&cid={$channel.id}" class="layui-btn layui-btn-sm layui-btn-danger">设置</a>{/if}
+                    {if !$auth.list && $auth.var}<a href="{$url.var}" class="layui-btn layui-btn-sm layui-btn-danger">设置</a>{/if}
                 </div>
             </div>
         </div>
@@ -82,16 +82,23 @@
     layui.use(['index'],function(){
     layui.form.on('submit(form-submit)', function(data){
         layui.$('button[lay-filter=form-submit]').blur();
-        layui.admin.req({type:'post',url:"?do=admin:article:editSave",data:data.field,async:true,beforeSend:function(){
+        layui.admin.req({type:'post',url:"{$url.save}",data:data.field,async:true,beforeSend:function(){
             layui.admin.load('提交中...');
         },done: function(res){
             if (res.error==0)
             {
                 {if !$id && $auth.edit}
-                    var confirm=layer.confirm(res.msg, {btn: ['编辑','返回'],shadeClose:1},function(){window.location=res.url;},function(){
-                      layui.admin.events.back();
-                      layui.layer.close(confirm);
-                    });
+                    if(res.url){
+                        var confirm=layer.confirm(res.msg, {btn: ['编辑','返回'],shadeClose:1},function(){window.location=res.url;},function(){
+                        layui.admin.events.back();
+                        layui.layer.close(confirm);
+                        });
+                    }else{
+                        var confirm=layer.confirm(res.msg, {btn: ['好的','返回'],shadeClose:1},function(){layui.admin.events.reload();},function(){
+                        layui.admin.events.back();
+                        layui.layer.close(confirm);
+                        });
+                    }
                 {else}
                     var confirm=layer.confirm(res.msg, {btn: ['好的','返回'],shadeClose:1},function(){layui.admin.events.reload();},function(){
                       {if isset($referer)}
@@ -116,7 +123,7 @@
         layui.$('.articledel').click(function(){
             layui.layer.confirm('是否删除?', {
               btn: ['删除','取消'],skin:'layer-danger',title:'请确认',shadeClose:1}, function(){
-                layui.admin.req({type:'post',url:"?do=admin:article:del",data:{ ids: {$id},cid:{$channel.id}},async:true,beforeSend:function(){
+                layui.admin.req({type:'post',url:"{$url.del}",data:{ ids: {$id},cid:{$channel.id}},async:true,beforeSend:function(){
                     layui.admin.load('删除中...');
                 },done: function(res){
                     if (res.error==0)
