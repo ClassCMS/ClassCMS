@@ -13,12 +13,13 @@
         </div>
       </div>
     {/if}
-    <table class="layui-table" style="width:100%;max-width:500px" lay-size="sm">
+    <table class="layui-table" style="width:100%{if $maxwidth};max-width:{$maxwidth}px{/if}" lay-size="sm">
     <thead class="action">
         <tr>
-            <td  colspan=2>
+            <td colspan="{$colspan}">
                 <span class="search"><a>搜索</a></span>
                 <span class="refresh"><a>刷新</a></span>
+                {if $channel}<span class="add"><a>增加</a></span>{/if}
                 <span class="choose"><a>选择</a></span>
                 <span class="count"><a>{if $multiple && count($articles)}已选:{count($articles)}{/if}{if !$multiple && count($articles)}已选{/if}</a></span>
                 <span class="next"><a>下一页&gt;</a></span>
@@ -35,8 +36,9 @@
         {$article.2} 
         <i class="layui-icon close">&#x1006;</i>
     </td>
-    <td>
-    {if $article.0}<a href="?do=admin:article:edit&cid={$article.0}&id={$article.1}" target="_blank">查看</a>{/if}
+
+    <td style="width:60px;text-align:center">
+    {if $article.0}<a href="javascript:;" class="{$name}_article_view">查看</a>{/if}
     </td>
     </tr>
     {/loop}
@@ -57,6 +59,19 @@
            {$name}_article_del(dataid,datacid);
            $(this).parents('tr').remove();
            if (!$('#{$name}_article ul li').length){{$name}_article_load();}
+       });
+       $('#{$name}_article').on('click','.{$name}_article_view',function(){
+          dataid=$(this).parents('tr').attr('data-id');
+          datacid=$(this).parents('tr').attr('data-cid');
+          if(layui.$(window).width()<900){ width=layui.$(window).width(); }else{ width=880; }
+          if(layui.$(window).height()<700){ height=layui.$(window).height(); }else{ height=680; }
+          layui.layer.open({
+              type: 2,
+              title: false,
+              shadeClose: true,
+              area: [width+'px', height+'px'],
+              content: '{$ajax_url}&ajaxdo=viewarticle&cid='+datacid+'&id='+dataid
+          });
        });
        {if count($articles)==0}
              {if $module || $channel}
@@ -97,6 +112,17 @@
             {$name}_article_load();
             $('#{$name}_article span').show();
             $('#{$name}_article span.choose').hide();
+        });
+        $('#{$name}_article thead').on('click','span.add',function(){
+            if(layui.$(window).width()<900){ width=layui.$(window).width(); }else{ width=880; }
+            if(layui.$(window).height()<700){ height=layui.$(window).height(); }else{ height=680; }
+            layui.layer.open({
+                type: 2,
+                title: false,
+                shadeClose: true,
+                area: [width+'px', height+'px'],
+                content: '{$ajax_url}&ajaxdo=addarticle&cid='+$('#{$name}_choose_cid').val()
+            });
         });
         $('#{$name}_article thead').on('click','span.search',function(){
             var {$name}_layerprompt=layer.prompt({title: '输入搜索词',value:$('#{$name}_choose_keyword').val(),yes:function(){

@@ -1291,6 +1291,47 @@ class admin_input {
                     $html.='</select>';
                     Return array('error'=>0,'html'=>$html);
                 }
+                if(isset($_GET['ajaxdo']) && $_GET['ajaxdo']=='addarticle' && $config['channel']) {
+                    $crud=array();
+                    $crud['cid']=$_GET['cid'];
+                    $crud['url']['add']='';
+                    $crud['url']['var']='';
+                    $crud['url']['save']=$config['ajax_url'].'&ajaxdo=savearticle';
+                    $crud['breadcrumb']='增加';
+                    $return=C('admin:article:edit',$crud);
+                    if(!$return && E()){ return E(E()); }
+                    return $return;
+                }
+                if(isset($_GET['ajaxdo']) && $_GET['ajaxdo']=='savearticle' && $config['channel']) {
+                    $crud=array();
+                    $crud['url']['edit']='';
+                    $return=C('admin:article:editSave',$crud);
+                    if(!$return && E()){ return array('msg'=>E(),'error'=>1); }
+                    if(isset($return['msg'])){
+                        $return['msg'].='<br>请刷新!';
+                    }
+                    return $return;
+                }
+                if(isset($_GET['ajaxdo']) && $_GET['ajaxdo']=='viewarticle') {
+                    $crud=array();
+                    $crud['cid']=$_GET['cid'];
+                    $crud['id']=$_GET['id'];
+                    $crud['url']['add']='';
+                    $crud['url']['var']='';
+                    $crud['url']['save']=$config['ajax_url'].'&ajaxdo=editarticle';
+                    $crud['breadcrumb']='查看';
+                    $return=C('admin:article:edit',$crud);
+                    if(!$return && E()){ return E(E()); }
+                    return $return;
+                }
+                if(isset($_GET['ajaxdo']) && $_GET['ajaxdo']=='editarticle') {
+                    $crud=array();
+                    $crud['cid']=$_POST['cid'];
+                    $crud['id']=$_POST['id'];
+                    $return=C('admin:article:editSave',$crud);
+                    if(!$return && E()){ return array('msg'=>E(),'error'=>1); }
+                    return $return.'<br>请刷新!';
+                }
                 if(isset($_POST['ajaxdo']) && $_POST['ajaxdo']=='showvalue') {
                     $html='';
                     $values=explode(';',trim($_POST['value'],';'));
@@ -1336,15 +1377,15 @@ class admin_input {
                     }
                     foreach($articles as $article) {
                         if($config['multiple']) {
-                            $html.='<tr data-id="'.$article[1].'" data-cid="'.$article[0].'"><td><i class="layui-icon layui-icon-find-fill sortable-color"></i> '.$article[2].' <i class="layui-icon close">&#x1006;</i></td><td>';
+                            $html.='<tr data-id="'.$article[1].'" data-cid="'.$article[0].'"><td><i class="layui-icon layui-icon-find-fill sortable-color"></i> '.$article[2].' <i class="layui-icon close">&#x1006;</i></td><td style="width:60px;text-align:center">';
                             if($article[0]) {
-                                $html.='<a href="?do=admin:article:edit&cid='.$article[0].'&id='.$article[1].'" target="_blank">查看</a>';
+                                $html.='<a href="javascript:;" class="'.$config['name'].'_article_view">查看</a>';
                             }
                             $html.='</td></tr>';
                         }else {
-                            $html.='<tr data-id="'.$article[1].'" data-cid="'.$article[0].'"><td>'.$article[2].' <i class="layui-icon close">&#x1006;</i></td><td>';
+                            $html.='<tr data-id="'.$article[1].'" data-cid="'.$article[0].'"><td>'.$article[2].' <i class="layui-icon close">&#x1006;</i></td><td style="width:60px;text-align:center">';
                             if($article[0]) {
-                                $html.='<a href="?do=admin:article:edit&cid='.$article[0].'&id='.$article[1].'" target="_blank">查看</a>';
+                                $html.='<a href="javascript:;" class="'.$config['name'].'_article_view">查看</a>';
                             }
                             $html.='</td></tr>';
                         }
@@ -1423,19 +1464,60 @@ class admin_input {
                         }
                         $values=explode(';',$_POST['value']);
                     }
+                    $othercolumns=array_filter(explode(';',$config['columns']));
+                    $modulecolumns=array();
+                    if(count($othercolumns)){
+                        $modulecolumns=C('cms:form:all','column',$module['hash'],$module['classhash']);
+                        $modulecolumns=C('cms:form:getColumnCreated',$modulecolumns,$module['table']);
+                    }
+                    foreach ($modulecolumns as $modulekey => $thismodulecolumn) {
+                        if(!in_array($thismodulecolumn['hash'],$othercolumns)){
+                            unset($modulecolumns[$modulekey]);
+                        }else{
+                            $modulecolumns[$modulekey]=C('cms:form:build',$thismodulecolumn['id']);
+                        }
+                    }
                     foreach($articles as $article) {
                         if($config['multiple']) {
-                            $html.='<tr><td><input type="checkbox"';
+                            $html.='<tr data-id="'.$article['id'].'" data-cid="'.$article['cid'].'"><td><input type="checkbox"';
                             if(in_array($article['cid'].':'.$article['id'],$values)) {
                                 $html.=' checked';
                             }
-                            $html.=' lay-filter="'.$_POST['name'].'_article" data-id="'.$article['id'].'" data-cid="'.$article['cid'].'" value="" lay-skin="primary"  name="'.$_POST['name'].'-c1asscms" title="'.$article[$config['titlecolumn']].'"></td><td><a target="_blank" href="?do=admin:article:edit&cid='.$article['cid'].'&id='.$article['id'].'">查看</a></td></tr>';
+                            $html.=' lay-filter="'.$_POST['name'].'_article" data-id="'.$article['id'].'" data-cid="'.$article['cid'].'" value="" lay-skin="primary"  name="'.$_POST['name'].'-c1asscms" title="'.$article[$config['titlecolumn']].'"></td>';
+                            foreach ($modulecolumns as $thismodulecolumn) {
+                                if(isset($article[$thismodulecolumn['hash']])){
+                                    $thismodulecolumn['value']=$article[$thismodulecolumn['hash']];
+                                    $thismodulecolumn['article']=$article;
+                                    ob_start();
+                                    $inputview=C('cms:input:view',$thismodulecolumn);
+                                    if(is_string($inputview) && $inputview){
+                                        $html.='<td>'.$inputview.'</td>';
+                                    }else{
+                                        $html.='<td>'.ob_get_clean().'</td>';
+                                    }
+                                }
+                            }
+                            $html.='<td style="width:60px;text-align:center"><a href="javascript:;" class="'.$config['name'].'_article_view">查看</a></td></tr>';
                         }else {
-                            $html.='<tr><td><input type="radio"';
+                            $html.='<tr data-id="'.$article['id'].'" data-cid="'.$article['cid'].'"><td><input type="radio"';
                             if(in_array($article['cid'].':'.$article['id'],$values)) {
                                 $html.=' checked';
                             }
-                            $html.=' lay-filter="'.$_POST['name'].'_article" data-id="'.$article['id'].'" data-cid="'.$article['cid'].'" value="" name="'.$_POST['name'].'-c1asscms" title="'.$article[$config['titlecolumn']].'"></td><td><a target="_blank" href="?do=admin:article:edit&cid='.$article['cid'].'&id='.$article['id'].'">查看</a></td></tr>';
+                            $html.=' lay-filter="'.$_POST['name'].'_article" data-id="'.$article['id'].'" data-cid="'.$article['cid'].'" value="" name="'.$_POST['name'].'-c1asscms" title="'.$article[$config['titlecolumn']].'"></td>';
+                            foreach ($modulecolumns as $thismodulecolumn) {
+                                if(isset($article[$thismodulecolumn['hash']])){
+                                    $thismodulecolumn['value']=$article[$thismodulecolumn['hash']];
+                                    $thismodulecolumn['article']=$article;
+                                    ob_start();
+                                    $inputview=C('cms:input:view',$thismodulecolumn);
+                                    if(is_string($inputview) && $inputview){
+                                        $html.='<td>'.$inputview.'</td>';
+                                    }else{
+                                        $html.='<td>'.ob_get_clean().'</td>';
+                                    }
+                                }
+                            }
+                            $html.='<td style="width:60px;text-align:center"><a href="javascript:;" class="'.$config['name'].'_article_view">查看</a></td></tr>';
                         }
                     }
                     Return array('error'=>0,'pagecount'=>$pagecount,'html'=>$html);
@@ -1513,6 +1595,12 @@ class admin_input {
                         $config['chosehtml'].='</select>';
                     }
                 }
+                $othercolumns=array_filter(explode(';',$config['columns']));
+                $config['maxwidth']=500;
+                if(count($othercolumns)){
+                    $config['maxwidth']=0;
+                }
+                $config['colspan']=2+count($othercolumns);
                 $values=explode(';',trim($config['value'],';'));
                 $config['articles']=array();
                 foreach($values as $val) {
@@ -1664,6 +1752,7 @@ class admin_input {
                         array('configname'=>'多选','hash'=>'multiple','inputhash'=>'switch','tips'=>'更改单选多选会丢失数据,请提前确认保存类型'),
                         array('configname'=>'保存类型','hash'=>'savetype','inputhash'=>'radio','tips'=>'切换类型会丢失信息,请提前确认保存类型.如您未选择来源栏目或来源模型,则只能保存为CID+ID格式','defaultvalue'=>'1','values'=>"1:ID\n2:CID+ID",'savetype'=>1),
                         array('configname'=>'标题字段','hash'=>'titlecolumn','inputhash'=>'text','tips'=>'标题字段,默认为title,请确保来源栏目中拥有此字段','defaultvalue'=>'title'),
+                        array('configname'=>'列表字段','hash'=>'columns','inputhash'=>'text','tips'=>'需要显示在文章选择的字段,多个字段是用;分隔,如:pic;datetime','defaultvalue'=>''),
                         array('configname'=>'鉴权','hash'=>'limit','inputhash'=>'switch','tips'=>'开启后,用户只能选择自己创建的文章.管理员不受限','defaultvalue'=>'0'),
                         array('configname'=>'显示数量','hash'=>'pagesize','inputhash'=>'number','tips'=>'文章选项每页显示的数量','defaultvalue'=>'10'),
                         array('configname'=>'最少勾选','hash'=>'mincheck','inputhash'=>'number','tips'=>'最少必须勾选几项,仅在开启多选后有效.','placeholder'=>'如:1,则此表单必须勾选1项'),
