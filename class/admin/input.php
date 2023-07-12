@@ -900,6 +900,7 @@ class admin_input {
                 Return $config['value'];
             case 'post':
                 if(!isset($_POST[$config['name']])) {
+                    if($config['savetype']==1) {Return false;}
                     Return '';
                 }
                 foreach($values as $thisvalue) {
