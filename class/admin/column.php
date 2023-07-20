@@ -254,7 +254,7 @@ class admin_column {
         foreach($array['config'] as $key=>$config) {
             $array['config'][$key]['source']='admin_form_setting';
             $array['config'][$key]['auth']['all']=true;
-            $array['config'][$key]['ajax_url']='?do=admin:column:ajax&id='.$array['id'].'&confighash='.$config['hash'].'&csrf='.C('admin:csrfForm');
+            $array['config'][$key]['ajax_url']='?do=admin:column:ajax&formid='.$array['id'].'&confighash='.$config['hash'].'&csrf='.C('admin:csrfForm');
         }
         $array['breadcrumb']=C('this:module:breadcrumb',$array['classinfo'],$array['module']);
         $array['breadcrumb'][]=array('url'=>'?do=admin:column:index&id='.$array['module']['id'],'title'=>'字段');
@@ -265,7 +265,7 @@ class admin_column {
         $array['defaultvalue_form']['hash']='defaultvalue';
         $array['defaultvalue_form']['source']='admin_defaultvalue_setting';
         $array['defaultvalue_form']['auth']['all']=true;
-        $array['defaultvalue_form']['ajax_url']='?do=admin:column:ajax&id='.$array['id'].'&confighash=defaultvalue&csrf='.C('admin:csrfForm');
+        $array['defaultvalue_form']['ajax_url']='?do=admin:column:ajax&formid='.$array['id'].'&confighash=defaultvalue&csrf='.C('admin:csrfForm');
         $array['defaultvalue_form']['nonull']=0;
 
         $array['admin_role_name']=C('cms:user:$admin_role');
@@ -375,7 +375,7 @@ class admin_column {
         }
     }
     function ajax() {
-        if(!$form=C('cms:form:build',@$_GET['id'])) {
+        if(!$form=C('cms:form:build',@$_GET['formid'])) {
             Return E('输入框不存在');
         }
         if(@$_GET['confighash']=='defaultvalue') {

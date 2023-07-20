@@ -1649,7 +1649,11 @@ class admin_input {
                             }
                         }
                     }
-                    echo(implode(';',$titles));
+                    $html='';
+                    foreach ($titles as $title) {
+                        $html.='<button type="button" class="layui-btn cms-btn layui-btn-xs">'.$title.'</button> ';
+                    }
+                    echo($html);
                 }else {
                     $values=explode(';',$config['value']);
                     $article_query=array();
@@ -1669,7 +1673,11 @@ class admin_input {
                             }
                         }
                     }
-                    echo(implode(';',$titles));
+                    $html='';
+                    foreach ($titles as $title) {
+                        $html.='<button type="button" class="layui-btn cms-btn layui-btn-xs">'.$title.'</button> ';
+                    }
+                    echo($html);
                 }
                 Return '';
             case 'post':
