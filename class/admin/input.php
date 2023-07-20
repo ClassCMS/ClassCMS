@@ -3303,8 +3303,17 @@ class admin_input {
                 if($action=='post') {Return false;}
                 Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
             }
+            $wheres=array_filter(explode(';',$config['where']));
+            $sqlwhere=array();
+            foreach ($wheres as $where) {
+                $thiswhere=explode('|',$where);
+                $sqlwhere[$thiswhere[0]]=$thiswhere[1];
+            }
             $list_query=array();
             $list_query['table']=$config['table'];
+            if(count($sqlwhere)){
+                $list_query['where']=$sqlwhere;
+            }
             if(!empty($config['order'])) {$list_query['order']=$config['order'];}
             $articles=all($list_query);
             $config['values']=array();
@@ -3353,6 +3362,7 @@ class admin_input {
                         array('configname'=>'数据字段','hash'=>'idcolumn','inputhash'=>'text','tips'=>'请确保数据库表中拥有此字段,修改数据字段会丢失数据,请提前确认好字段','defaultvalue'=>'id'),
                         array('configname'=>'数据类型','hash'=>'idtype','inputhash'=>'radio','tips'=>'数据字段在数据库中的类型.切换类型会丢失信息,请提前确认好保存类型.','defaultvalue'=>'1','values'=>"1:数字\n2:文字",'savetype'=>1),
                         array('configname'=>'标题字段','hash'=>'titlecolumn','inputhash'=>'text','tips'=>'请确保数据库表中拥有此字段','defaultvalue'=>'title'),
+                        array('configname'=>'条件','hash'=>'where','inputhash'=>'tags','tips'=>'数据查询条件','defaultvalue'=>'','column'=>2,'columntips'=>'字段,如:status status> status%;值:如 1'),
                         array('configname'=>'排序','hash'=>'order','inputhash'=>'text','tips'=>'如:id asc','defaultvalue'=>''),
                     );
         }
@@ -3383,8 +3393,17 @@ class admin_input {
                 if($action=='post') {Return false;}
                 Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
             }
+            $wheres=array_filter(explode(';',$config['where']));
+            $sqlwhere=array();
+            foreach ($wheres as $where) {
+                $thiswhere=explode('|',$where);
+                $sqlwhere[$thiswhere[0]]=$thiswhere[1];
+            }
             $list_query=array();
             $list_query['table']=$config['table'];
+            if(count($sqlwhere)){
+                $list_query['where']=$sqlwhere;
+            }
             if(!empty($config['order'])) {$list_query['order']=$config['order'];}
             $articles=all($list_query);
             $config['values']=array();
@@ -3420,6 +3439,7 @@ class admin_input {
                     array('configname'=>'表名','hash'=>'table','inputhash'=>'text','tips'=>'选项来源的数据库表名,系统会自动加表名前缀.如不需要加前缀,则使用no_perfix_表名'),
                     array('configname'=>'数据字段','hash'=>'idcolumn','inputhash'=>'text','tips'=>'请确保数据库表中拥有此字段,修改数据字段会丢失数据,请提前确认好字段','defaultvalue'=>'id'),
                     array('configname'=>'标题字段','hash'=>'titlecolumn','inputhash'=>'text','tips'=>'请确保数据库表中拥有此字段','defaultvalue'=>'title'),
+                    array('configname'=>'条件','hash'=>'where','inputhash'=>'tags','tips'=>'数据查询条件','defaultvalue'=>'','column'=>2,'columntips'=>'字段,如:status status> status%;值:如 1'),
                     array('configname'=>'排序','hash'=>'order','inputhash'=>'text','tips'=>'如:id asc','defaultvalue'=>''),
                     array('configname'=>'样式','hash'=>'style','inputhash'=>'radio','tips'=>'','defaultvalue'=>'1','values'=>"1:原始风格\n2:按钮风格",'savetype'=>1),
                     array('configname'=>'最少勾选','hash'=>'mincheck','inputhash'=>'number','tips'=>'最少必须勾选几项','placeholder'=>'如:1,则此表单必须勾选1项'),
@@ -3453,8 +3473,17 @@ class admin_input {
                 if($action=='post') {Return false;}
                 Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
             }
+            $wheres=array_filter(explode(';',$config['where']));
+            $sqlwhere=array();
+            foreach ($wheres as $where) {
+                $thiswhere=explode('|',$where);
+                $sqlwhere[$thiswhere[0]]=$thiswhere[1];
+            }
             $list_query=array();
             $list_query['table']=$config['table'];
+            if(count($sqlwhere)){
+                $list_query['where']=$sqlwhere;
+            }
             if(!empty($config['order'])) {$list_query['order']=$config['order'];}
             $articles=all($list_query);
             $config['values']=array();
@@ -3503,6 +3532,7 @@ class admin_input {
                     array('configname'=>'数据字段','hash'=>'idcolumn','inputhash'=>'text','tips'=>'请确保数据库表中拥有此字段,修改数据字段会丢失数据,请提前确认好字段','defaultvalue'=>'id'),
                     array('configname'=>'数据类型','hash'=>'idtype','inputhash'=>'radio','tips'=>'数据字段在数据库中的类型.切换类型会丢失信息,请提前确认好保存类型.','defaultvalue'=>'1','values'=>"1:数字\n2:文字",'savetype'=>1),
                     array('configname'=>'标题字段','hash'=>'titlecolumn','inputhash'=>'text','tips'=>'请确保数据库表中拥有此字段','defaultvalue'=>'title'),
+                    array('configname'=>'条件','hash'=>'where','inputhash'=>'tags','tips'=>'数据查询条件','defaultvalue'=>'','column'=>2,'columntips'=>'字段,如:status status> status%;值:如 1'),
                     array('configname'=>'排序','hash'=>'order','inputhash'=>'text','tips'=>'如:id asc','defaultvalue'=>''),
                     array('configname'=>'默认文字','hash'=>'selecttitle','inputhash'=>'text','tips'=>'未选择时列表框的默认文字,不填则不显示','defaultvalue'=>'请选择'),
                     array('configname'=>'默认值','hash'=>'selectvalue','inputhash'=>'text','tips'=>'未选择时列表框的默认值','defaultvalue'=>'0'),
@@ -3510,7 +3540,7 @@ class admin_input {
                 );
         }
         Return false;
-    }    
+    }
     function databasetransfer($action,$config=array()) {
         if($action=='form' || $action=='view' || $action=='post') {
             $config['savetype']=1;
@@ -3536,8 +3566,17 @@ class admin_input {
                 if($action=='post') {Return false;}
                 Return '未拥有标题字段:'.htmlspecialchars($config['titlecolumn']);
             }
+            $wheres=array_filter(explode(';',$config['where']));
+            $sqlwhere=array();
+            foreach ($wheres as $where) {
+                $thiswhere=explode('|',$where);
+                $sqlwhere[$thiswhere[0]]=$thiswhere[1];
+            }
             $list_query=array();
             $list_query['table']=$config['table'];
+            if(count($sqlwhere)){
+                $list_query['where']=$sqlwhere;
+            }
             if(!empty($config['order'])) {$list_query['order']=$config['order'];}
             $articles=all($list_query);
             $config['values']=array();
@@ -3573,6 +3612,7 @@ class admin_input {
                     array('configname'=>'表名','hash'=>'table','inputhash'=>'text','tips'=>'选项来源的数据库表名,系统会自动加表名前缀.如不需要加前缀,则使用no_perfix_表名'),
                     array('configname'=>'数据字段','hash'=>'idcolumn','inputhash'=>'text','tips'=>'请确保数据库表中拥有此字段,修改数据字段会丢失数据,请提前确认好字段','defaultvalue'=>'id'),
                     array('configname'=>'标题字段','hash'=>'titlecolumn','inputhash'=>'text','tips'=>'请确保数据库表中拥有此字段','defaultvalue'=>'title'),
+                    array('configname'=>'条件','hash'=>'where','inputhash'=>'tags','tips'=>'数据查询条件','defaultvalue'=>'','column'=>2,'columntips'=>'字段,如:status status> status%;值:如 1'),
                     array('configname'=>'排序','hash'=>'order','inputhash'=>'text','tips'=>'如:id asc','defaultvalue'=>''),
                     array('configname'=>'最少勾选','hash'=>'mincheck','inputhash'=>'number','tips'=>'最少必须勾选几项','placeholder'=>'如:1,则此表单必须勾选1项'),
                     array('configname'=>'最多勾选','hash'=>'maxcheck','inputhash'=>'number','tips'=>'最多勾选几项','placeholder'=>'如:5,则此表单最多勾选5项'),
