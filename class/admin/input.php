@@ -981,18 +981,25 @@ class admin_input {
                 }
                 Return '';
             case 'view':
+                $html='';
                 if($config['savetype']==1) {
-                    $view=array();
-                    foreach($values as $thisvalue) {
-                        if(in_array($thisvalue[0],$value)) {
-                            $view[]=$thisvalue[1];
+                    foreach($value as $thisvalue) {
+                        foreach($values as $thisvalues) {
+                            if(isset($thisvalues[3]) && $thisvalues[3]=='checked' && $thisvalue==$thisvalues[0]){
+                                $html.='<button type="button" class="layui-btn cms-btn layui-btn-xs">'.$thisvalues[1].'</button> ';
+                            }
                         }
                     }
-                    $view=implode(';',$view);
                 }else {
-                    $view=$config['value'];
+                    foreach($value as $thisvalue) {
+                        foreach($values as $thisvalues) {
+                            if(isset($thisvalues[3]) && $thisvalues[3]=='checked' && $thisvalue==$thisvalues[1]){
+                                $html.='<button type="button" class="layui-btn cms-btn layui-btn-xs">'.$thisvalues[1].'</button> ';
+                            }
+                        }
+                    }
                 }
-                Return $view;
+                Return $html;
             case 'post':
                 if(!isset($config['mincheck']) || empty($config['mincheck'])) {$config['mincheck']=0;}
                 if(!isset($config['maxcheck']) || empty($config['maxcheck'])) {$config['maxcheck']=999999;}
