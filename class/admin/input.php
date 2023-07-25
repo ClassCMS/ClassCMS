@@ -1304,7 +1304,8 @@ class admin_input {
                     $crud['url']['add']='';
                     $crud['url']['var']='';
                     $crud['url']['save']=$config['ajax_url'].'&ajaxdo=savearticle';
-                    $crud['breadcrumb']='增加';
+                    $crud['referer']='';
+                    $crud['breadcrumb']='';
                     $return=C('admin:article:edit',$crud);
                     if(!$return && E()){ return E(E()); }
                     return $return;
@@ -1326,7 +1327,8 @@ class admin_input {
                     $crud['url']['add']='';
                     $crud['url']['var']='';
                     $crud['url']['save']=$config['ajax_url'].'&ajaxdo=editarticle';
-                    $crud['breadcrumb']='查看';
+                    $crud['referer']='';
+                    $crud['breadcrumb']='';
                     $return=C('admin:article:edit',$crud);
                     if(!$return && E()){ return E(E()); }
                     return $return;
@@ -1375,7 +1377,7 @@ class admin_input {
                                     }
                                     $articles[]=array($article['cid'],$article['id'],$article[$config['titlecolumn']]);
                                 }else {
-                                    $articles[]=array(0,0,'[文章不存在]');
+                                    $articles[]=array(0,0,'[已删除]');
                                 }
                             }else {
                                 $articles[]=array(0,0,'[未知文章]');
@@ -1623,7 +1625,7 @@ class admin_input {
                                 }
                                 $config['articles'][]=array($article['cid'],$article['id'],$article[$config['titlecolumn']]);
                             }else {
-                                $config['articles'][]=array(0,0,'[文章不存在]');
+                                $config['articles'][]=array(0,0,'[已删除]');
                             }
                         }
                     }
@@ -1652,15 +1654,19 @@ class admin_input {
                                 }
                                 $titles[]=$article[$config['titlecolumn']];
                             }else {
-                                $titles[]='[文章不存在]';
+                                $titles[]='[已删除]';
                             }
                         }
                     }
                     $html='';
                     foreach ($titles as $title) {
-                        $html.='<button type="button" class="layui-btn cms-btn layui-btn-xs">'.$title.'</button> ';
+                        if($title=='[已删除]'){
+                            $html.='<button type="button" class="layui-btn layui-btn-disabled layui-btn-xs">'.$title.'</button> ';
+                        }else{
+                            $html.='<button type="button" class="layui-btn cms-btn layui-btn-xs">'.$title.'</button> ';
+                        }
                     }
-                    echo($html);
+                    return $html;
                 }else {
                     $values=explode(';',$config['value']);
                     $article_query=array();
@@ -1676,15 +1682,19 @@ class admin_input {
                                 }
                                 $titles[]=$article[$config['titlecolumn']];
                             }else {
-                                $titles[]='[文章不存在]';
+                                $titles[]='[已删除]';
                             }
                         }
                     }
                     $html='';
                     foreach ($titles as $title) {
-                        $html.='<button type="button" class="layui-btn cms-btn layui-btn-xs">'.$title.'</button> ';
+                        if($title=='[已删除]'){
+                            $html.='<button type="button" class="layui-btn layui-btn-disabled layui-btn-xs">'.$title.'</button> ';
+                        }else{
+                            $html.='<button type="button" class="layui-btn cms-btn layui-btn-xs">'.$title.'</button> ';
+                        }
                     }
-                    echo($html);
+                    return $html;
                 }
                 Return '';
             case 'post':

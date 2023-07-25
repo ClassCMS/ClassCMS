@@ -63,15 +63,7 @@
        $('#{$name}_article').on('click','.{$name}_article_view',function(){
           dataid=$(this).parents('tr').attr('data-id');
           datacid=$(this).parents('tr').attr('data-cid');
-          if(layui.$(window).width()<900){ width=layui.$(window).width(); }else{ width=880; }
-          if(layui.$(window).height()<700){ height=layui.$(window).height(); }else{ height=680; }
-          layui.layer.open({
-              type: 2,
-              title: false,
-              shadeClose: true,
-              area: [width+'px', height+'px'],
-              content: '{$ajax_url}&ajaxdo=viewarticle&cid='+datacid+'&id='+dataid
-          });
+          layui.admin.popup('{$ajax_url}&ajaxdo=viewarticle&cid='+datacid+'&id='+dataid,'查看');
        });
        {if count($articles)==0}
              {if $module || $channel}
@@ -114,15 +106,7 @@
             $('#{$name}_article span.choose').hide();
         });
         $('#{$name}_article thead').on('click','span.add',function(){
-            if(layui.$(window).width()<900){ width=layui.$(window).width(); }else{ width=880; }
-            if(layui.$(window).height()<700){ height=layui.$(window).height(); }else{ height=680; }
-            layui.layer.open({
-                type: 2,
-                title: false,
-                shadeClose: true,
-                area: [width+'px', height+'px'],
-                content: '{$ajax_url}&ajaxdo=addarticle&cid='+$('#{$name}_choose_cid').val()
-            });
+          layui.admin.popup('{$ajax_url}&ajaxdo=addarticle&cid='+$('#{$name}_choose_cid').val(),'增加');
         });
         $('#{$name}_article thead').on('click','span.search',function(){
             var {$name}_layerprompt=layer.prompt({title: '输入搜索词',value:$('#{$name}_choose_keyword').val(),yes:function(){
