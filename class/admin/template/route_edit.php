@@ -120,17 +120,7 @@
     });
     layui.form.on('submit(form-submit)', function(data){
         layui.$('button[lay-filter=form-submit]').blur();
-        layui.admin.req({type:'post',url:"?do=admin:route:{if isset($route.id)}editPost{else}addPost{/if}",data:data.field,async:true,beforeSend:function(){
-            layui.admin.load('提交中...');
-        },done: function(res){
-            if (res.error==0)
-            {
-                var confirm=layer.confirm(res.msg, {btn: ['好的','返回'],shadeClose:1},function(){layui.layer.close(confirm);},function(){
-                    layui.admin.events.back();
-                    });
-            }
-        }});
-      return false;
+        layui.admin.req({type:'post',url:"?do=admin:route:{if isset($route.id)}editPost{else}addPost{/if}",data:data.field,async:true,tips:'提交中...',popup:true});
     });
 });
 </script>

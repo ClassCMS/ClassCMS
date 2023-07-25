@@ -108,7 +108,7 @@ class admin_user {
         }
         $addreturn=C('cms:user:add',$user_add_array);
         if(is_numeric($addreturn)) {
-            Return array('msg'=>'增加成功','id'=>$addreturn,'hash'=>$user_add_array['hash']);
+            return array('msg'=>'增加成功','id'=>$addreturn,'hash'=>$user_add_array['hash'],'popup'=>array('btns'=>array('管理'=>array('go'=>'?do=admin:user:edit&id='.$addreturn),'返回'=>'back')));
         }elseif(is_string($addreturn)){
             Return E($addreturn);
         }elseif(E()){
@@ -194,7 +194,7 @@ class admin_user {
             }
             $editreturn=C('cms:user:edit',$user_edit_array);
             if($editreturn===true) {
-                Return '修改成功';
+                return array('msg'=>'修改成功','popup'=>array('btns'=>array('好的'=>'reload','返回'=>'back')));
             }elseif(is_string($editreturn)){
                 Return $editreturn;
             }elseif(E()){
@@ -258,7 +258,7 @@ class admin_user {
         }
         $role_add_array['hash']=$_POST['hash'];
         if($id=C('cms:user:roleAdd',$role_add_array)) {
-            Return array('msg'=>'增加成功','hash'=>$role_add_array['hash'],'id'=>$id);
+            return array('msg'=>'增加成功','hash'=>$role_add_array['hash'],'id'=>$id,'popup'=>array('btns'=>array('权限管理'=>array('go'=>'?do=admin:user:rolePermission&hash='.$role_add_array['hash']),'返回'=>'back')));
         }elseif(E()) {
             Return E(E());
         }
@@ -271,7 +271,7 @@ class admin_user {
             $role_edit_array['rolename']=htmlspecialchars($_POST['rolename']);
             $role_edit_array['hash']=$_POST['hash'];
             if(C('cms:user:roleEdit',$role_edit_array)) {
-                Return '修改成功';
+                return array('msg'=>'修改成功','hash'=>$role_edit_array['hash'],'popup'=>array('btns'=>array('好的'=>'reload','返回'=>'back')));
             }elseif(E()) {
                 Return E(E());
             }
@@ -421,7 +421,7 @@ class admin_user {
             if(empty($msg) && count($user_edit_query)) {
                 $user_edit_query['id']=$array['user']['id'];
                 if(C('cms:user:edit',$user_edit_query)) {
-                    Return '修改成功';
+                    return array('msg'=>'修改成功','popup'=>array('btns'=>array('好的'=>'reload','返回'=>'back')));
                 }elseif(E()) {
                     Return E(E());
                 }

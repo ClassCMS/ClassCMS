@@ -139,7 +139,7 @@ class admin_module {
                     }
                 }
             }
-            Return array('msg'=>'增加成功','id'=>$id,'url'=>'?do=admin:module:config&id='.$id);
+            return array('msg'=>'增加成功','id'=>$id,'url'=>'?do=admin:module:config&id='.$id,'popup'=>array('btns'=>array('管理'=>array('go'=>'?do=admin:module:config&id='.$id),'返回'=>'back')));
         }else {
             Return E('增加失败');
         }
@@ -203,7 +203,7 @@ class admin_module {
             }
             $editreturn=C('cms:module:edit',$module_edit_array);
             if($editreturn===true) {
-                Return '修改成功';
+                return array('msg'=>'修改成功','popup'=>array('btns'=>array('好的'=>'reload','返回'=>'back')));
             }elseif(is_string($editreturn)) {
                 Return E($editreturn);
             }
@@ -216,7 +216,7 @@ class admin_module {
         if($module=C('cms:module:get',@$_POST['id'])){
             if($delreturn=C('cms:module:del',$module['hash'],$module['classhash'])) {
                 if($delreturn===true) {
-                    Return '删除成功';
+                    return array('msg'=>'删除成功','popup'=>array('btns'=>array('返回'=>'back')));
                 }elseif(is_numeric($delreturn)) {
                     $channel=C('cms:channel:get',$delreturn);
                     Return E('删除失败,栏目 '.$channel['channelname'].' 下属栏目未删除<br>请先删除下属栏目');

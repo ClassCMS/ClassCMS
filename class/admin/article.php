@@ -170,15 +170,15 @@ class admin_article {
                 unset($array['columns'][$key]);
             }
         }
-        if($array['id']) {
-            if(!isset($array['referer'])){
-                if(isset($_SERVER['HTTP_REFERER'])){
-                    $referer_parse=parse_url($_SERVER['HTTP_REFERER']);
-                    if(isset($referer_parse['host']) && $referer_parse['host']==C('cms:common:serverName')){
-                        $array['referer']=$_SERVER['HTTP_REFERER'];
-                    }
+        if(!isset($array['referer'])){
+            if(isset($_SERVER['HTTP_REFERER'])){
+                $referer_parse=parse_url($_SERVER['HTTP_REFERER']);
+                if(isset($referer_parse['host']) && $referer_parse['host']==C('cms:common:serverName')){
+                    $array['referer']=$_SERVER['HTTP_REFERER'];
                 }
             }
+        }
+        if($array['id']) {
             if($editColumns=C('this:article:editColumns:~',$array['columns'])) {
                 $array['columns']=$editColumns;
             }
@@ -253,18 +253,22 @@ class admin_article {
             $new_article['uid']=C('this:nowUser');
             $id=C('cms:article:add',$new_article);
             if(is_numeric($id)) {
-                if(C('this:moduleAuth',$array['channel']['_module'],'edit')) {
-                    if(!isset($array['url']['edit'])){
-                        $array['url']['edit']='?do=admin:article:edit&cid='.$array['channel']['id'].'&id=(id)';
-                    }
-                    if($array['url']['edit']){
-                        Return array('msg'=>'增加成功','id'=>$id,'url'=>str_replace("(id)",$id,$array['url']['edit']));
-                    }else{
-                        Return array('msg'=>'增加成功','id'=>$id);
-                    }
-                }else {
-                    Return '增加成功';
+                $return=array('msg'=>'增加成功','id'=>$id);
+                if(!isset($array['url']['edit'])){
+                    $array['url']['edit']='?do=admin:article:edit&cid='.$array['channel']['id'].'&id=(id)';
                 }
+                $return['url']=str_replace("(id)",$id,$array['url']['edit']);
+                if(C('this:moduleAuth',$array['channel']['_module'],'edit') && $array['url']['edit']) {
+                    $return['popup']['btns']=array('编辑'=>array('go'=>$return['url']));
+                }else {
+                    $return['popup']['btns']=array('好的'=>'reload');
+                }
+                if(isset($_POST['_referer']) && $_POST['_referer']){
+                    $return['popup']['btns']['返回']=array('go'=>$_POST['_referer']);
+                }else{
+                    $return['popup']['btns']['返回']='back';
+                }
+                return $return;
             }else {
                 if(is_string($id)) {
                     Return E($id);
@@ -278,7 +282,11 @@ class admin_article {
             $new_article['id']=$article_id;
             $editreturn=C('cms:article:edit',$new_article);
             if($editreturn===true) {
-                Return '保存成功';
+                if(isset($_POST['_referer']) && $_POST['_referer']){
+                    return array('msg'=>'保存成功','popup'=>array('btns'=>array('好的'=>'reload','返回'=>array('go'=>$_POST['_referer']))));
+                }else{
+                    return array('msg'=>'保存成功','popup'=>array('btns'=>array('好的'=>'reload','返回'=>'back')));
+                }
             }else {
                 if(is_string($editreturn)) {
                     Return E($editreturn);
@@ -324,7 +332,7 @@ class admin_article {
                 }
             }
         }
-        Return '删除成功';
+        return array('msg'=>'删除成功','popup'=>array('end'=>'back','btns'=>array('返回'=>'back')));
     }
     function varEdit($array=array()) {
         if(isset($array['cid'])){ $_GET['cid']=$array['cid']; }
@@ -437,7 +445,7 @@ class admin_article {
                     Return E('保存失败');
                 }
             }
-            Return '保存成功';
+            return array('msg'=>'保存成功','popup'=>array('btns'=>array('好的'=>'reload','返回'=>'back')));
         }else {
             Return E($msg);
         }

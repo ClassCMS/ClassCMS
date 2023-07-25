@@ -74,7 +74,7 @@ class admin_route {
         $route_add_array['classfunction']=$_POST['classfunction'];
         $route_add_array['classview']=$_POST['classview'];
         if($id=C('cms:route:add',$route_add_array)) {
-            Return array('msg'=>'增加成功','id'=>$id);
+            return array('msg'=>'增加成功','id'=>$id,'popup'=>array('btns'=>array('查看'=>array('go'=>'?do=admin:route:edit&id='.$id),'返回'=>'back')));
         }else {
             Return E('增加失败');
         }
@@ -99,7 +99,7 @@ class admin_route {
         $route_edit_array['classfunction']=$_POST['classfunction'];
         $route_edit_array['classview']=$_POST['classview'];
         if(C('cms:route:edit',$route_edit_array)) {
-            Return '修改成功';
+            return array('msg'=>'修改成功','popup'=>array('btns'=>array('好的'=>'reload','返回'=>'back')));
         }else {
             Return E('修改失败');
         }

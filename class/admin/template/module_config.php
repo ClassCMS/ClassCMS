@@ -179,16 +179,7 @@
         var $ = layui.$;
 
         layui.form.on('switch(enabled)', function(obj){
-            layui.admin.req({type:'post',url:"?do=admin:module:editPost",data:{ id: {$module.id}, enabled: obj.elem.checked},async:true,beforeSend:function(){
-                layui.admin.load('提交中...');
-            },done: function(res){
-                if (res.error==0)
-                {
-                    var confirm=layer.confirm(res.msg, {btn: ['好的','返回'],shadeClose:1},function(){layui.admin.events.reload();},function(){
-                        layui.admin.events.back();
-                        });
-                }
-            }});
+            layui.admin.req({type:'post',url:"?do=admin:module:editPost",data:{ id: {$module.id}, enabled: obj.elem.checked},async:true,tips:'提交中...',popup:true});
         });
 
         {if P('module:edit')}
@@ -198,16 +189,7 @@
               title: '模型名称'
             }, 
               function(value, index, elem){
-                layui.admin.req({type:'post',url:"?do=admin:module:editPost",data:{ id: {$module.id}, modulename: value},async:true,beforeSend:function(){
-                    layui.admin.load('提交中...');
-                },done: function(res){
-                    if (res.error==0)
-                    {
-                        var confirm=layer.confirm(res.msg, {btn: ['好的','返回'],shadeClose:1},function(){layui.admin.events.reload();},function(){
-                            layui.admin.events.back();
-                        });
-                    }
-                }});
+                layui.admin.req({type:'post',url:"?do=admin:module:editPost",data:{ id: {$module.id}, modulename: value},async:true,tips:'提交中...',popup:true});
             });
             
         });
@@ -217,14 +199,7 @@
         layui.$('.moduledel').click(function(){
             layui.layer.confirm('是否删除模型?<br>注意:该模型的所有内容将被清空,请谨慎操作!!!<br>如模型下属栏目较多,删除可能会超时,请重试.', {
               btn: ['删除','取消'],skin:'layer-danger',title:'请确认',shadeClose:1}, function(){
-                layui.admin.req({type:'post',url:"?do=admin:module:del",data:{ id: {$module.id}},timeout: 30000,async:true,beforeSend:function(){
-                    layui.admin.load('删除中,如超时,请重试...');
-                },done: function(res){
-                    if (res.error==0)
-                    {
-                        var confirm=layer.confirm(res.msg, {btn: ['返回'],shadeClose:1},function(){window.location='?do=admin:module:index&classhash={$module.classhash}'});
-                    }
-                }});
+                layui.admin.req({type:'post',url:"?do=admin:module:del",data:{ id: {$module.id}},timeout: 30000,async:true,tips:'提交中...',popup:true});
             });
         });
         {/if}

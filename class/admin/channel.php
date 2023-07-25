@@ -116,7 +116,7 @@ class admin_channel {
         if($channel_add_array['channelorder']<0) {$channel_add_array['channelorder']=0;}
         $addreturn=C('cms:channel:add',$channel_add_array);
         if(is_numeric($addreturn)) {
-            Return array('msg'=>'增加成功','id'=>$addreturn,'url'=>'?do=admin:article:home&cid='.$addreturn);
+            return array('msg'=>'增加成功','id'=>$addreturn,'url'=>'?do=admin:article:home&cid='.$addreturn,'popup'=>array('btns'=>array('管理'=>array('go'=>'?do=admin:article:home&cid='.$addreturn),'返回'=>'back')));
         }elseif(is_string($addreturn)) {
             Return E($addreturn);
         }elseif(E()){
@@ -154,7 +154,7 @@ class admin_channel {
             if($channel_edit_array['channelorder']<0) {$channel_edit_array['channelorder']=0;}
             $editreturn=C('cms:channel:edit',$channel_edit_array);
             if($editreturn===true) {
-                Return array('msg'=>'修改成功','id'=>$_POST['id'],'url'=>'?do=admin:article:home&cid='.$_POST['id']);
+                return array('msg'=>'修改成功','id'=>$_POST['id'],'url'=>'?do=admin:article:home&cid='.$_POST['id'],'popup'=>array('btns'=>array('管理'=>array('go'=>'?do=admin:article:home&cid='.$_POST['id']),'返回'=>'back')));
             }elseif(is_string($editreturn)) {
                 Return E($editreturn);
             }elseif(E()){

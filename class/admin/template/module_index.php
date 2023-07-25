@@ -73,11 +73,7 @@ new Sortable(modules, {
             layui.$('#modules tr').each(function(){
                 modulesarray=modulesarray+'|'+layui.$(this).attr('rel');
             });
-            layui.admin.req({type:'post',url:"?do=admin:module:order",data:{ modulesarray: modulesarray,classhash:'{$classhash}'},async:true,beforeSend:function(){
-                layui.admin.load('修改排序中...');
-            },done: function(res){
-                
-            }});
+            layui.admin.req({type:'post',url:"?do=admin:module:order",data:{ modulesarray: modulesarray,classhash:'{$classhash}'},async:true,tips:'修改排序中...'});
         }
     });
 

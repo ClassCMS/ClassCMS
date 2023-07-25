@@ -69,9 +69,7 @@
 <script>layui.use(['index'],function(){
     layui.form.on('submit(form-submit)', function(data){
         layui.$('button[lay-filter=form-submit]').blur();
-        layui.admin.req({type:'post',url:"?do=admin:my:editPost",data:data.field,async:true,beforeSend:function(){
-            layui.admin.load('提交中...');
-        },end :function(){
+        layui.admin.req({type:'post',url:"?do=admin:my:editPost",data:data.field,async:true,tips:'提交中...',end :function(){
                 if (res.refresh)
                 {
                     parent.location.reload();

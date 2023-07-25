@@ -119,7 +119,7 @@ class admin_my {
         if(empty($msg) && count($my_edit_query)) {
             $my_edit_query['id']=$array['userid'];
             if(C('cms:user:edit',$my_edit_query)) {
-                Return '保存成功';
+                return array('msg'=>'保存成功','popup'=>array('btns'=>array('好的'=>'reload','返回'=>'back')));
             }elseif(E()) {
                 Return E(E());
             }

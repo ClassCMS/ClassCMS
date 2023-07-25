@@ -259,7 +259,7 @@ class admin_class {
                 if(is_string($install_hook)) {
                     Return E($install_hook);
                 }
-                Return '保存成功';
+                return array('msg'=>'保存成功','popup'=>array('btns'=>array('好的'=>'reload','返回'=>'back')));
             }else {
                 Return E($msg);
             }

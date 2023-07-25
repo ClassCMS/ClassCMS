@@ -119,19 +119,7 @@
 <script>layui.use(['index','form'],function(){
     layui.form.on('submit(form-submit)', function(data){
         layui.$('button[lay-filter=form-submit]').blur();
-        layui.admin.req({type:'post',url:"?do=admin:user:{if isset($hash)}editPost{else}addPost{/if}",data:data.field,async:true,beforeSend:function(){
-            layui.admin.load('提交中...');
-        },done: function(res){
-            if (res.error==0)
-            {
-                {if isset($hash)}
-                var confirm=layer.confirm(res.msg, {btn: ['好的','返回'],shadeClose:1},function(){layui.layer.close(confirm);},function(){ layui.admin.events.back(); });
-                {else}
-                var confirm=layer.confirm(res.msg, {btn: ['管理','返回'],shadeClose:1},function(){window.location='?do=admin:user:edit&id='+res.id;},function(){ layui.admin.events.back(); });
-                {/if}
-            }
-        }});
-      return false;
+        layui.admin.req({type:'post',url:"?do=admin:user:{if isset($hash)}editPost{else}addPost{/if}",data:data.field,async:true,tips:'提交中...',popup:true});
     });
 });
 </script>

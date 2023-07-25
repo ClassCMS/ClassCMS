@@ -88,9 +88,7 @@ layui.use(['index','form'],function(){
         deluserid=layui.$(this).parents('tr').attr('rel');
         layui.layer.confirm('是否删除账号:'+deluserhash, {
           btn: ['删除','取消'],skin:'layer-danger',title:'请确认',shadeClose:1}, function(){
-            layui.admin.req({type:'post',url:"?do=admin:user:del",data:{ id: deluserid},async:true,beforeSend:function(){
-                layui.admin.load('删除中...');
-            },done: function(res){
+            layui.admin.req({type:'post',url:"?do=admin:user:del",data:{ id: deluserid},async:true,tips:'删除中...',done: function(res){
                 if (res.error==0)
                 {
                     layui.layer.msg(res.msg);

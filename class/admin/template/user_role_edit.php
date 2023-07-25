@@ -97,23 +97,7 @@
 <script>layui.use(['index'],function(){
     layui.form.on('submit(form-submit)', function(data){
         layui.$('button[lay-filter=form-submit]').blur();
-        layui.admin.req({type:'post',url:"?do=admin:user:{if isset($hash)}roleEditPost{else}roleAddPost{/if}",data:data.field,async:true,beforeSend:function(){
-            layui.admin.load('提交中...');
-        },done: function(res){
-            if (res.error==0)
-            {
-                var confirm=layer.confirm(res.msg, {btn: ['权限管理','返回'],shadeClose:1},function(){
-                    {if isset($hash)}
-                    window.location='?do=admin:user:rolePermission&hash={$hash}';
-                    {else}
-                    window.location='?do=admin:user:rolePermission&hash='+res.hash;
-                    {/if}
-                },function(){
-                    layui.admin.events.back();
-                });
-            }
-        }});
-      return false;
+        layui.admin.req({type:'post',url:"?do=admin:user:{if isset($hash)}roleEditPost{else}roleAddPost{/if}",data:data.field,async:true,tips:'提交中...',popup:true});
     });
 });
 </script>

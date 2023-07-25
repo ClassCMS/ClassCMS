@@ -111,12 +111,10 @@ layui.use(['index','form'],function(){
             }
             layui.layer.confirm('是否删除?', {
               btn: ['删除','取消'],skin:'layer-danger',title:'请确认',shadeClose:1}, function(){
-                layui.admin.req({type:'post',url:"{$url.del}",data:{ ids: ids,cid:{$channel.id}},async:true,beforeSend:function(){
-                    layui.admin.load('删除中...');
-                },done: function(res){
+                layui.admin.req({type:'post',url:"{$url.del}",data:{ ids: ids,cid:{$channel.id}},async:true,tips:'删除中...',done: function(res){
                     if (res.error==0)
                     {
-                        layui.layer.msg('删除成功');
+                        layui.layer.msg(res.msg);
                         del_ids = ids.split(";");
                         for (i=0; i<del_ids.length; i++ ){
                             layui.$('#articles tbody tr[rel='+del_ids[i]+']').remove();
