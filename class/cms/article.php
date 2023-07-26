@@ -16,6 +16,7 @@ class cms_article {
         if(!isset($config['classhash'])) {$config['classhash']=I(-1);}
         if(!isset($config['all'])) {$config['all']=0;}elseif($config['all']==='1') {$config['all']=1;}elseif($config['all']==='2') {$config['all']=2;}
         if(!isset($config['enabled'])) {$config['enabled']=1;}
+        if(isset($config['module'])){$config['modulehash']=$config['module'];}
         if($config['all'] && !isset($config['cids'])) {
             if(isset($config['cid'])) {
                 $config['cids']=C('this:article:allCid',$config['cid'],$config['classhash'],$config['all'],array(),$config['enabled']);
