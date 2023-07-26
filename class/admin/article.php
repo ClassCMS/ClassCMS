@@ -159,12 +159,20 @@ class admin_article {
             if($array['columns'][$key]['auth']['read']) {
                 if($array['columns'][$key]['auth']['write']) {$array['allowsubmit']=1;}
                 if(isset($article['id'])) {
-                    $array['columns'][$key]['value']=$article[$column['hash']];
                     $array['columns'][$key]['source']='admin_article_edit';
                     $array['columns'][$key]['source_id']=$article['id'];
+                    if(isset($array['values'][$column['hash']])){
+                        $array['columns'][$key]['value']=$array['values'][$column['hash']];
+                    }else{
+                        $array['columns'][$key]['value']=$article[$column['hash']];
+                    }
                 }else {
                     $array['columns'][$key]['source']='admin_article_add';
-                    $array['columns'][$key]['value']=C('cms:input:defaultvalue',$array['columns'][$key]);
+                    if(isset($array['values'][$column['hash']])){
+                        $array['columns'][$key]['value']=$array['values'][$column['hash']];
+                    }else{
+                        $array['columns'][$key]['value']=C('cms:input:defaultvalue',$array['columns'][$key]);
+                    }
                 }
             }else {
                 unset($array['columns'][$key]);
@@ -376,7 +384,11 @@ class admin_article {
                 $array['vars'][$key]['source_cid']=$array['channel']['id'];
                 if($array['vars'][$key]['auth']['read']) {
                     if($array['vars'][$key]['auth']['write']) {$array['allowsubmit']=1;}
-                    $array['vars'][$key]['value']=C('cms:article:getVar',$array['channel']['id'],$var['hash']);
+                    if(isset($array['values'][$var['hash']])){
+                        $array['vars'][$key]['value']=$array['values'][$var['hash']];
+                    }else{
+                        $array['vars'][$key]['value']=C('cms:article:getVar',$array['channel']['id'],$var['hash']);
+                    }
                 }else {
                     unset($array['vars'][$key]);
                 }
