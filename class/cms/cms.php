@@ -29,6 +29,7 @@ class cms {
             foreach($channels as $channel) {
                 $matched=true;
                 $article=false;
+                $article_where=array();
                 unset($GLOBALS['C']['article']);
                 unset($GLOBALS['C']['channel']);
                 if(!$channel=C('this:channel:get',$channel['id'])) {
@@ -37,7 +38,6 @@ class cms {
                 if($matched && isset($channel['domain']) && !empty($channel['domain'])) {
                     $matched=macthDomain($channel['domain']);
                 }
-                $article_where=array();
                 if($matched) {
                     if(isset($GLOBALS['C']['GET'])) {
                         foreach($GLOBALS['C']['GET'] as $key=>$this_get) {
@@ -58,9 +58,16 @@ class cms {
                         }
                     }
                 }
-                if($matched && count($article_where)) {
-                    if(!$article=C('this:article:getOne',array('cid'=>$channel['id'],'where'=>$article_where,'source'=>'route'))) {
-                        $matched=false;
+                if($matched) {
+                    $channel=C('this:nowChannel',$thisroute['classhash'],$channel);
+                    $GLOBALS['C']['channel']=$channel;
+                    if(count($article_where)){
+                        if($article=C('this:article:getOne',array('cid'=>$channel['id'],'where'=>$article_where,'source'=>'route'))) {
+                            $article=C('this:nowArticle',$GLOBALS['C']['channel'],$article);
+                            $GLOBALS['C']['article']=$article;
+                        }else{
+                            $matched=false;
+                        }
                     }
                 }
                 if($matched) {
@@ -70,7 +77,6 @@ class cms {
                             $_GET[$key]=$val;
                         }
                     }
-                    $GLOBALS['C']['channel']=C('this:nowChannel',$thisroute['classhash'],$channel);
                     if(isset($thisroute['classview']) && !empty($thisroute['classview'])) {
                         preg_match_all('/[(](.*)[)]/U',$thisroute['classview'],$classviewargs);
                         foreach ($classviewargs[1] as $key => $classviewarg) {
@@ -85,17 +91,24 @@ class cms {
                             }
                         }
                         $GLOBALS['C']['route_view'][$thisroute['classfunction']]=$thisroute['classview'];
-                        if(isset($article) && $article) {
-                            $GLOBALS['C']['route_view_article'][$thisroute['classfunction']]=C('this:nowArticle',$GLOBALS['C']['channel'],$article);
-                            $GLOBALS['C']['article']=$GLOBALS['C']['route_view_article'][$thisroute['classfunction']];
+                        if(count($article_where)) {
+                            $GLOBALS['C']['route_view_article'][$thisroute['classfunction']]=$article;
                         }
                         $inited=true;
                     }
                     $thisroute=C('this:nowRoute',$thisroute);
-                    if($inited) {
-                        C($thisroute['classfunction']);
-                    }else {
-                        $inited=C($thisroute['classfunction']);
+                    if(count($article_where)){
+                        if($inited) {
+                            C($thisroute['classfunction'],$channel,$article);
+                        }else {
+                            $inited=C($thisroute['classfunction'],$channel,$article);
+                        }
+                    }else{
+                        if($inited) {
+                            C($thisroute['classfunction'],$channel);
+                        }else {
+                            $inited=C($thisroute['classfunction'],$channel);
+                        }
                     }
                     if(isset($GLOBALS['C']['GET'])) {
                         foreach($GLOBALS['C']['GET'] as $key=>$val) {
