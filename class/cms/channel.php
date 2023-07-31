@@ -59,7 +59,7 @@ class cms_channel {
         }
         $parents[]=$channel;
         if($channel['fid']) {
-            Return C('this:channel:parents',$channel['fid'],$classhash,$parents,$times+1);
+            Return C('this:channel:parents',$channel['fid'],$channel['classhash'],$parents,$times+1);
         }else {
             unset($parents[0]);
             Return array_reverse($parents);
@@ -159,13 +159,15 @@ class cms_channel {
                 Return array();
             }
             $cid=$channel['id'];
+            $channels=C('cms:channel:all',$cid,$channel['classhash'],$size,1,1);
+        }else{
+            $channels=C('cms:channel:all',$cid,$classhash,$size,1,1);
         }
-        $channels=C('cms:channel:all',$cid,$classhash,$size,1,1);
         $parents=array();
         if(isset($GLOBALS['C']['channel']['id'])) {
             $parents[]=$GLOBALS['C']['channel']['id'];
             if(isset($GLOBALS['C']['channel']['fid']) && $GLOBALS['C']['channel']['fid']>0) {
-                $parents_channels=C('cms:channel:parents',$GLOBALS['C']['channel']['id'],$classhash);
+                $parents_channels=C('cms:channel:parents',$GLOBALS['C']['channel']['id']);
                 foreach($parents_channels as $parents_channel) {
                     $parents[]=$parents_channel['id'];
                 }
@@ -184,9 +186,7 @@ class cms_channel {
         Return array_merge($channels);
     }
     function bread($cid=0,$classhash=''){
-        if(empty($classhash)) {
-            $classhash=I(-1);
-        }
+        if(empty($classhash)) { $classhash=I(-1); }
         if(!$cid && isset($GLOBALS['C']['channel'])) {
             $channel=$GLOBALS['C']['channel'];
         }elseif($cid) {
@@ -196,8 +196,8 @@ class cms_channel {
         }else {
             Return array();
         }
-        $channels=C('cms:channel:parents',$channel['id'],$classhash);
-        if($home=C('cms:channel:home',$classhash)) {
+        $channels=C('cms:channel:parents',$channel['id'],$channel['classhash']);
+        if($home=C('cms:channel:home',$channel['classhash'])) {
             $in=0;
             foreach ($channels as $thischannels) {
                 if($thischannels['id']==$home['id']){
@@ -216,9 +216,7 @@ class cms_channel {
         Return $channels;
     }
     function moduleChannel($modulehash,$hideDisabled=0,$classhash=''){
-        if(empty($classhash)) {
-            $classhash=I(-1);
-        }
+        if(empty($classhash)) { $classhash=I(-1); }
         if(!is_hash($modulehash)){
             return array();
         }
@@ -244,7 +242,7 @@ class cms_channel {
         if($now_channel['fid']==0) {
             Return $now_channel;
         }else {
-            Return C('this:channel:top',$now_channel['fid'],$classhash,1);
+            Return C('this:channel:top',$now_channel['fid'],$now_channel['classhash'],1);
         }
     }
     function get($cid=0,$classhash='') {
@@ -287,6 +285,14 @@ class cms_channel {
         if(!isset($channel_add_query['modulehash']) || !is_hash($channel_add_query['modulehash'])) {
             Return false;
         }
+        if(isset($channel_add_query['fid']) && $channel_add_query['fid']) {
+            if(!$fidchannel=C('this:channel:get',$channel_add_query['fid'],@$channel_add_query['classhash'])){
+                Return false;
+            }
+            $channel_add_query['classhash']=$fidchannel['classhash'];
+        }else {
+            $channel_add_query['fid']=0;
+        }
         if(!isset($channel_add_query['classhash'])) {
             $channel_add_query['classhash']=I(-1);
         }
@@ -302,13 +308,6 @@ class cms_channel {
         }
         if(!isset($channel_add_query['id'])){
             $channel_add_query['id']=C('this:channel:randId',$channel_add_query['classhash']);
-        }
-        if(isset($channel_add_query['fid']) && $channel_add_query['fid']) {
-            if(!C('this:channel:get',$channel_add_query['fid'],$channel_add_query['classhash'])){
-                Return false;
-            }
-        }else {
-            $channel_add_query['fid']=0;
         }
         $channel_add_query['table']='channel';
         if(isset($channel_add_query['var'])) {
