@@ -22,6 +22,8 @@ class cms_article {
                 $config['cids']=C('this:article:allCid',$config['cid'],$config['classhash'],$config['all'],array(),$config['enabled']);
             }elseif(isset($GLOBALS['C']['channel']['id'])) {
                 $config['cids']=C('this:article:allCid',$GLOBALS['C']['channel']['id'],$config['classhash'],$config['all'],array(),$config['enabled']);
+            }else{
+                $config['cids']=array();
             }
             if($config['all']===1) {
                 if(count($config['cids'])==1) {unset($config['cids']);}
@@ -328,6 +330,7 @@ class cms_article {
                 Return array();
             }
             $cid=$channel['id'];
+            $classhash=$channel['classhash'];
             if($all===1) {
                 $cids[]=$cid;
             }
