@@ -27,6 +27,11 @@ class admin_module {
         $array['classname']=$class['classname'];
         $array['breadcrumb']=C('this:module:breadcrumb',$class);
         $array['title']=$array['classname'].'['.$array['classhash'].'] 模型';
+        $array['auth']['module_add']=P('module:add');
+        $array['auth']['module_edit']=P('module:edit');
+        $array['auth']['route_index']=P('route:index');
+        $array['auth']['var_index']=P('var:index');
+        $array['auth']['column_index']=P('column:index');
         Return V('module_index',$array);
     }
     function order() {

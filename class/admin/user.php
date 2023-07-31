@@ -59,6 +59,11 @@ class admin_user {
                 unset($array['infos'][$key]);
             }
         }
+        $array['auth']['user_add']=P('user:add');
+        $array['auth']['user_roleIndex']=P('user:roleIndex');
+        $array['auth']['info_index']=P('info:index');
+        $array['auth']['user_edit']=P('user:edit');
+        $array['auth']['user_del']=P('user:del');
         Return V('user_index',$array);
     }
     function add() {

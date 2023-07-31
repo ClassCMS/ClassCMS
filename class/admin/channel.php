@@ -38,7 +38,6 @@ class admin_channel {
         }
         if(!$array['classinfo']['installed']) {Return E($_GET['classhash'].' 应用未安装');}
         if(!$array['classinfo']['module']) {Return E('此应用['.$_GET['classhash'].'] 未开启模型配置选项');}
-        $array['channel_edit']=P('channel:edit');
         if($maxshow=C('this:channel:maxshow',$array['classinfo']['hash'])) {
             $array['showpage']=1;
             $channel_list_query=array();
@@ -62,6 +61,10 @@ class admin_channel {
                 $array['channels']=C('this:channel:hideDisabledChannel',$array['channels'],$this_channel['id']);
             }
         }
+        $array['auth']['channel_add']=P('channel:add');
+        $array['auth']['channel_edit']=P('channel:edit');
+        $array['auth']['module_config']=P('module:config');
+        $array['auth']['channel_del']=P('channel:del');
         Return V('channel_index',$array);
     }
     function add() {

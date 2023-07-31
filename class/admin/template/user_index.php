@@ -11,9 +11,9 @@
                 <div class="layui-row">
                     <div id="cms-breadcrumb">{this:breadcrumb($breadcrumb)}</div>
                     <div id="cms-right-top-button">
-                        {if P('user:add')}<a href="?do=admin:user:add" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-add-1"></i><b>增加</b></a>{/if}
-                        {if P('user:roleIndex')}<a href="?do=admin:user:roleIndex" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-user"></i><b>角色</b></a>{/if}
-                        {if P('info:index')}<a href="?do=admin:info:index" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-table"></i><b>属性</b></a>{/if}
+                        {if $auth.user_add}<a href="?do=admin:user:add" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-add-1"></i><b>增加</b></a>{/if}
+                        {if $auth.user_roleIndex}<a href="?do=admin:user:roleIndex" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-user"></i><b>角色</b></a>{/if}
+                        {if $auth.info_index}<a href="?do=admin:info:index" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-table"></i><b>属性</b></a>{/if}
                     </div>
                 </div>
             </div>
@@ -60,8 +60,8 @@
                             </td>
                         {/loop}
                         <td class="btn">
-                            {if P('user:edit')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:user:edit&id={$user.id}">管理</a>{/if}
-                            {if P('user:del')}<a class="layui-btn layui-btn-sm layui-btn-primary  userdel">删除</a>{/if}
+                            {if $auth.user_edit}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:user:edit&id={$user.id}">管理</a>{/if}
+                            {if $auth.user_del}<a class="layui-btn layui-btn-sm layui-btn-primary  userdel">删除</a>{/if}
                         </td>
                     </tr>
                 {/loop}
@@ -80,7 +80,7 @@
       </div>
     </div>
   </div>
-{if P('user:del')}
+  {if $auth.user_del}
 <script>
 layui.use(['index','form'],function(){
     layui.$('.userdel').click(function(){

@@ -52,6 +52,7 @@ class admin_class {
                 $array['newclass'].=' <a class="layui-btn layui-btn-xs layui-btn-normal" href="?do=admin:class:config&hash='.$this_new.'">'.$this_name.'</a>';
             }
         }
+        $array['auth']['class_config']=P('class:config');
         Return V('class_index',$array);
     }
     function config() {

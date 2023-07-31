@@ -45,7 +45,7 @@
                     <tr rel="{$class.hash}">
                     <td>
                         <i class="layui-icon {$class.ico}{if $class.enabled==1} cmscolor{/if}"></i>
-                        {if P('class:config')}
+                        {if $auth.class_config}
                         <a href="?do=admin:class:config&hash={$class.hash}"><span{if !$class.enabled} class="cms-text-disabled"{/if}>{$class.classname}</span></a>
                         {else}
                         <span{if !$class.enabled} class="cms-text-disabled"{/if}>{$class.classname}</span>
@@ -56,7 +56,7 @@
                     <td class="layui-show-md-td">{$class.classversion}</td>
                     <td class="btn">
                         <a rel="{if !empty($class.adminpage)}?do={$class.hash}:{$class.adminpage}{/if}" {if !empty($class.adminpage) && $class.enabled}href="?do={$class.hash}:{$class.adminpage}"{/if} class="layui-btn layui-btn-sm layui-btn-primary{if empty($class.adminpage) || !$class.enabled} layui-btn-disabled{/if}">主页</a>
-                        {if P('class:config')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:class:config&hash={$class.hash}" rel="{$class.hash}">管理</a>{/if}
+                        {if $auth.class_config}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:class:config&hash={$class.hash}" rel="{$class.hash}">管理</a>{/if}
                     </td>
                     </tr>
                 {/loop}

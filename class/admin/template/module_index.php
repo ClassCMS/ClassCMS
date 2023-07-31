@@ -11,7 +11,7 @@
                 <div class="layui-row">
                     <div id="cms-breadcrumb">{this:breadcrumb($breadcrumb)}</div>
                     <div id="cms-right-top-button">
-                        {if P('module:add')}<a href="?do=admin:module:add&classhash={$classhash}" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-add-1"></i><b>增加模型</b></a>{/if}
+                        {if $auth.module_add}<a href="?do=admin:module:add&classhash={$classhash}" class="layui-btn layui-btn-sm layui-btn-danger"><i class="layui-icon layui-icon-add-1"></i><b>增加模型</b></a>{/if}
                     </div>
                 </div>
             </div>
@@ -39,19 +39,19 @@
 <tr rel="{$module.id}">
 <td>
 <i class="layui-icon layui-icon-find-fill sortable-color"></i>
-{if P('module:edit')}<a href="?do=admin:module:config&id={$module.id}">{/if}
+{if $auth.module_edit}<a href="?do=admin:module:config&id={$module.id}">{/if}
 <span{if $module.enabled==0} class="cms-text-disabled"{/if}>{$module.modulename}</span>
-{if P('module:edit')}</a>{/if}
+{if $auth.module_edit}</a>{/if}
 </td>
 <td class="layui-hide-xs">
 {$module.hash}
 </td>
 
 <td class="btn">
-        {if P('route:index')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:route:index&id={$module.id}">页面</a>{/if}
-        {if P('var:index')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:var:index&id={$module.id}">变量</a>{/if}
-        {if P('column:index')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:column:index&id={$module.id}">字段</a>{/if}
-        {if P('module:edit')}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:module:config&id={$module.id}">管理</a>{/if}
+        {if $auth.route_index}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:route:index&id={$module.id}">页面</a>{/if}
+        {if $auth.var_index}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:var:index&id={$module.id}">变量</a>{/if}
+        {if $auth.column_index}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:column:index&id={$module.id}">字段</a>{/if}
+        {if $auth.module_edit}<a class="layui-btn layui-btn-sm layui-btn-primary" href="?do=admin:module:config&id={$module.id}">管理</a>{/if}
 </td>
 </tr>
 {/loop}
