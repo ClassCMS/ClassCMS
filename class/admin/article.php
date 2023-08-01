@@ -80,18 +80,22 @@ class admin_article {
         if(!C('cms:route:get','article',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash'])) {
             $array['viewbutton']=0;
         }
-        if(isset($array['article_query'])){
-            $article_query=$array['article_query'];
+        if(!isset($array['articles'])){
+            if(isset($array['article_query'])){
+                $article_query=$array['article_query'];
+            }
+            $article_query['cid']=$array['channel']['id'];
+            $article_query['page']='page';
+            $article_query['channelurl']='';
+            $article_query['pageurl']='';
+            if(C('this:moduleAuth',$array['channel']['_module'],'limit|false')) {
+                $article_query['where']['uid']=C('this:nowUser');
+            }
+            $article_query['source']='admin';
+            $array['articles']=C('cms:article:get',$article_query);
+        }elseif(!is_array($array['articles'])){
+            $array['articles']=array();
         }
-        $article_query['cid']=$array['channel']['id'];
-        $article_query['page']='page';
-        $article_query['channelurl']='';
-        $article_query['pageurl']='';
-        if(C('this:moduleAuth',$array['channel']['_module'],'limit|false')) {
-            $article_query['where']['uid']=C('this:nowUser');
-        }
-        $article_query['source']='admin';
-        $array['articles']=C('cms:article:get',$article_query);
         if(!isset($array['url']['add'])){ $array['url']['add']='?do=admin:article:edit&cid='.$array['channel']['id']; }
         if(!$array['url']['add']){ $array['auth']['add']=0; }
         if(!isset($array['url']['edit'])){ $array['url']['edit']='?do=admin:article:edit&cid='.$array['channel']['id'].'&id=(id)'; }
