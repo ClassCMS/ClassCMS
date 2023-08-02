@@ -55,9 +55,14 @@ class admin_channel {
                 $this_module=$GLOBALS['C']['adminmodulecache'][$this_channel['modulehash']];
             }else {
                 $this_module=C('cms:module:get',$this_channel['modulehash'],$this_channel['classhash']);
+                if(!C('this:moduleAuth',$this_module,'list') && !C('this:moduleAuth',$this_module,'add') && !C('this:moduleAuth',$this_module,'edit') && !C('this:moduleAuth',$this_module,'var')) {
+                    $this_module['_hideChannel']=true;
+                }else{
+                    $this_module['_hideChannel']=false;
+                }
                 $GLOBALS['C']['adminmodulecache'][$this_channel['modulehash']]=$this_module;
             }
-            if(!C('this:moduleAuth',$this_module,'list') && !C('this:moduleAuth',$this_module,'add') && !C('this:moduleAuth',$this_module,'edit') && !C('this:moduleAuth',$this_module,'var')) {
+            if($this_module['_hideChannel']) {
                 $array['channels']=C('this:channel:hideDisabledChannel',$array['channels'],$this_channel['id']);
             }
         }
