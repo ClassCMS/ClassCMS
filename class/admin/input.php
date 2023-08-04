@@ -2721,6 +2721,7 @@ class admin_input {
                 Return 'varchar(32)';
             case 'form':
                 $config['inputhash']='select';
+                $config['search']=1;
                 Return C('cms:input:form',$config);
             case 'view':
                 $config['inputhash']='select';
