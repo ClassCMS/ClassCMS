@@ -1521,17 +1521,22 @@ class cms_database {
                     $or=false;
                     foreach($val as $key=>$this_val) {
                         if(is_array($this_val)) {
-                            if($or) {
-                                $this_sql.=' or '.$this->where(array(array('1;'=>$this_val)));
-                            }else {
+                            $is_numeric_array=true;
+                            foreach (array_keys($this_val) as $array_key) {
+                                if(!is_numeric($array_key)){
+                                    $is_numeric_array=false;
+                                }
+                            }
+                            if($is_numeric_array){
+                                if($or) { $this_sql.=' or '; }
+                                $this_sql.=$this->where(array(array($key=>$this_val)));
+                            }else{
+                                if($or) { $this_sql.=' or '; }
                                 $this_sql.=$this->where(array(array('1;'=>$this_val)));
                             }
                         }else {
-                            if($or) {
-                                $this_sql.=' or '.$this->where(array(array($key=>$this_val)));
-                            }else {
-                                $this_sql.=$this->where(array(array($key=>$this_val)));
-                            }
+                            if($or) { $this_sql.=' or '; }
+                            $this_sql.=$this->where(array(array($key=>$this_val)));
                         }
                         $or=true;
                     }
