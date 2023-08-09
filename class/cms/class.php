@@ -53,11 +53,9 @@ class cms_class {
             if($startinfo===null) { $startinfo=true; }
             if(!$startinfo){
                 if(E()){
-                    $startinfo=E();
-                }else{
-                    $startinfo=false;
+                    Return E(E());
                 }
-                Return E($startinfo);
+                Return false;
             }
             C('this:class:changeClassConfig',$classhash,1);
             update(array('table'=>'class','enabled'=>'1','where'=>array('hash'=>$classhash)));
@@ -83,11 +81,9 @@ class cms_class {
             if($stopinfo===null) { $stopinfo=true; }
             if(!$stopinfo){
                 if(E()){
-                    $stopinfo=E();
-                }else{
-                    $stopinfo=false;
+                    Return E(E());
                 }
-                Return E($stopinfo);
+                Return false;
             }
             C('this:class:changeClassConfig',$classhash,0);
             update(array('table'=>'class','enabled'=>'0','where'=>array('hash'=>$classhash)));
@@ -116,11 +112,12 @@ class cms_class {
             if(!$installinfo){
                 if(E()){
                     $installinfo=E();
-                }else{
-                    $installinfo=false;
                 }
                 C('this:class:removeClassConfig',$classhash);
-                Return E($installinfo);
+                if($installinfo){
+                    Return E($installinfo);
+                }
+                Return false;
             }
             update(array('table'=>'class','enabled'=>'0','installed'=>'1','where'=>array('hash'=>$classhash)));
             C('this:class:start',$classhash);
@@ -358,11 +355,9 @@ class cms_class {
             if($uninstallinfo===null) { $uninstallinfo=true; }
             if(!$uninstallinfo){
                 if(E()){
-                    $uninstallinfo=E();
-                }else{
-                    $uninstallinfo=false;
+                    return E(E());
                 }
-                return E($uninstallinfo);
+                return false;
             }
         }else {
             $uninstallinfo=true;
@@ -393,11 +388,9 @@ class cms_class {
             if($updateinfo===null) {$updateinfo=true;}
             if(!$updateinfo){
                 if(E()){
-                    $updateinfo=E();
-                }else{
-                    $updateinfo=false;
+                    Return E(E());
                 }
-                Return E($updateinfo);
+                Return false;
             }
         }else {
             $updateinfo=true;

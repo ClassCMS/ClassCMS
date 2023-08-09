@@ -278,7 +278,7 @@ class admin_class {
             Return E('安装失败.请先安装依赖应用');
         }
         if($info=C('cms:class:install',$classhash)){
-            if($info==true){ $info='安装成功'; }
+            if($info===true){ $info='安装成功'; }
             if(is_string($info)){
                 return array('msg'=>$info,'popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload')));
             }
@@ -297,7 +297,7 @@ class admin_class {
         $classhash=@$_POST['hash'];
         C('cms:hook:unhook',$classhash);
         if($info=C('cms:class:uninstall',$classhash)){
-            if($info==true){ $info='卸载完成'; }
+            if($info===true){ $info='卸载完成'; }
             if(is_string($info)){
                 return array('msg'=>$info,'popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload')));
             }
@@ -320,7 +320,7 @@ class admin_class {
             Return E('更新失败,请先安装依赖应用');
         }
         if($info=C('cms:class:upgrade',$classhash)){
-            if($info==true){ $info='更新成功'; }
+            if($info===true){ $info='更新成功'; }
             if(is_string($info)){
                 return array('msg'=>$info,'popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload')));
             }
@@ -341,7 +341,7 @@ class admin_class {
         if($state=='false') {
             C('cms:hook:unhook',$classhash);
             if($info=C('cms:class:stop',$classhash)){
-                if($info==true){ $info='已停用'; }
+                if($info===true){ $info='已停用'; }
                 if(is_string($info)){
                     return array('msg'=>$info,'popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload')));
                 }
@@ -360,7 +360,7 @@ class admin_class {
                 Return '启用失败,请先安装依赖应用';
             }
             if($info=C('cms:class:start',$classhash)){
-                if($info==true){ $info='已启用'; }
+                if($info===true){ $info='已启用'; }
                 if(is_string($info)){
                     return array('msg'=>$info,'popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload')));
                 }

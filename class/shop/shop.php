@@ -171,7 +171,7 @@ class shop {
             return E('安装失败.请先安装依赖应用');
         }
         if($info=C('cms:class:install',$classhash)){
-            if($info==true){ $info='安装成功'; }
+            if($info===true){ $info='安装成功'; }
             if(is_string($info)){
                 return array('msg'=>$info,'popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload')));
             }
@@ -195,7 +195,7 @@ class shop {
             return E('应用不存在');
         }
         if($upgradeinfo=C('cms:class:upgrade',$classhash)){
-            if($upgradeinfo==true){ $upgradeinfo='更新成功'; }
+            if($upgradeinfo===true){ $upgradeinfo='更新成功'; }
             if(is_string($upgradeinfo)){
                 return array('msg'=>$upgradeinfo,'popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload')));
             }
