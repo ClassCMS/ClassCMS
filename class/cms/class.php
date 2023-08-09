@@ -50,24 +50,21 @@ class cms_class {
                 Return false;
             }
             $startinfo=C($classhash.':start');
-            if($startinfo===true || $startinfo===null) {
-                $startinfo='启用成功';
-            }elseif(!$startinfo){
+            if($startinfo===null) { $startinfo=true; }
+            if(!$startinfo){
                 if(E()){
                     $startinfo=E();
                 }else{
-                    $startinfo='启用失败';
+                    $startinfo=false;
                 }
                 Return E($startinfo);
             }
-            if(is_string($startinfo) || is_array($startinfo)){
-                C('this:class:changeClassConfig',$classhash,1);
-                update(array('table'=>'class','enabled'=>'1','where'=>array('hash'=>$classhash)));
-                C('this:class:installConfig',$classhash);
-                C('this:class:installRoute',$classhash);
-                C('this:class:installHook',$classhash);
-                Return $startinfo;
-            }
+            C('this:class:changeClassConfig',$classhash,1);
+            update(array('table'=>'class','enabled'=>'1','where'=>array('hash'=>$classhash)));
+            C('this:class:installConfig',$classhash);
+            C('this:class:installRoute',$classhash);
+            C('this:class:installHook',$classhash);
+            Return $startinfo;
         }
         Return false;
     }
@@ -83,21 +80,18 @@ class cms_class {
                 Return false;
             }
             $stopinfo=C($classhash.':stop');
-            if($stopinfo===true || $stopinfo===null) {
-                $stopinfo='停用成功';
-            }elseif(!$stopinfo){
+            if($stopinfo===null) { $stopinfo=true; }
+            if(!$stopinfo){
                 if(E()){
                     $stopinfo=E();
                 }else{
-                    $stopinfo='停用失败';
+                    $stopinfo=false;
                 }
                 Return E($stopinfo);
             }
-            if(is_string($stopinfo) || is_array($stopinfo)){
-                C('this:class:changeClassConfig',$classhash,0);
-                update(array('table'=>'class','enabled'=>'0','where'=>array('hash'=>$classhash)));
-                Return $stopinfo;
-            }
+            C('this:class:changeClassConfig',$classhash,0);
+            update(array('table'=>'class','enabled'=>'0','where'=>array('hash'=>$classhash)));
+            Return $stopinfo;
         }
         Return false;
     }
@@ -118,22 +112,19 @@ class cms_class {
             C('this:class:installTable',$classhash);
             C('this:class:installData',$classhash);
             $installinfo=C($classhash.':install');
-            if($installinfo===true || $installinfo===null) {
-                $installinfo='安装完成';
-            }elseif(!$installinfo){
+            if($installinfo===null){ $installinfo=true; }
+            if(!$installinfo){
                 if(E()){
                     $installinfo=E();
                 }else{
-                    $installinfo='安装失败';
+                    $installinfo=false;
                 }
                 C('this:class:removeClassConfig',$classhash);
                 Return E($installinfo);
             }
-            if(is_string($installinfo) || is_array($installinfo)){
-                update(array('table'=>'class','enabled'=>'0','installed'=>'1','where'=>array('hash'=>$classhash)));
-                C('this:class:start',$classhash);
-                Return $installinfo;
-            }
+            update(array('table'=>'class','enabled'=>'0','installed'=>'1','where'=>array('hash'=>$classhash)));
+            C('this:class:start',$classhash);
+            Return $installinfo;
         }
         Return false;
     }
@@ -364,18 +355,17 @@ class cms_class {
                 Return 'phpCheck false';
             }
             $uninstallinfo=C($classhash.':uninstall');
-            if($uninstallinfo===true || $uninstallinfo===null) {
-                $uninstallinfo='卸载成功';
-            }elseif(!$uninstallinfo){
+            if($uninstallinfo===null) { $uninstallinfo=true; }
+            if(!$uninstallinfo){
                 if(E()){
                     $uninstallinfo=E();
                 }else{
-                    $uninstallinfo='卸载失败';
+                    $uninstallinfo=false;
                 }
                 return E($uninstallinfo);
             }
         }else {
-            $uninstallinfo='卸载成功';
+            $uninstallinfo=true;
         }
         C('this:class:removeClassConfig',$classhash);
         update(array('table'=>'class','enabled'=>'0','installed'=>'0','where'=>array('hash'=>$classhash)));
@@ -400,30 +390,26 @@ class cms_class {
                 Return false;
             }
             $updateinfo=C($classhash.':upgrade',$old_version);
-            if($updateinfo===true || $updateinfo===null) {
-                $updateinfo='更新完成';
-            }elseif(!$updateinfo){
+            if($updateinfo===null) {$updateinfo=true;}
+            if(!$updateinfo){
                 if(E()){
                     $updateinfo=E();
                 }else{
-                    $updateinfo='更新失败';
+                    $updateinfo=false;
                 }
                 Return E($updateinfo);
             }
         }else {
-            $updateinfo='更新完成';
+            $updateinfo=true;
         }
-        if(is_string($updateinfo) || is_array($updateinfo)){
-            update(array('table'=>'class','classversion'=>$new_version,'where'=>array('hash'=>$classhash)));
-            C('this:class:refresh',$classhash);
-            if($class['enabled']) {
-                C('this:class:installConfig',$classhash);
-                C('this:class:installRoute',$classhash);
-                C('this:class:installHook',$classhash);
-            }
-            Return $updateinfo;
+        update(array('table'=>'class','classversion'=>$new_version,'where'=>array('hash'=>$classhash)));
+        C('this:class:refresh',$classhash);
+        if($class['enabled']) {
+            C('this:class:installConfig',$classhash);
+            C('this:class:installRoute',$classhash);
+            C('this:class:installHook',$classhash);
         }
-        Return false;
+        Return $updateinfo;
     }
     function removeClassConfig($classhash) {
         $systemTable=C('this:install:defaultTable');
