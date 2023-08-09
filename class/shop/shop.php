@@ -42,7 +42,7 @@ class shop {
             }
             V('config',array('hash'=>$class['hash'],'classname'=>$class['classname'],'homeroute'=>count($homeroute),'nobread'=>$nobread));
         }
-    }    
+    }
     function index() {
         if(!function_exists("curl_init") || !ini_get('allow_url_fopen')) {
             echo('您的主机不支持Curl组件,无法访问应用商店');
@@ -170,10 +170,19 @@ class shop {
         if(!C('cms:class:requires',$classhash)) {
             return E('安装失败.请先安装依赖应用');
         }
-        if(C('cms:class:install',$classhash)) {
-            return "安装完成";
+        if($info=C('cms:class:install',$classhash)){
+            if(is_string($info)){
+                return array('msg'=>$info,'popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload')));
+            }
+            if(isset($info['popup']) && !isset($info['popup']['end'])){
+                $info['popup']['end']='reload';
+            }
+            return $info;
         }else{
-            return E('安装失败');
+            if(E()){
+                Return E(E());
+            }
+            Return E('安装失败');
         }
     }
     function refreshClass() {
@@ -184,11 +193,19 @@ class shop {
         if(!$classinfo=C('cms:class:get',$classhash)) {
             return E('应用不存在');
         }
-        $upgradeinfo=C('cms:class:upgrade',$classhash);
-        if($upgradeinfo===true) {
-            return "更新完成";
-        }else {
-            return E('更新失败.'.$upgradeinfo);
+        if($upgradeinfo=C('cms:class:upgrade',$classhash)){
+            if(is_string($upgradeinfo)){
+                return array('msg'=>$upgradeinfo,'popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload')));
+            }
+            if(isset($upgradeinfo['popup']) && !isset($upgradeinfo['popup']['end'])){
+                $upgradeinfo['popup']['end']='reload';
+            }
+            return $upgradeinfo;
+        }else{
+            if(E()){
+                Return E(E());
+            }
+            Return E('更新失败');
         }
     }
     function adminconfig() {

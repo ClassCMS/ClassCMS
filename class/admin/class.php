@@ -83,6 +83,7 @@ class admin_class {
                 $array['new_version']=C('cms:class:config',$array['classinfo']['hash'],'version');
                 if($array['classinfo']['classversion']!=$array['new_version']) {
                     C('cms:common:opcacheReset');
+                    $array['upgradetips']=C('cms:class:config',$array['classinfo']['hash'],'upgrade');
                 }
                 $array['description']=C('cms:class:config',$array['classinfo']['hash'],'description');
                 $array['setting']=total('form',where(array('classhash'=>$array['classinfo']['hash'],'kind'=>'config','enabled'=>1)));
@@ -276,24 +277,38 @@ class admin_class {
         if(!C('cms:class:requires',$classhash)) {
             Return E('安装失败.请先安装依赖应用');
         }
-        $info=C('cms:class:install',$classhash);
-        if($info===true) {
-            Return '安装成功.';
-        }elseif($info) {
-            Return E($info);
+        if($info=C('cms:class:install',$classhash)){
+            if(is_string($info)){
+                return array('msg'=>$info,'popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload')));
+            }
+            if(isset($info['popup']) && !isset($info['popup']['end'])){
+                $info['popup']['end']='reload';
+            }
+            return $info;
+        }else{
+            if(E()){
+                Return E(E());
+            }
+            Return E('安装失败');
         }
-        Return E('安装失败.');
     }
     function uninstall() {
         $classhash=@$_POST['hash'];
         C('cms:hook:unhook',$classhash);
-        $info=C('cms:class:uninstall',$classhash);
-        if($info===true) {
-            Return '卸载成功';
-        }elseif($info) {
-            Return E($info);
+        if($info=C('cms:class:uninstall',$classhash)){
+            if(is_string($info)){
+                return array('msg'=>$info,'popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload')));
+            }
+            if(isset($info['popup']) && !isset($info['popup']['end'])){
+                $info['popup']['end']='reload';
+            }
+            return $info;
+        }else{
+            if(E()){
+                Return E(E());
+            }
+            Return E('卸载失败');
         }
-        Return E('卸载失败');
     }
     function fileUpdate() {
         $classhash=@$_POST['hash'];
@@ -302,37 +317,58 @@ class admin_class {
         if(!C('cms:class:requires',$classhash)) {
             Return E('更新失败,请先安装依赖应用');
         }
-        $info=C('cms:class:upgrade',$classhash);
-        if($info===true) {
-            Return '更新成功';
-        }elseif($info) {
-            Return E($info);
+        if($info=C('cms:class:upgrade',$classhash)){
+            if(is_string($info)){
+                return array('msg'=>$info,'popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload')));
+            }
+            if(isset($info['popup']) && !isset($info['popup']['end'])){
+                $info['popup']['end']='reload';
+            }
+            return $info;
+        }else{
+            if(E()){
+                Return E(E());
+            }
+            Return E('更新失败');
         }
-        Return E('更新失败');
     }
     function changeState() {
         $classhash=@$_POST['hash'];
         $state=@$_POST['state'];
         if($state=='false') {
             C('cms:hook:unhook',$classhash);
-            $info=C('cms:class:stop',$classhash);
-            if($info===true) {
-                Return '停用成功';
-            }elseif($info) {
-                Return $info;
+            if($info=C('cms:class:stop',$classhash)){
+                if(is_string($info)){
+                    return array('msg'=>$info,'popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload')));
+                }
+                if(isset($info['popup']) && !isset($info['popup']['end'])){
+                    $info['popup']['end']='reload';
+                }
+                return $info;
+            }else{
+                if(E()){
+                    Return E(E());
+                }
+                Return E('停用失败');
             }
-            Return '停用失败';
         }else {
             if(!C('cms:class:requires',$classhash)) {
                 Return '启用失败,请先安装依赖应用';
             }
-            $info=C('cms:class:start',$classhash);
-            if($info===true) {
-                Return '启用成功';
-            }elseif($info) {
-                Return $info;
+            if($info=C('cms:class:start',$classhash)){
+                if(is_string($info)){
+                    return array('msg'=>$info,'popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload')));
+                }
+                if(isset($info['popup']) && !isset($info['popup']['end'])){
+                    $info['popup']['end']='reload';
+                }
+                return $info;
+            }else{
+                if(E()){
+                    Return E(E());
+                }
+                Return E('启用失败');
             }
-            Return '启用失败';
         }
     }
     function menu() {
@@ -344,11 +380,13 @@ class admin_class {
             $new_class['where']=array('hash'=>$classhash);
             if($state=='false') {
                 $new_class['menu']=0;
+                update($new_class);
+                Return '已取消后台菜单';
             }else {
                 $new_class['menu']=1;
+                update($new_class);
+                Return '菜单设置成功';
             }
-            update($new_class);
-            Return '后台菜单设置成功';
         }
         Return E('后台菜单设置失败');
     }
@@ -362,15 +400,17 @@ class admin_class {
                 }else{
                     $new_order=999999;
                 }
+                C('cms:class:changeClassOrder',$classhash,$new_order);
+                Return '已取消置顶';
             }else {
                 if($lastClass=one('table','class','order','classorder asc','where',where('classorder>',999999))){
                     $new_order=$lastClass['classorder']-1;
                 }else{
                     $new_order=99999999;
                 }
+                C('cms:class:changeClassOrder',$classhash,$new_order);
+                Return '置顶应用成功';
             }
-            C('cms:class:changeClassOrder',$classhash,$new_order);
-            Return '置顶应用成功';
         }
         Return E('置顶应用失败');
     }
