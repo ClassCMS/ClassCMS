@@ -1804,12 +1804,8 @@ class cms_database {
         }
         $lists=$this->fetchall();
         if(!count($lists)) {Return array();}
-        $ids=array();
-        foreach($lists as $this_list) {
-            $ids[]=$this_list['id'];
-        }
         if(isset($strarray['column'])) {$column=$this->escape($strarray['column']);}else {$column='*';}
-        $where='where '.$this->where(array(array('id'=>$ids)));
+        $where='where '.$this->where(array(array('id'=>array_column($lists,'id'))));
         $this->query("SELECT $column FROM $table $where $order");
         return $this->fetchall();
     }
