@@ -1503,11 +1503,15 @@ class cms_database {
             if($symbol=='=') {
                 if(is_array($val)) {
                     $this_sql.=$this->escape($name).' in(';
-                    foreach($val as $key=>$this_val) {
-                        if($key) {
-                            $this_sql.=',\''.$this->escape($this_val).'\'';
-                        }else {
-                            $this_sql.='\''.$this->escape($this_val).'\'';
+                    if(isset($val['table']) && isset($val['column'])){
+                        $this_sql.=$this->subQuery($val);
+                    }else{
+                        foreach($val as $key=>$this_val) {
+                            if($key) {
+                                $this_sql.=',\''.$this->escape($this_val).'\'';
+                            }else {
+                                $this_sql.='\''.$this->escape($this_val).'\'';
+                            }
                         }
                     }
                     $this_sql.=')';
@@ -1520,6 +1524,7 @@ class cms_database {
                 if(is_array($val) && count($val)) {
                     $or=false;
                     foreach($val as $key=>$this_val) {
+                        if($or) { $this_sql.=' or '; }
                         if(is_array($this_val)) {
                             $is_numeric_array=true;
                             foreach (array_keys($this_val) as $array_key) {
@@ -1528,14 +1533,13 @@ class cms_database {
                                 }
                             }
                             if($is_numeric_array){
-                                if($or) { $this_sql.=' or '; }
+                                $this_sql.=$this->where(array(array($key=>$this_val)));
+                            }elseif(isset($this_val['table']) && isset($this_val['column'])){
                                 $this_sql.=$this->where(array(array($key=>$this_val)));
                             }else{
-                                if($or) { $this_sql.=' or '; }
                                 $this_sql.=$this->where(array(array('1;'=>$this_val)));
                             }
                         }else {
-                            if($or) { $this_sql.=' or '; }
                             $this_sql.=$this->where(array(array($key=>$this_val)));
                         }
                         $or=true;
@@ -1584,6 +1588,36 @@ class cms_database {
             }
         }
         Return $sql;
+    }
+    function subQuery($strarray){
+        if(isset($strarray['table'])) {$table=$this->prefix($strarray['table']);}else {Return false;}
+        if(isset($strarray['where']) && is_array($strarray['where'])) {
+            $strarray['where']=$this->where(array($strarray['where']));
+        }
+        if(isset($strarray['where']) && !empty($strarray['where'])) {$where='where '.$strarray['where'];}else {$where='';}
+        if(isset($strarray['group']) && !empty($strarray['group'])) {$group='group by '.$this->escape($strarray['group']);}else {$group='';}
+        if(isset($strarray['offset']) && !empty($strarray['offset'])) {$offset=intval($strarray['offset']);}else {$offset='';}
+        if(isset($strarray['limit']) && !empty($strarray['limit'])) {$limit=intval($strarray['limit']);}else {$limit='';}
+        if(isset($strarray['order']) && !empty($strarray['order'])) {
+            $order='order by '.$this->escape($strarray['order']);
+            if(strtolower($order)=='order by rand'){
+                if($this->kind=='sqlitepdo') {
+                    $order='order by random()';
+                }elseif($this->kind=='mysqlpdo' || $this->kind=='mysql') {
+                    $order='order by rand()';
+                }
+            }
+        }else {
+            $order='';
+        }
+        if(isset($strarray['column'])) {$column=$this->escape($strarray['column']);}else {$column='*';}
+        $limitsql='';
+        if(!empty($limit) && !empty($offset)) {
+            $limitsql='limit '.$offset.','.$limit;
+        }elseif(!empty($limit) && empty($offset)) {
+            $limitsql='limit '.$limit;
+        }
+        return "SELECT $column FROM $table $where $group $order $limitsql";
     }
     function insert($args){
         if(!is_array($args[0])) {
