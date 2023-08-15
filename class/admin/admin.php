@@ -499,7 +499,7 @@ class admin {
         $headhtml.=C('this:css');
         $headhtml.=C('layui:js')."\n";
         $headhtml.=C('this:csrfJs')."\n";
-        $headhtml.='<script>layui.config({base: \''.template_url().'static/\',version:\'4.2\'}).extend({index: \'lib/index\'}).use([\'index\',\'form\'],function(){});</script>'."\n";
+        $headhtml.='<script>layui.config({base: \''.template_url().'static/\',version:\'4.4\'}).extend({index: \'lib/index\'}).use([\'index\',\'form\'],function(){});</script>'."\n";
         Return $headhtml;
     }
     function css($check=1) {
