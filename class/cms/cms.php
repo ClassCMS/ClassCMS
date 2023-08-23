@@ -1501,20 +1501,24 @@ class cms_database {
                 $name=substr($name,0,-1);
             }
             if($symbol=='=') {
-                if(is_array($val)) {
+                if(is_array($val) && count($val)) {
                     $this_sql.=$this->escape($name).' in(';
                     if(isset($val['table']) && isset($val['column'])){
                         $this_sql.=$this->subQuery($val);
                     }else{
-                        foreach($val as $key=>$this_val) {
+                        $key=0;
+                        foreach($val as $this_val) {
                             if($key) {
                                 $this_sql.=',\''.$this->escape($this_val).'\'';
                             }else {
                                 $this_sql.='\''.$this->escape($this_val).'\'';
                             }
+                            $key++;
                         }
                     }
                     $this_sql.=')';
+                }elseif(is_array($val) && !count($val)){
+                    $this_sql.='(1=2)';
                 }else {
                     $this_sql.=$this->escape($name).'=\''.$this->escape($val).'\'';
                 }
