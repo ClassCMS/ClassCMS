@@ -273,6 +273,9 @@ class admin_article {
         if(!empty($errormsg)) {
             Return E($errormsg);
         }
+        if(isset($array['returnArticle']) && $array['returnArticle']){
+            return $new_article;
+        }
         if(!$article_id) {
             $new_article['uid']=C('this:nowUser');
             $id=C('cms:article:add',$new_article);
