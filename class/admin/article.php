@@ -52,6 +52,7 @@ class admin_article {
         if(!count($array['columns'])) {
             Return E('未配置模型字段');
         }
+        if(!isset($array['disabledColumns'])){ $array['disabledColumns']=array(); }
         $GLOBALS['admin']['articleAction']='index';
         if(!isset($array['viewbutton'])){
             $array['viewbutton']=1;
@@ -65,6 +66,9 @@ class admin_article {
             $array['columns'][$key]['name']=$array['columns'][$key]['hash'];
             $array['columns'][$key]['source']='adminlist';
             $array['columns'][$key]['source_cid']=$array['channel']['id'];
+            if(in_array($column['hash'],$array['disabledColumns'])){
+                $array['columns'][$key]['indexshow']=0;
+            }
             if($array['columns'][$key]['indexshow']) {
                 $array['columns'][$key]['auth']=C('this:formAuth',$column['id']);
                 if(!$array['columns'][$key]['auth']['read']) {
@@ -155,11 +159,15 @@ class admin_article {
         if(!count($array['columns'])) {
             Return E('未配置模型字段');
         }
+        if(!isset($array['disabledColumns'])){ $array['disabledColumns']=array(); }
         $array['allowsubmit']=0;
         foreach($array['columns'] as $key=>$column) {
             $array['columns'][$key]=C('cms:form:build',$column['id']);
             $array['columns'][$key]['auth']=C('this:formAuth',$column['id']);
             $array['columns'][$key]['source_cid']=$array['channel']['id'];
+            if(in_array($column['hash'],$array['disabledColumns'])){
+                $array['columns'][$key]['auth']['read']=0;
+            }
             if($array['columns'][$key]['auth']['read']) {
                 if($array['columns'][$key]['auth']['write']) {$array['allowsubmit']=1;}
                 if(isset($article['id'])) {
@@ -230,6 +238,7 @@ class admin_article {
         }
         $array['columns']=C('cms:form:all','column',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
         $array['columns']=C('cms:form:getColumnCreated',$array['columns'],$array['channel']['_module']['table']);
+        if(!isset($array['disabledColumns'])){ $array['disabledColumns']=array(); }
         $new_article=array();
         $new_article['cid']=$array['channel']['id'];
         $errormsg='';
@@ -239,6 +248,9 @@ class admin_article {
             $array['columns'][$key]['name']=$array['columns'][$key]['hash'];
             $array['columns'][$key]['source']='admin_article_save';
             $array['columns'][$key]['source_cid']=$array['channel']['id'];
+            if(in_array($column['hash'],$array['disabledColumns'])){
+                $array['columns'][$key]['auth']['write']=0;
+            }
             if($array['columns'][$key]['auth']['write']) {
                 if($article_id) {
                     $array['columns'][$key]['value']=$article[$array['columns'][$key]['name']];
@@ -357,8 +369,12 @@ class admin_article {
         $GLOBALS['admin']['articleAction']='var';
         $array['columns']=C('cms:form:all','column',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
         $array['columns']=C('cms:form:getColumnCreated',$array['columns'],$array['channel']['_module']['table']);
+        if(!isset($array['disabledColumns'])){ $array['disabledColumns']=array(); }
         foreach($array['columns'] as $key=>$column) {
             $array['columns'][$key]['auth']=C('this:formAuth',$column['id']);
+            if(in_array($column['hash'],$array['disabledColumns'])){
+                $array['columns'][$key]['auth']['read']=0;
+            }
             if(!$array['columns'][$key]['auth']['read']) {
                 unset($array['columns'][$key]);
             }
@@ -379,6 +395,7 @@ class admin_article {
             }
         }
         $array['vars']=C('cms:form:all','var',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
+        if(!isset($array['disabledVars'])){ $array['disabledVars']=array(); }
         $array['allowsubmit']=0;
         foreach($array['vars'] as $key=>$var) {
             if($var['enabled']) {
@@ -386,6 +403,9 @@ class admin_article {
                 $array['vars'][$key]['auth']=C('this:formAuth',$var['id']);
                 $array['vars'][$key]['source']='admin_var_edit';
                 $array['vars'][$key]['source_cid']=$array['channel']['id'];
+                if(in_array($var['hash'],$array['disabledVars'])){
+                    $array['vars'][$key]['auth']['read']=0;
+                }
                 if($array['vars'][$key]['auth']['read']) {
                     if($array['vars'][$key]['auth']['write']) {$array['allowsubmit']=1;}
                     if(isset($array['values'][$var['hash']])){
@@ -424,6 +444,7 @@ class admin_article {
             Return E('保存失败,无权限');
         }
         $array['vars']=C('cms:form:all','var',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
+        if(!isset($array['disabledVars'])){ $array['disabledVars']=array(); }
         $msg='';
         $channel_edit=array();
         foreach($array['vars'] as $var) {
@@ -433,6 +454,10 @@ class admin_article {
                 $var['auth']=C('this:formAuth',$var['id']);
                 $var['source']='admin_var_save';
                 $var['source_cid']=$array['channel']['id'];
+                if(in_array($var['hash'],$array['disabledVars'])){
+                    $var['auth']['read']=0;
+                    $var['auth']['write']=0;
+                }
                 if($var['auth']['read'] && $var['auth']['write']) {
                     if(isset($array['channel'][$var['name']])) {
                         $var['value']=$array['channel'][$var['name']];
