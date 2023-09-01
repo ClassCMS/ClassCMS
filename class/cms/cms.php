@@ -59,6 +59,7 @@ class cms {
                     }
                 }
                 if($matched) {
+                    $GLOBALS['C']['routekey']=$routekey;
                     $channel=C('this:nowChannel',$thisroute['classhash'],$channel);
                     $GLOBALS['C']['channel']=$channel;
                     if(count($article_where)){
@@ -66,12 +67,12 @@ class cms {
                             $article=C('this:nowArticle',$GLOBALS['C']['channel'],$article);
                             $GLOBALS['C']['article']=$article;
                         }else{
+                            unset($GLOBALS['C']['routekey']);
                             $matched=false;
                         }
                     }
                 }
                 if($matched) {
-                    $GLOBALS['C']['routekey']=$routekey;
                     if(isset($GLOBALS['C']['GET'])) {
                         foreach($GLOBALS['C']['GET'] as $key=>$val) {
                             $_GET[$key]=$val;
