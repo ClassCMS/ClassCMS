@@ -6,19 +6,28 @@ class admin_article {
         if(!$array['channel']=C('this:article:channelGet',@$_GET['cid'])) {
             Return E('栏目不存在或无法访问');
         }
+        if(!isset($array['disabledColumns'])){ $array['disabledColumns']=array(); }
         $array['columns']=C('cms:form:all','column',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
         $array['columns']=C('cms:form:getColumnCreated',$array['columns'],$array['channel']['_module']['table']);
         foreach($array['columns'] as $key=>$column) {
             $array['columns'][$key]['auth']=C('this:formAuth',$column['id']);
+            if(isset($array['column'][$column['hash']]['auth'])){
+                $array['columns'][$key]['auth']=array_merge($array['columns'][$key]['auth'],$array['column'][$column['hash']]['auth']);
+            }
+            if(in_array($column['hash'],$array['disabledColumns'])){
+                $array['columns'][$key]['auth']['read']=0;
+            }
             if(!$array['columns'][$key]['auth']['read']) {
                 unset($array['columns'][$key]);
             }
         }
         if(count($array['columns'])) {
-            if(C('this:moduleAuth',$array['channel']['_module'],'list')) {
+            if(!isset($array['auth']['list'])){ $array['auth']['list']=C('this:moduleAuth',$array['channel']['_module'],'list'); }
+            if($array['auth']['list']) {
                 Return C('this:article:index',$array);
             }
-            if(C('this:moduleAuth',$array['channel']['_module'],'add')) {
+            if(!isset($array['auth']['add'])){ $array['auth']['add']=C('this:moduleAuth',$array['channel']['_module'],'add'); }
+            if($array['auth']['add']) {
                 Return C('this:article:edit',$array);
             }
         }
@@ -32,17 +41,16 @@ class admin_article {
         if(!$array['channel']=C('this:article:channelGet',@$_GET['cid'])) {
             Return E('栏目不存在或无法访问');
         }
-        if(!C('this:moduleAuth',$array['channel']['_module'],'list')) {
+        if(!isset($array['auth']['list'])){ $array['auth']['list']=C('this:moduleAuth',$array['channel']['_module'],'list'); }
+        if(!$array['auth']['list']){
             Return E('无权限');
         }
-        if(C('this:moduleAuth',$array['channel']['_module'],'add')) {$array['auth']['add']=1;}else{$array['auth']['add']=0;}
-        if(C('this:moduleAuth',$array['channel']['_module'],'edit')) {$array['auth']['edit']=1;}else {$array['auth']['edit']=0;}
-        if(C('this:moduleAuth',$array['channel']['_module'],'del')) {$array['auth']['del']=1;}else {$array['auth']['del']=0;}
-        if(C('this:moduleAuth',$array['channel']['_module'],'var')) {
-            $array['auth']['var']=1;
+        if(!isset($array['auth']['add'])){ $array['auth']['add']=C('this:moduleAuth',$array['channel']['_module'],'add'); }
+        if(!isset($array['auth']['edit'])){ $array['auth']['edit']=C('this:moduleAuth',$array['channel']['_module'],'edit'); }
+        if(!isset($array['auth']['del'])){ $array['auth']['del']=C('this:moduleAuth',$array['channel']['_module'],'del'); }
+        if(!isset($array['auth']['var'])){ $array['auth']['var']=C('this:moduleAuth',$array['channel']['_module'],'var'); }
+        if($array['auth']['var']){
             $array['auth']['var']=C('this:article:varEnabled',$array['channel']['_module']);
-        }else {
-            $array['auth']['var']=0;
         }
         if(!isset($array['breadcrumb'])){
             $array['breadcrumb']=C('this:article:breadcrumb',$array['channel']);
@@ -71,6 +79,9 @@ class admin_article {
             }
             if($array['columns'][$key]['indexshow']) {
                 $array['columns'][$key]['auth']=C('this:formAuth',$column['id']);
+                if(isset($array['column'][$column['hash']]['auth'])){
+                    $array['columns'][$key]['auth']=array_merge($array['columns'][$key]['auth'],$array['column'][$column['hash']]['auth']);
+                }
                 if(!$array['columns'][$key]['auth']['read']) {
                     unset($array['columns'][$key]);
                 }
@@ -92,7 +103,8 @@ class admin_article {
             $article_query['page']='page';
             $article_query['channelurl']='';
             $article_query['pageurl']='';
-            if(C('this:moduleAuth',$array['channel']['_module'],'limit|false')) {
+            if(!isset($array['auth']['limit|false'])){ $array['auth']['limit|false']=C('this:moduleAuth',$array['channel']['_module'],'limit|false'); }
+            if($array['auth']['limit|false']) {
                 $article_query['where']['uid']=C('this:nowUser');
             }
             $article_query['source']='admin';
@@ -122,7 +134,9 @@ class admin_article {
                 $array['breadcrumb']=C('this:article:breadcrumb',$array['channel'],'修改');
             }
             $array['id']=$_GET['id'];
-            if(!$article=C('this:article:editEnabled',$array['channel']['id'],$array['id'])) {
+            if(!isset($array['auth']['edit'])){ $array['auth']['edit']=C('this:moduleAuth',$array['channel']['_module'],'edit'); }
+            if(!isset($array['auth']['limit|false'])){ $array['auth']['limit|false']=C('this:moduleAuth',$array['channel']['_module'],'limit|false'); }
+            if(!$article=C('this:article:editEnabled',$array['channel']['id'],$array['id'],C('this:nowUser'),$array['auth']['edit'],$array['auth']['limit|false'])) {
                 Return E('文章不存在');
             }
             if(!isset($array['title'])){
@@ -131,8 +145,10 @@ class admin_article {
         }else {
             $GLOBALS['admin']['articleAction']='add';
             $array['id']=false;
-            if(!C('this:moduleAuth',$array['channel']['_module'],'add')) {Return E('无权限');}
-            if(C('this:moduleAuth',$array['channel']['_module'],'list')) {
+            if(!isset($array['auth']['add'])){ $array['auth']['add']=C('this:moduleAuth',$array['channel']['_module'],'add'); }
+            if(!$array['auth']['add']) {Return E('无权限');}
+            if(!isset($array['auth']['list'])){ $array['auth']['list']=C('this:moduleAuth',$array['channel']['_module'],'list'); }
+            if($array['auth']['list']) {
                 if(!isset($array['breadcrumb'])){
                     $array['breadcrumb']=C('this:article:breadcrumb',$array['channel'],'增加');
                 }
@@ -145,14 +161,12 @@ class admin_article {
                 $array['title']=$array['channel']['channelname'].' 增加';
             }
         }
-        if(C('this:moduleAuth',$array['channel']['_module'],'del')) {$array['auth']['del']=1;}else {$array['auth']['del']=0;}
-        if(C('this:moduleAuth',$array['channel']['_module'],'edit')) {$array['auth']['edit']=1;}else {$array['auth']['edit']=0;}
-        if(C('this:moduleAuth',$array['channel']['_module'],'list')) {$array['auth']['list']=1;}else {$array['auth']['list']=0;}
-        if(C('this:moduleAuth',$array['channel']['_module'],'var')) {
-            $array['auth']['var']=1;
+        if(!isset($array['auth']['del'])){ $array['auth']['del']=C('this:moduleAuth',$array['channel']['_module'],'del'); }
+        if(!isset($array['auth']['edit'])){ $array['auth']['edit']=C('this:moduleAuth',$array['channel']['_module'],'edit'); }
+        if(!isset($array['auth']['list'])){ $array['auth']['list']=C('this:moduleAuth',$array['channel']['_module'],'list'); }
+        if(!isset($array['auth']['var'])){ $array['auth']['var']=C('this:moduleAuth',$array['channel']['_module'],'var'); }
+        if($array['auth']['var']){
             $array['auth']['var']=C('this:article:varEnabled',$array['channel']['_module']);
-        }else {
-            $array['auth']['var']=0;
         }
         $array['columns']=C('cms:form:all','column',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
         $array['columns']=C('cms:form:getColumnCreated',$array['columns'],$array['channel']['_module']['table']);
@@ -167,6 +181,10 @@ class admin_article {
             $array['columns'][$key]['source_cid']=$array['channel']['id'];
             if(in_array($column['hash'],$array['disabledColumns'])){
                 $array['columns'][$key]['auth']['read']=0;
+            }
+            if(isset($array['column'][$column['hash']]['auth'])){
+                $array['columns'][$key]['auth']=array_merge($array['columns'][$key]['auth'],$array['column'][$column['hash']]['auth']);
+                unset($array['column'][$column['hash']]['auth']);
             }
             if($array['columns'][$key]['auth']['read']) {
                 if($array['columns'][$key]['auth']['write']) {$array['allowsubmit']=1;}
@@ -185,6 +203,9 @@ class admin_article {
                     }else{
                         $array['columns'][$key]['value']=C('cms:input:defaultvalue',$array['columns'][$key]);
                     }
+                }
+                if(isset($array['column'][$column['hash']]) && $array['column'][$column['hash']]){
+                    $array['columns'][$key]=array_merge($array['columns'][$key],$array['column'][$column['hash']]);
                 }
             }else {
                 unset($array['columns'][$key]);
@@ -227,12 +248,15 @@ class admin_article {
         if(isset($array['id'])){ $_POST['id']=$array['id']; }
         if(C('cms:common:verify',@$_POST['id'],'id')) {
             $article_id=$_POST['id'];
-            if(!$article=C('this:article:editEnabled',$array['channel']['id'],$article_id)) {
+            if(!isset($array['auth']['edit'])){ $array['auth']['edit']=C('this:moduleAuth',$array['channel']['_module'],'edit'); }
+            if(!isset($array['auth']['limit|false'])){ $array['auth']['limit|false']=C('this:moduleAuth',$array['channel']['_module'],'limit|false'); }
+            if(!$article=C('this:article:editEnabled',$array['channel']['id'],$article_id,C('this:nowUser'),$array['auth']['edit'],$array['auth']['limit|false'])) {
                 Return E('文章不存在');
             }
         }else {
             $article_id=false;
-            if(!C('this:moduleAuth',$array['channel']['_module'],'add')) {
+            if(!isset($array['auth']['add'])){ $array['auth']['add']=C('this:moduleAuth',$array['channel']['_module'],'add'); }
+            if(!$array['auth']['add']) {
                 Return E('无权限');
             }
         }
@@ -250,6 +274,10 @@ class admin_article {
             $array['columns'][$key]['source_cid']=$array['channel']['id'];
             if(in_array($column['hash'],$array['disabledColumns'])){
                 $array['columns'][$key]['auth']['write']=0;
+            }
+            if(isset($array['column'][$column['hash']]['auth'])){
+                $array['columns'][$key]['auth']=array_merge($array['columns'][$key]['auth'],$array['column'][$column['hash']]['auth']);
+                unset($array['column'][$column['hash']]['auth']);
             }
             if($array['columns'][$key]['auth']['write']) {
                 if($article_id) {
@@ -285,7 +313,8 @@ class admin_article {
                     $array['url']['edit']='?do=admin:article:edit&cid='.$array['channel']['id'].'&id=(id)';
                 }
                 $return['url']=str_replace("(id)",$id,$array['url']['edit']);
-                if(C('this:moduleAuth',$array['channel']['_module'],'edit') && $array['url']['edit']) {
+                if(!isset($array['auth']['edit'])){ $array['auth']['edit']=C('this:moduleAuth',$array['channel']['_module'],'edit'); }
+                if($array['auth']['edit'] && $array['url']['edit']) {
                     $return['popup']['btns']=array('编辑'=>array('go'=>$return['url']));
                 }else {
                     $return['popup']['btns']=array('好的'=>'reload');
@@ -333,19 +362,20 @@ class admin_article {
         if(!$array['channel']=C('this:article:channelGet',@$_POST['cid'])) {
             Return E('栏目不存在或无法访问');
         }
-        if(!C('this:moduleAuth',$array['channel']['_module'],'del')) {
+        if(!isset($array['auth']['del'])){ $array['auth']['del']=C('this:moduleAuth',$array['channel']['_module'],'del'); }
+        if(!$array['auth']['del']) {
             Return E('无权限');
         }
         if(isset($array['ids'])){ $_POST['ids']=$array['ids']; }
         $ids=explode(';',@$_POST['ids']);
-        $limit=C('this:moduleAuth',$array['channel']['_module'],'limit|false');
+        if(!isset($array['auth']['limit|false'])){ $array['auth']['limit|false']=C('this:moduleAuth',$array['channel']['_module'],'limit|false'); }
         $uid=C('this:nowUser');
         $article_del_query=array();
         $article_del_query['cid']=$array['channel']['id'];
         foreach($ids as $id) {
             if(!empty($id)) {
                 $article_del_query['where']['id']=intval($id);
-                if($limit) {
+                if($array['auth']['limit|false']) {
                     $article_del_query['where']['uid']=$uid;
                 }
                 $delreturn=C('cms:article:del',$article_del_query);
@@ -366,7 +396,8 @@ class admin_article {
         if(!$array['channel']=C('this:article:channelGet',@$_GET['cid'])) {
             Return E('栏目不存在或无法访问');
         }
-        if(!C('this:moduleAuth',$array['channel']['_module'],'var')) {
+        if(!isset($array['auth']['var'])){ $array['auth']['var']=C('this:moduleAuth',$array['channel']['_module'],'var'); }
+        if(!$array['auth']['var']) {
             Return E('无权限');
         }
         $GLOBALS['admin']['articleAction']='var';
@@ -378,11 +409,16 @@ class admin_article {
             if(in_array($column['hash'],$array['disabledColumns'])){
                 $array['columns'][$key]['auth']['read']=0;
             }
+            if(isset($array['column'][$column['hash']]['auth'])){
+                $array['columns'][$key]['auth']=array_merge($array['columns'][$key]['auth'],$array['column'][$column['hash']]['auth']);
+            }
             if(!$array['columns'][$key]['auth']['read']) {
                 unset($array['columns'][$key]);
             }
         }
-        if(count($array['columns']) && (C('this:moduleAuth',$array['channel']['_module'],'list') || C('this:moduleAuth',$array['channel']['_module'],'add'))) {
+        if(!isset($array['auth']['list'])){ $array['auth']['list']=C('this:moduleAuth',$array['channel']['_module'],'list'); }
+        if(!isset($array['auth']['add'])){ $array['auth']['add']=C('this:moduleAuth',$array['channel']['_module'],'add'); }
+        if(count($array['columns']) && ($array['auth']['list'] || $array['auth']['add'])) {
             if(!isset($array['breadcrumb'])){
                 $array['breadcrumb']=C('this:article:breadcrumb',$array['channel'],'设置');
             }
@@ -409,12 +445,19 @@ class admin_article {
                 if(in_array($var['hash'],$array['disabledVars'])){
                     $array['vars'][$key]['auth']['read']=0;
                 }
+                if(isset($array['var'][$var['hash']]['auth'])){
+                    $array['vars'][$key]['auth']=array_merge($array['vars'][$key]['auth'],$array['var'][$var['hash']]['auth']);
+                    unset($array['var'][$var['hash']]['auth']);
+                }
                 if($array['vars'][$key]['auth']['read']) {
                     if($array['vars'][$key]['auth']['write']) {$array['allowsubmit']=1;}
                     if(isset($array['values'][$var['hash']])){
                         $array['vars'][$key]['value']=$array['values'][$var['hash']];
                     }else{
                         $array['vars'][$key]['value']=C('cms:article:getVar',$array['channel']['id'],$var['hash']);
+                    }
+                    if(isset($array['var'][$var['hash']]) && $array['var'][$var['hash']]){
+                        $array['vars'][$key]=array_merge($array['vars'][$key],$array['var'][$var['hash']]);
                     }
                 }else {
                     unset($array['vars'][$key]);
@@ -443,7 +486,8 @@ class admin_article {
         if(!$array['channel']=C('this:article:channelGet',@$_POST['cid'])) {
             Return E('栏目不存在或无法访问');
         }
-        if(!C('this:moduleAuth',$array['channel']['_module'],'var')) {
+        if(!isset($array['auth']['var'])){ $array['auth']['var']=C('this:moduleAuth',$array['channel']['_module'],'var'); }
+        if(!$array['auth']['var']) {
             Return E('保存失败,无权限');
         }
         $array['vars']=C('cms:form:all','var',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash']);
@@ -460,6 +504,9 @@ class admin_article {
                 if(in_array($var['hash'],$array['disabledVars'])){
                     $var['auth']['read']=0;
                     $var['auth']['write']=0;
+                }
+                if(isset($array['var'][$var['hash']]['auth'])){
+                    $var['auth']=array_merge($var['auth'],$array['var'][$var['hash']]['auth']);
                 }
                 if($var['auth']['read'] && $var['auth']['write']) {
                     if(isset($array['channel'][$var['name']])) {
@@ -509,20 +556,22 @@ class admin_article {
         }
         Return $channel;
     }
-    function editEnabled($cid=0,$id=0,$userid=0) {
+    function editEnabled($cid=0,$id=0,$userid=0,$moduleAuthEdit=0,$moduleAuthLimit=1) {
         if(!$channel=C('this:article:channelGet',$cid)) {
             Return false;
         }
         if(!$userid) {
             $userid=C('this:nowUser');
         }
-        if(!C('this:moduleAuth',$channel['_module'],'edit',$userid)) {
-            Return false;
+        if(!$moduleAuthEdit){
+            if(!C('this:moduleAuth',$channel['_module'],'edit',$userid)) {
+                Return false;
+            }
         }
         $article_query=array();
         $article_query['cid']=$channel['id'];
         $article_query['where']['id']=intval($id);
-        if(C('this:moduleAuth',$channel['_module'],'limit|false',$userid)) {
+        if($moduleAuthLimit && C('this:moduleAuth',$channel['_module'],'limit|false',$userid)){
             $article_query['where']['uid']=$userid;
         }
         if(!$article=C('cms:article:getOne',$article_query)) {
