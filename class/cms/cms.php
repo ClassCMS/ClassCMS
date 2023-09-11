@@ -1834,8 +1834,8 @@ class cms_database {
         }
         if($page) {
             $this->query("SELECT count(*) FROM $table $where");
-            $aticlecount=$this->fetchone();
-            $GLOBALS['C']['page']['article']=$aticlecount['count(*)'];
+            $articlecount=$this->fetchone();
+            $GLOBALS['C']['page']['article']=$articlecount['count(*)'];
         }
         $this->query("SELECT $column FROM $table $where $group $order $limitsql");
         if(!$optimize) {
@@ -1843,8 +1843,12 @@ class cms_database {
         }
         $lists=$this->fetchall();
         if(!count($lists)) {Return array();}
+        $ids=array();
+        foreach($lists as $this_list) {
+            $ids[]=$this_list['id'];
+        }
         if(isset($strarray['column'])) {$column=$this->escape($strarray['column']);}else {$column='*';}
-        $where='where '.$this->where(array(array('id'=>array_column($lists,'id'))));
+        $where='where '.$this->where(array(array('id'=>$ids)));
         $this->query("SELECT $column FROM $table $where $order");
         return $this->fetchall();
     }
