@@ -32,7 +32,7 @@
         <tr>
         <td align="right">模型标识:</td>
         <td class="layui-form-item-width-auto">
-        <div class="layui-input-block"><input type="text" name="hash" value=""  lay-verify="hash" class="layui-input" placeholder="格式为字母或(字母,数字,_)组合,如:news product page"></div>
+        <div class="layui-input-block"><input type="text" name="hash" value="" class="layui-input" placeholder="格式为字母或(字母,数字,_)组合,留空则自动使用模型名拼音"></div>
         </td>
         </tr>
 

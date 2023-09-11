@@ -74,7 +74,10 @@ class admin_module {
         }
         $module_add_array=array();
         $module_add_array['classhash']=$_POST['classhash'];
-        if(!is_hash(@$_POST['hash'])) {
+        if(!isset($_POST['hash']) || empty($_POST['hash'])){
+            $_POST['hash']=C('cms:common:pinyin',htmlspecialchars($_POST['modulename']));
+        }
+        if(!is_hash($_POST['hash'])) {
             Return E('模型标识格式有误');
         }
         $module_add_array['hash']=$_POST['hash'];
