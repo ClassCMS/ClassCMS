@@ -2013,6 +2013,7 @@ class cms_database {
         Return $pagesarray;
     }
     function escape($str){
+        if($str===null){ return null; }
         if($this->kind=='mysql' || $this->kind=='mysqlpdo') {
             Return str_replace(array("'",'\\'),array("''",'\\\\'),$str);
         }else {
