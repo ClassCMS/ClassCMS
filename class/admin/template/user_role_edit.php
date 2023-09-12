@@ -44,9 +44,9 @@
                     <label class="layui-form-label">标识</label>
                     <div class="layui-input-right">
                     <div class="layui-input-block">
-                      <input type="text" name="hash" value="{if isset($hash)}{$hash}{/if}" lay-verify="hash" class="layui-input" {if isset($hash)}readonly{/if}>
+                      <input type="text" name="hash" value="{if isset($hash)}{$hash}{/if}" class="layui-input"{if isset($hash)} readonly{/if}>
                     </div>
-                    <div class="layui-form-mid">{if isset($hash)}标识无法更改{else}标识格式为字母或(字母,数字,_)组合{/if}</div>
+                    <div class="layui-form-mid">{if isset($hash)}标识无法更改{else}标识格式为字母或(字母,数字,_)组合,留空则自动使用角色名拼音{/if}</div>
                     </div>
                   </div>
 

@@ -258,7 +258,10 @@ class admin_user {
         $role_add_array=array();
         if(isset($_POST['enabled'])) {$role_add_array['enabled']=1;}else {$role_add_array['enabled']=0;}
         $role_add_array['rolename']=htmlspecialchars($_POST['rolename']);
-        if(!is_hash(@$_POST['hash'])) {
+        if(!isset($_POST['hash']) || empty($_POST['hash'])){
+            $_POST['hash']=C('cms:common:pinyin',htmlspecialchars($_POST['rolename']));
+        }
+        if(!is_hash($_POST['hash'])) {
             Return E('角色标识格式有误');
         }
         $role_add_array['hash']=$_POST['hash'];
