@@ -79,7 +79,7 @@ class cms_channel {
         }
         if(!$channel) {Return '';}
         if(empty($routehash)) {$routehash='channel';}
-        if(isset($channel['link']) && !empty($channel['link']) && $routehash=='channel' && !isset($channel['link_channel'])) {
+        if(isset($channel['link']) && !empty($channel['link']) && $routehash=='channel' && !isset($channel['link_channel']) && !$fullurl) {
             $channel['link_channel']=$channel['link'];
         }
         if(isset($channel['link_'.$routehash]) && !empty($channel['link_'.$routehash])){
