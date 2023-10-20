@@ -1062,7 +1062,7 @@ function cms_template($template_config) {
         $templatecontent=@file_get_contents($template_config['filepath']);
     }
     if($templatecontent===false) {Return false;}
-    $templatecontent=str_ireplace(array('</head>','</body>'),array('{cms:head:~('.$template_config['class'].')}</head>','{cms:body:~('.$template_config['class'].')}</body>'),$templatecontent);
+    $templatecontent=str_ireplace(array('</head>','</body>','{php}','{/php}'),array('{cms:head:~('.$template_config['class'].')}</head>','{cms:body:~('.$template_config['class'].')}</body>','<?php ','?>'),$templatecontent);
     if(!isset($GLOBALS['C']['template_var']['host'])) {$GLOBALS['C']['template_var']['host']=server_name();}
     if(!isset($GLOBALS['C']['template_var']['cmsdir'])) {$GLOBALS['C']['template_var']['cmsdir']=$GLOBALS['C']['SystemDir'];}
     if(!isset($GLOBALS['C']['template_var']['br'])) {$GLOBALS['C']['template_var']['br']="\n";}
