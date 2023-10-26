@@ -1339,7 +1339,10 @@ class admin_input {
                     $crud['id']=$_POST['id'];
                     $return=C('admin:article:editSave',$crud);
                     if(!$return && E()){ return array('msg'=>E(),'error'=>1); }
-                    return $return.'<br>请刷新!';
+                    if(!isset($return['msg'])){
+                        return '请刷新!';
+                    }
+                    return $return['msg'].'<br>请刷新!';
                 }
                 if(isset($_POST['ajaxdo']) && $_POST['ajaxdo']=='showvalue') {
                     $html='';
