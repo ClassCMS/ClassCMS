@@ -177,7 +177,10 @@ class cms_article {
             if(!isset($config['showpages'])){
                 $config['showpages']=4;
             }
-            page('pagesize',$config['pagesize'],'page',$config['page'],'showpages',$config['showpages'],'article',$config['articlecount'],'pagename',$config['pagename'],'url',$config['pageurl'],'channelurl',$config['channelurl']);
+            if(!isset($config['maxpage'])){
+                $config['maxpage']=0;
+            }
+            page('pagesize',$config['pagesize'],'page',$config['page'],'showpages',$config['showpages'],'maxpage',$config['maxpage'],'article',$config['articlecount'],'pagename',$config['pagename'],'url',$config['pageurl'],'channelurl',$config['channelurl']);
         }
         $GLOBALS['C']['article_query']=$config;
         if(!isset($config['route']) || empty($config['route'])) {$config['route']='article';}

@@ -1974,6 +1974,11 @@ class cms_database {
             $config['article']=$GLOBALS['C']['page']['article'];
         }
         $config['pagecount'] = intval(max(ceil($config['article']/$config['pagesize']),1));
+        if(isset($config['maxpage']) && $config['maxpage']){
+            if($config['pagecount']>$config['maxpage']){
+                $config['pagecount']=$config['maxpage'];
+            }
+        }
         $config['now']=array('link'=>str_replace($config['replace'],$config['page'],$config['url']),'class'=>'now','page'=>$config['page']);
         $config['first']=array('link'=>$config['channelurl'],'class'=>'first','page'=>'1');
         $config['last']=array('link'=>str_replace($config['replace'],$config['pagecount'],$config['url']),'class'=>'last','page'=>$config['pagecount']);
