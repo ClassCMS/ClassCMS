@@ -480,8 +480,8 @@ class cms_install {
     function cli(){
         if(isset($GLOBALS['C']['DbInfo']) && is_array($GLOBALS['C']['DbInfo'])) { return false; }
         $GLOBALS['C']['install']=false;
-        if(isset($args['debug']) && $args['debug']=='on') { $_POST['debug']='on';ini_set('display_errors','On');error_reporting(E_ALL);$config['Debug']=1;}else{$config['Debug']=0;}
         $args=C('this:common:parseArgv');
+        if(isset($args['debug']) && $args['debug']=='1') { $_POST['debug']='on';ini_set('display_errors','On');error_reporting(E_ALL);$config['Debug']=1;}else{$config['Debug']=0;}
         if(!isset($args['database']) || $args['database']=='sqlite'){
             $_POST['database']=0;
         }else{
@@ -503,7 +503,7 @@ class cms_install {
             if(isset($args['mysql_dbname'])){ $_POST['mysql_dbname']=$args['mysql_dbname']; }else{ $_POST['mysql_dbname']='classcms'; }
             if(isset($args['mysql_user'])){ $_POST['mysql_user']=$args['mysql_user']; }else{ $_POST['mysql_user']='root'; }
             if(isset($args['mysql_password'])){ $_POST['mysql_password']=$args['mysql_password']; }else{ $_POST['mysql_password']=''; }
-            if(!isset($args['mysql_utf8mb4'])){ $_POST['mysql_utf8mb4']='on'; }elseif($args['mysql_utf8mb4']=='on'){ $_POST['mysql_utf8mb4']='on'; }
+            if(!isset($args['mysql_utf8mb4'])){ $_POST['mysql_utf8mb4']='on'; }elseif($args['mysql_utf8mb4']=='1'){ $_POST['mysql_utf8mb4']='on'; }
         }
         $createDatabase=C('this:install:createDatabase',1);
         if(is_string($createDatabase)){
