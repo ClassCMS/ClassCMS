@@ -508,4 +508,32 @@ class cms_common {
         }
         return preg_replace("/[^A-Za-z0-9 ]*/", '', $_Res);
     }
+    function parseArgv(){
+        if(!isset($_SERVER['argv']) || !is_array($_SERVER['argv'])){
+            return array();
+        }
+        $args=array();
+        if(isset($_SERVER['argv'][1]) && substr($_SERVER['argv'][1],0,1)!='-'){
+            $_SERVER['argv'][0]='-action';
+        }else{
+            unset($_SERVER['argv'][0]);
+        }
+        $lastkey='';
+        $if_last_is_value=0;
+        foreach ($_SERVER['argv'] as $key => $thisargv) {
+            if(substr($thisargv,0,1)=='-'){
+                $lastkey=substr($thisargv,1);
+                $args[$lastkey]='';
+                $if_last_is_value=0;
+            }else{
+                if($if_last_is_value){
+                    $args[$lastkey].=' '.$thisargv;
+                }else{
+                    $args[$lastkey]=$thisargv;
+                }
+                $if_last_is_value=1;
+            }
+        }
+        return $args;
+    }
 }
