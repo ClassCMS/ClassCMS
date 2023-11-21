@@ -195,7 +195,7 @@ class cms {
         $noarguri=explode('?',$_SERVER['REQUEST_URI']);
         $uri='/'.ltrim($noarguri[0],'/');
         $uri=substr($uri,strlen($GLOBALS['C']['SystemDir'])-1);
-        if(stripos(@$_SERVER['SERVER_SOFTWARE'],'iis')) {
+        if(isset($_SERVER['SERVER_SOFTWARE']) && stripos($_SERVER['SERVER_SOFTWARE'],'iis')) {
             $uri=uridecode(urlencode(iconv("gbk","utf-8//IGNORE",$uri)));
         }
         if(!$GLOBALS['C']['UrlRewrite']) {
