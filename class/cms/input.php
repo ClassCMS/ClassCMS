@@ -88,7 +88,11 @@ class cms_input {
         unset($GLOBALS['C']['inputlist']);
         if(C('this:input:get',$input_add_query['hash'])){Return false;}
         $input_add_query['table']='input';
-        Return insert($input_add_query);
+        if($id=insert($input_add_query)){
+            unset($GLOBALS['C']['inputlist']);
+            return $id;
+        }
+        Return false;
     }
     function del($hash=0) {
         if(!$input=C('this:input:get',$hash)) {
