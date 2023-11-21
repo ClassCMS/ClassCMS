@@ -280,6 +280,12 @@ function ClassCms_init() {
             if(is_array($routes)) {$GLOBALS['route']=array_merge($GLOBALS['route'],$routes);}
         }
     }else {
+        if(isset($_SERVER['argv'])){
+            $args=C('cms:common:parseArgv');
+            if(isset($args['action']) && $args['action']=='install'){
+                return C('cms:install:cli');
+            }
+        }
         $GLOBALS['route'][]=array('uri'=>'/','classhash'=>'cms','classfunction'=>'install:startup');
         $GLOBALS['route'][]=array('uri'=>'/'.$GLOBALS['C']['Indexfile'],'classhash'=>'cms','classfunction'=>'install:startup');
         $GLOBALS['route'][]=array('uri'=>'/class_cms_rewrite_test.html','classhash'=>'cms','classfunction'=>'install:rewrite');

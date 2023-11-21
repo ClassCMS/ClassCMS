@@ -477,6 +477,75 @@ class cms_install {
         }
         Return true;
     }
+    function cli(){
+        if(isset($GLOBALS['C']['DbInfo']) && is_array($GLOBALS['C']['DbInfo'])) { return false; }
+        $GLOBALS['C']['install']=false;
+        if(isset($args['debug']) && $args['debug']=='on') { $_POST['debug']='on';ini_set('display_errors','On');error_reporting(E_ALL);$config['Debug']=1;}else{$config['Debug']=0;}
+        $args=C('this:common:parseArgv');
+        if(!isset($args['database']) || $args['database']=='sqlite'){
+            $_POST['database']=0;
+        }else{
+            $_POST['database']=1;
+        }
+        if(isset($args['prefix'])){
+            $_POST['prefix']=$args['prefix'];
+        }else{
+            $_POST['prefix']='';
+        }
+        if($_POST['database']==0){
+            if(isset($args['sqlitefile'])){
+                $_POST['sqlitefile']=$args['sqlitefile'];
+            }else{
+                $_POST['sqlitefile']='db_'.substr(md5(dirname(__FILE__).date('ymdH').server_name()),0,16);
+            }
+        }else{
+            if(isset($args['mysql_host'])){ $_POST['mysql_host']=$args['mysql_host']; }else{ $_POST['mysql_host']='127.0.0.1'; }
+            if(isset($args['mysql_dbname'])){ $_POST['mysql_dbname']=$args['mysql_dbname']; }else{ $_POST['mysql_dbname']='classcms'; }
+            if(isset($args['mysql_user'])){ $_POST['mysql_user']=$args['mysql_user']; }else{ $_POST['mysql_user']='root'; }
+            if(isset($args['mysql_password'])){ $_POST['mysql_password']=$args['mysql_password']; }else{ $_POST['mysql_password']=''; }
+            if(!isset($args['mysql_utf8mb4'])){ $_POST['mysql_utf8mb4']='on'; }elseif($args['mysql_utf8mb4']=='on'){ $_POST['mysql_utf8mb4']='on'; }
+        }
+        $createDatabase=C('this:install:createDatabase',1);
+        if(is_string($createDatabase)){
+            echo($createDatabase);
+            return false;
+        }
+        $writeDatabase=C('this:install:writeDatabase',1);
+        if($writeDatabase!==true) {
+            echo($writeDatabase);
+            return false;
+        }
+        if(isset($args['admindir'])){ $config['AdminDir']=$args['admindir']; }else{ $config['AdminDir']='admin'; }
+        if(isset($args['rewrite']) && $args['rewrite']=='0'){ $config['rewrite']=0; }else{ $config['rewrite']=1; }
+        if(isset($args['userhash'])){ $_POST['userhash']=$args['userhash']; }else{ $_POST['userhash']='admin'; }
+        if(isset($args['passwd'])){ $_POST['passwd']=$args['passwd']; }else{ $_POST['passwd']='admin'; }
+        $thisinstall=C('this:class:install','cms');
+        if($thisinstall!==true) {
+            echo($thisinstall);
+            Return false;
+        }
+        $classes=C('this:install:classList');
+        foreach ($classes as $hash=>$class) {
+            if(!C('this:class:phpCheck',$hash)) {
+                echo($hash.':PHP版本必须:'.C('this:class:config',$hash,'php'));
+                Return false;
+            }
+            $thisinstall=C('this:class:install',$hash,0);
+            if($thisinstall!==true) {
+                echo($hash.':'.$thisinstall);
+                Return false;
+            }
+        }
+        $config['SiteHash']=substr(md5(rand(10000000,99999999).time().rand(10000000,99999999)),0,16);
+        $config['DbInfo']=$createDatabase;
+        $writeConfig=C('this:install:writeConfig',$config);
+        if($writeConfig!==true) {
+            echo($writeConfig);
+            Return false;
+        }
+        echo('success');
+        return true;
+    }
     function defaultTable() {
         $tables=array();
         $tables['auth']=array(
