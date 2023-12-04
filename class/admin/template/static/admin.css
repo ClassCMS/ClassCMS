@@ -220,10 +220,6 @@ input:disabled,textarea:disabled{color: #ccc;cursor:not-allowed}
     #cms-right-top-button .layui-btn b{display:none}
     #cms-left-bottom-button,#cms-right-bottom-button{margin-top:10px}
     .top_pannel .layui-input-inline{display:block;margin-bottom:5px;}
-    #articles th,#articles td{display:none}
-    #articles tr th:first-child,#articles tr th:last-child,#articles tr td:first-child,#articles tr td:last-child,#articles tr th:nth-child(2),#articles tr td:nth-child(2){display:table-cell}
-    #users th,#users td{display:none}
-    #users tr th:first-child,#users tr th:last-child,#users tr td:first-child,#users tr td:last-child{display:table-cell}
     .article_choose_input li{display:block}
     .database_choose_input li{display:block}
 }
