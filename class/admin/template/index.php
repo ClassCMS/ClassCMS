@@ -1,9 +1,7 @@
 <?php if(!defined('ClassCms')) {exit();}?>
 <!DOCTYPE html>
 <html>
-<head>{this:head($title)}
-<link rel="Shortcut Icon" href="{template}static/favicon.ico" type="image/x-icon"/>
-</head>
+<head>{this:head($title)}</head>
 <body class="layui-layout-body">
   <div id="ClassCMS" class="layadmin-tabspage-none">
     <div class="layui-layout layui-layout-admin">
@@ -12,7 +10,7 @@
           {this:icoNav()}
         </ul>
         <ul class="layui-nav layui-layout-right" id="LAY-system-user-menu" lay-filter="layadmin-layout-right" style="margin-right:20px">
-          {this:userNav:())}
+          {this:userNav:()}
         </ul>
       </div>
       

@@ -1,19 +1,7 @@
 <?php if(!defined('ClassCms')) {exit();}?>
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <title>登入</title>
-    <link rel="Shortcut Icon" href="{template}static/favicon.ico" type="image/x-icon"/>
-    <meta name="renderer" content="webkit">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    {layui:css()}
-    {layui:js()}
-    {this:css()}
-    <script>layui.config({base: '{template}static/'}).extend({index: 'lib/index'}).use(['index','form'],function(){});</script>
-    {this:loginHead:~()}
-</head>
+<head>{this:head(登入)}{this:loginHead:~()}</head>
 <body>
 <div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login">
     <div class="layadmin-user-login-main">
