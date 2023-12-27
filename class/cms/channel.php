@@ -183,7 +183,11 @@ class cms_channel {
                 unset($channels[$key]);
             }
         }
-        Return array_merge($channels);
+        $channels=array_merge($channels);
+        foreach ($channels as $key => $channel) {
+            $channels[$key]['key']=$key;
+        }
+        Return $channels;
     }
     function bread($cid=0,$classhash=''){
         if(empty($classhash)) { $classhash=I(-1); }

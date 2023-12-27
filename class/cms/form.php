@@ -69,7 +69,7 @@ class cms_form {
     }
     function allowFormHash($hash,$kind='') {
         if($kind=='var') {
-            Return !in_array($hash,array('id','cid','uid','hash','enabled','channelorder','classhash','modulehash','moduleorder','modulename','csrf','active'));
+            Return !in_array($hash,array('id','cid','uid','hash','enabled','channelorder','classhash','modulehash','moduleorder','modulename','csrf','active','key'));
         }
         if($kind=='column') {
             Return C($GLOBALS['C']['DbClass'].':if_field_allow',$hash);
