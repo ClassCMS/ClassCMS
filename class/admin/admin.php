@@ -685,6 +685,9 @@ class admin {
                 Return E(E());
             }
             $token=C('cms:user:makeToken',$userid);
+            if(!$token){
+                Return E('Token生成失败');
+            }
             if(C('this:adminCookie',$token)) {
                 Return array('msg'=>'登入成功','token'=>$token,'csrf'=>C('this:csrfSet',1),'cookiehash'=>C('this:cookieHash'));
             }else {
@@ -705,7 +708,7 @@ class admin {
     }
     function loginCopyright() {
         //如需去除版权信息,请在应用商店内购买<<自定义版权信息>>应用
-        Return ('<div class="layui-trans layadmin-user-login-footer"><p>© '.date('Y').' <a href="http://classcms.com" target="_blank">ClassCMS.com</a></p></div>');
+        Return ('<div class="layui-trans layadmin-user-login-footer"><p>© '.date('Y').' <a href="https://classcms.com" target="_blank">ClassCMS.com</a></p></div>');
     }
     function logout() {
         if(!C('this:csrfCheck',1)) {
