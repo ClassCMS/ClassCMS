@@ -391,9 +391,9 @@ class cms_common {
                 curl_setopt($curl,constant($key),$arg);
             }
             $content=curl_exec($curl);
-            $httpinfo=curl_getinfo($curl);
+            $GLOBALS['C']['curl_info']=curl_getinfo($curl);
+            if(isset($GLOBALS['C']['curl_info']['http_code']) && $GLOBALS['C']['curl_info']['http_code']>=300) {$content=false;}
             curl_close($curl);
-            if($httpinfo['http_code']>=300) {$content=false;}
         }else{
             if(count($args)){
                 return false;
