@@ -62,14 +62,12 @@ class admin_article {
         }
         if(!isset($array['disabledColumns'])){ $array['disabledColumns']=array(); }
         $GLOBALS['admin']['articleAction']='index';
-        if(!isset($array['viewbutton'])){
-            $array['viewbutton']=1;
-        }
+        $viewbutton=1;
         foreach($array['columns'] as $key=>$column) {
             $array['columns'][$key]=C('cms:form:build',$column['id']);
             if($column['hash']=='title' && $column['inputhash']=='text' && $array['channel']['enabled'] && $array['channel']['_module']['enabled']) {
                 $array['columns'][$key]['titlelink']=1;
-                $array['viewbutton']=0;
+                $viewbutton=0;
             }
             $array['columns'][$key]['name']=$array['columns'][$key]['hash'];
             $array['columns'][$key]['source']='adminlist';
@@ -92,8 +90,8 @@ class admin_article {
         if($listColumns=C('this:article:listColumns:~',$array['columns'])) {
             $array['columns']=$listColumns;
         }
-        if(!C('cms:route:get','article',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash'])) {
-            $array['viewbutton']=0;
+        if(!$array['channel']['enabled'] || !$array['channel']['_module']['enabled'] || !C('cms:route:get','article',$array['channel']['_module']['hash'],$array['channel']['_module']['classhash'])) {
+            $viewbutton=0;
         }
         if(!isset($array['articles'])){
             if(isset($array['article_query'])){
@@ -120,6 +118,67 @@ class admin_article {
         if(!$array['url']['del']){ $array['auth']['del']=0; }
         if(!isset($array['url']['var'])){ $array['url']['var']='?do=admin:article:varEdit&cid='.$array['channel']['id']; }
         if(!$array['url']['var']){ $array['auth']['var']=0; }
+        if(!isset($array['btns'])){ $array['btns']=array(); }
+        if(!isset($array['btns']['view']) && $viewbutton){ $array['btns']['view']=array('title'=>'查看','url'=>'(link)','target'=>'_blank'); }
+        if(!isset($array['btns']['edit']) && $array['auth']['edit']){ $array['btns']['edit']=array('title'=>'修改','url'=>$array['url']['edit']); }
+        if(!isset($array['btns']['del']) && $array['auth']['del']){ $array['btns']['del']=array('html'=>'<a class="layui-btn layui-btn-sm layui-btn-primary articledel">删除</a>'); }
+        foreach ($array['btns'] as $key=>$btn) {
+            if($btn && !isset($array['btns'][$key]['target'])){
+                $array['btns'][$key]['target']='';
+            }
+            if($btn && $array['btns'][$key]['target']=='popup' && !isset($array['btns'][$key]['popuptitle'])){
+                $array['btns'][$key]['popuptitle']=$array['btns'][$key]['title'];
+            }
+            if(isset($array['btns'][$key]['html']) && $array['btns'][$key]['html']){
+                preg_match_all('/[{|\[|(](.*)[}|\]|)]/U',$array['btns'][$key]['html'],$array['btns'][$key]['html_replace']);
+            }
+            if(isset($array['btns'][$key]['url']) && $array['btns'][$key]['url']){
+                preg_match_all('/[{|\[|(](.*)[}|\]|)]/U',$array['btns'][$key]['url'],$array['btns'][$key]['url_replace']);
+            }
+            if(isset($array['btns'][$key]['popuptitle']) && $array['btns'][$key]['popuptitle']){
+                preg_match_all('/[{|\[|(](.*)[}|\]|)]/U',$array['btns'][$key]['popuptitle'],$array['btns'][$key]['popuptitle_replace']);
+            }
+        }
+        foreach ($array['articles'] as $key => $article) {
+            if(!isset($array['articles'][$key]['_btns'])){ $array['articles'][$key]['_btns']=array(); }
+            foreach ($array['btns'] as $btn_key => $btn) {
+                if(isset($btn['html_replace'])){
+                    foreach ($btn['html_replace'][1] as $url_replace) {
+                        if(isset($article[$url_replace])){
+                            $btn['html']=str_replace('('.$url_replace.')',$article[$url_replace],$btn['html']);
+                        }
+                    }
+                }
+                if(isset($btn['url_replace'])){
+                    foreach ($btn['url_replace'][1] as $url_replace) {
+                        if(isset($article[$url_replace])){
+                            $btn['url']=str_replace('('.$url_replace.')',$article[$url_replace],$btn['url']);
+                        }
+                    }
+                }
+                if(isset($btn['popuptitle_replace'])){
+                    foreach ($btn['popuptitle_replace'][1] as $url_replace) {
+                        if(isset($article[$url_replace])){
+                            $btn['popuptitle']=str_replace('('.$url_replace.')',$article[$url_replace],$btn['popuptitle']);
+                        }
+                    }
+                }
+                if($btn){
+                    if(!isset($btn['html'])){
+                        if(!isset($btn['target']) || !$btn['target']){
+                            $btn['html']='<a class="layui-btn layui-btn-sm layui-btn-primary" href="'.$btn['url'].'">'.$btn['title'].'</a>';
+                        }elseif($btn['target']=='_blank'){
+                            $btn['html']='<a class="layui-btn layui-btn-sm layui-btn-primary" href="'.$btn['url'].'" target="_blank">'.$btn['title'].'</a>';
+                        }elseif($btn['target']=='popup'){
+                            $btn['html']='<button class="layui-btn layui-btn-sm layui-btn-primary" layadmin-event="popup" href="'.$btn['url'].'" title="'.$btn['popuptitle'].'">'.$btn['title'].'</button>';
+                        }else{
+                            $btn['html']='';
+                        }
+                    }
+                    $array['articles'][$key]['_btns'][$btn_key]=$btn;
+                }
+            }
+        }
         Return V('article_index',$array);
     }
     function edit($array=array()) {

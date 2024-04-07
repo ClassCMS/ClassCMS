@@ -47,9 +47,9 @@
                             </td>
                         {/loop}
                         <td class="btn">
-                            {if $viewbutton && $channel.enabled && $channel._module.enabled}<a class="layui-btn layui-btn-sm layui-btn-primary{if !$article.link || $article.link=='#'} layui-btn-disabled{/if}"{if $article.link && $article.link!='#'} href="{$article.link}" target="_blank"{/if}>浏览</a>{/if}
-                            {if $auth.edit}<a class="layui-btn layui-btn-sm layui-btn-primary" href="<?php echo(str_replace('(id)',$article['id'],$url['edit'])); ?>">修改</a>{/if}
-                            {if $auth.del}<a class="layui-btn layui-btn-sm layui-btn-primary articledel">删除</a>{/if}
+                            {loop $article._btns as $btn}
+                                {$btn.html}
+                            {/loop}
                         </td>
                         </tr>
                     {/loop}
