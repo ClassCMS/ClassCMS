@@ -26,7 +26,7 @@ class admin_input {
                 if(isset($config['titlelink']) && isset($config['article']['link']) && !empty($config['article']['link']) && $config['article']['link']!='#') {
                     Return '<a class="cmscolor" target="_blank" href="'.$config['article']['link'].'">'.htmlspecialchars($config['value']).'</a>';
                 }else {
-                    Return false;
+                    Return $config['value'];
                 }
             case 'post':
                 if(isset($config['regular']) && !empty($config['regular']) && isset($_POST[$config['name']]) && !empty($_POST[$config['name']])) {
