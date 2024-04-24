@@ -325,8 +325,11 @@ class cms_class {
                             if($key=='route' || $key=='hook'){
                                 $data['classorder']=$class['classorder'];
                             }
-                            if($key=='auth' || $key=='hook' || $key=='input' || $key=='module' || $key=='route'){
+                            if($key=='auth' || $key=='hook' || $key=='module' || $key=='route'){
                                 $data['classenabled']=$class['enabled'];
+                            }
+                            if($key=='input'){
+                                $data['classenabled']=1;
                             }
                             insert($data);
                         }
@@ -573,11 +576,11 @@ class cms_class {
     function data($classhash) {
         $data['config']=all('table','config','where',where('classhash',$classhash));
         $data['module']=all('table','module','where',where('classhash',$classhash));
+        $data['input']=all('table','input','where',where('classhash',$classhash));
         $data['form']=all('table','form','where',where('classhash',$classhash));
         $data['route']=all('table','route','where',where('classhash',$classhash));
         $data['channel']=all('table','channel','where',where('classhash',$classhash));
         $data['hook']=all('table','hook','where',where('classhash',$classhash));
-        $data['input']=all('table','input','where',where('classhash',$classhash));
         $data['auth']=all('table','auth','where',where('classhash',$classhash));
         $articleModules=array();
         foreach ($data['form'] as $classForm) {
