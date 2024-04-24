@@ -155,6 +155,9 @@ input:disabled,textarea:disabled{color: #ccc;cursor:not-allowed}
 .database_choose_input thead.action span.page{padding:0 5px}
 .database_choose_input thead.action span.next,.database_choose_input thead.action span.page,.database_choose_input thead.action span.prev{float:right;padding-left:10px;padding-right:0px}
 
+.article_choose_input .layui-form-checkbox span{max-width:360px;word-wrap: break-word;}
+.article_choose_input .layui-form-radio div{max-width:360px;word-wrap: break-word;}
+
 @media screen and (max-width: 1200px) {
     #cms-breadcrumb .layui-breadcrumb a{display:none}
     #cms-breadcrumb .layui-breadcrumb span{display:none}
