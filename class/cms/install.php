@@ -657,7 +657,8 @@ class cms_install {
             'hash'=>'varchar(32)',
             'passwd'=>'varchar(32)',
             'enabled'=>'int(1)',
-            'rolehash'=>'text'
+            'rolehash'=>'text',
+            'last_update_time'=>'bigint(11)'
         );
         $tables['token']=array(
             'userid'=>'int(11)',

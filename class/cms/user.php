@@ -66,6 +66,10 @@ class cms_user {
                 Return false;
             }
         }
+        if(isset($user_edit_query['last_update_time']) && isset($userinfo['last_update_time']) && $user_edit_query['last_update_time']!=$userinfo['last_update_time']){
+            return E('数据不一致');
+        }
+        $user_edit_query['last_update_time']=time();
         $user_edit_query['table']='user';
         $user_edit_query['where']=array('id'=>$userinfo['id']);
         if(!empty($user_edit_query['passwd'])) {

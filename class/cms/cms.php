@@ -234,6 +234,10 @@ class cms {
         if(version_compare($old_version,'2.2','<')) {
             C($GLOBALS['C']['DbClass'].':addField','hook','requires','varchar(255)');
         }
+        if(version_compare($old_version,'4.6','<')) {
+            C($GLOBALS['C']['DbClass'].':addField','user','last_update_time','bigint(11)');
+            update('table','user','last_update_time',0);
+        }
     }
 }
 function ClassCms_init() {

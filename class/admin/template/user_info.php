@@ -11,6 +11,7 @@
 
 <div class="layui-form">
 <input type="hidden" name="hash" value="{$user.hash}">
+<input type="hidden" name="last_update_time" value="{$user.last_update_time}">
     <div class="layui-card">
         <div class="layui-card-header">
             <div class="layui-row">
