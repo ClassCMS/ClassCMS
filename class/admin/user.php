@@ -428,7 +428,9 @@ class admin_user {
             }
             if(empty($msg) && count($user_edit_query)) {
                 $user_edit_query['id']=$array['user']['id'];
-                $user_edit_query['last_update_time']=@$_POST['last_update_time'];
+                if(isset($_POST['last_update_time'])){
+                    $user_edit_query['last_update_time']=$_POST['last_update_time'];
+                }
                 if(C('cms:user:edit',$user_edit_query)) {
                     return array('msg'=>'修改成功','popup'=>array('end'=>'reload','btns'=>array('好的'=>'reload','返回'=>'back')));
                 }elseif(E()) {
