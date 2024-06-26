@@ -292,6 +292,12 @@ class admin_user {
         if($array=C('cms:user:roleGet',@$_GET['hash'])){
             $array['superadmin']=C('this:user:superAdmin',$array['hash']);
             $array['title']=$array['rolename'].'['.$array['hash'].'] 权限';
+            $array['classlist']=C('cms:class:all');
+            foreach ($array['classlist'] as $key => $thisclass) {
+                if(!$thisclass['installed']){
+                    unset($array['classlist'][$key]);
+                }
+            }
             Return V('user_role_permission',$array);
         }else {
             Return E('此角色不存在');

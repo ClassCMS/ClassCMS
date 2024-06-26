@@ -37,7 +37,6 @@
     </div>
 
 <?php
-$classlist=C('cms:class:all');
 foreach($classlist as $class) {
     if($class['auth']) {
         $class_auth=C($class['hash'].':auth');
