@@ -179,6 +179,12 @@ class admin_article {
                 }
             }
         }
+        if(!isset($array['pagelist'])){
+            $array['pagelist']=pagelist();
+        }
+        if(!isset($array['pageinfo'])){
+            $array['pageinfo']=pageinfo();
+        }
         Return V('article_index',$array);
     }
     function edit($array=array()) {
