@@ -349,6 +349,21 @@ class admin {
         if(!isset($form['auth']['read']) || !$form['auth']['read']) {
             Return E('无权限');
         }
+        if(isset($form['kind']) && $form['kind']=='config'){
+            $configs=C($form['classhash'].':config');
+            if(!is_array($configs)) {
+                Return E('输入框不存在');
+            }
+            $new_configs=array();
+            foreach($configs as $config) {
+                if(isset($config['hash']) && $config['hash']==$form['hash']) {
+                    foreach ($config as $key => $value) {
+                        $form[$key]=$value;
+                    }
+                    break;
+                }
+            }
+        }
         Return C('cms:input:ajax',$form);
     }
     function leftMenu() {
