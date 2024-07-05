@@ -313,9 +313,13 @@ class cms_class {
             $tables=json_decode($content,1);
             if(is_array($tables)){
                 C('this:class:installTable',$classhash);
+                $selftables=C($classhash.':table');
+                if(!is_array($selftables)){
+                    $selftables=array();
+                }
                 foreach ($tables as $key => $table) {
                     foreach ($table as $data) {
-                        if($key!='channel'){
+                        if($key!='channel' && !isset($selftables[$key])){
                             unset($data['id']);
                         }
                         if($key=='form'){
