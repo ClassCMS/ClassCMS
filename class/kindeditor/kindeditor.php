@@ -24,12 +24,8 @@ class kindeditor {
                 if(isset($config['disabled']) && $config['disabled']) {Return array('message'=>'无权限','error'=>1);}
                 if(isset($_FILES['imgFile']['name']) && isset($_GET['dir']) && $_GET['dir']=='image') {
                     $file_parse=explode('.',$_FILES['imgFile']['name']);
-                    if(!isset($file_parse[1])) {
+                    if(!isset($file_parse[1]) || !in_array($file_parse[count($file_parse)-1],array('png','bmp','jpg','jpeg','gif','webp','tif','avif'))) {
                         Return array('message'=>'图片后缀有误','error'=>1);
-                    }else {
-                        if(!in_array($file_parse[1],array('png','bmp','jpg','jpeg','gif','webp','tif'))) {
-                            Return array('message'=>'图片后缀有误','error'=>1);
-                        }
                     }
                 }
                 if($file_upload=C('cms:common:upload','imgFile',$config['filepath'])) {
