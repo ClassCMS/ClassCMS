@@ -515,13 +515,13 @@ class admin {
         $headhtml.=C('this:css');
         $headhtml.=C('layui:js')."\n";
         $headhtml.=C('this:csrfJs')."\n";
-        $headhtml.='<script>layui.config({base: \''.template_url().'static/\',version:\'4.5\'}).extend({index: \'lib/index\'}).use([\'index\',\'form\'],function(){});</script>'."\n";
+        $headhtml.='<script>layui.config({base: \''.template_url().'static/\',version:\'4.6\'}).extend({index: \'lib/index\'}).use([\'index\',\'form\'],function(){});</script>'."\n";
         Return $headhtml;
     }
     function css($check=1) {
         if($check && G('css')){return '';}
         G('css',1);
-        Return '<link rel="stylesheet" href="'.template_url().'static/admin.css?v=4.5" media="all">'."\n";
+        Return '<link rel="stylesheet" href="'.template_url().'static/admin.css?v=4.6" media="all">'."\n";
     }
     function icoNav() {
         Return '<li class="layui-nav-item layadmin-flexible" lay-unselect><a href="javascript:;" layadmin-event="flexible" title="侧边伸缩"><i class="layui-icon layui-icon-shrink-right" id="LAY_app_flexible"></i></a></li><li class="layui-nav-item" lay-unselect><a href="?do=admin:jumpHome" target="_blank" title="主页"><i class="layui-icon layui-icon-website"></i></a></li><li class="layui-nav-item" lay-unselect><a href="javascript:;" layadmin-event="refresh" title="刷新"><i class="layui-icon layui-icon-refresh-3"></i></a></li>';
