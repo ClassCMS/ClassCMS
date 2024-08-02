@@ -1,3 +1,4 @@
+<?php if(!defined('ClassCms')) {exit();}?>
 <input type="hidden" name="{$name}" id="databaseunlimit_{$name}" value="{$value}">
 <div id="databaseunlimit_{$name}_select">{$selecthtml}<i id="databaseunlimit_{$name}_load" style="display:none" class="layui-icon layui-icon-loading-1 layui-icon layui-anim layui-anim-rotate layui-anim-loop" ></i></div>
 
