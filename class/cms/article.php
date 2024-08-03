@@ -273,6 +273,8 @@ class cms_article {
         if(!isset($config['table'])) {
             $config['table']=$module['table'];
         }
+        unset($config['key']);
+        unset($config['link']);
         Return insert($config);
     }
     function edit($config) {
@@ -290,6 +292,8 @@ class cms_article {
         }
         $config['where']=array('id'=>$config['id']);
         unset($config['id']);
+        unset($config['key']);
+        unset($config['link']);
         Return update($config);
     }
     function move($cid,$ids,$targetcid) {
