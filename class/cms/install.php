@@ -16,23 +16,23 @@ class cms_install {
             if($_POST['step']=='_database') {
                 if(!isset($GLOBALS['C']['AdminDir'])){
                     if(isset($_POST['admindir']) && !is_hash($_POST['admindir'])) {
-                        Return C('admin:ajax','admin dir error',1);
+                        return C('admin:ajax',array('msg'=>'后台路径格式有误','installerror'=>1));
                     }
                 }
                 $createDatabase=C('this:install:createDatabase',1);
                 if(!is_array($createDatabase)) {
-                    Return C('admin:ajax',$createDatabase,1);
+                    return C('admin:ajax',array('msg'=>$createDatabase,'installerror'=>1));
                 }
                 $writeDatabase=C('this:install:writeDatabase',1);
                 if($writeDatabase!==true) {
-                    Return C('admin:ajax',$writeDatabase,1);
+                    return C('admin:ajax',array('msg'=>$writeDatabase,'installerror'=>1));
                 }
                 C('this:class:install','cms');
-                Return C('admin:ajax','ok');
+                return C('admin:ajax',array('msg'=>'ok','installerror'=>0));
             }else {
                 $createDatabase=C('this:install:createDatabase');
                 if(!is_array($createDatabase)) {
-                    Return C('admin:ajax',$createDatabase,1);
+                    return C('admin:ajax',array('msg'=>$createDatabase,'installerror'=>1));
                 }
             }
             if($_POST['step']=='_config') {
@@ -52,27 +52,30 @@ class cms_install {
                 $config['DbInfo']=$createDatabase;
                 $writeConfig=C('this:install:writeConfig',$config);
                 if($writeConfig!==true) {
-                    Return C('admin:ajax',$writeConfig,1);
+                    return C('admin:ajax',array('msg'=>$writeConfig,'installerror'=>1));
                 }
                 C('this:common:opcacheReset');
                 if(isset($GLOBALS['C']['AdminDir'])){
-                    Return C('admin:ajax',rewriteUri($GLOBALS['C']['AdminDir'].'/'));
+                    return C('admin:ajax',array('msg'=>rewriteUri($GLOBALS['C']['AdminDir'].'/'),'installerror'=>0));
                 }
-                Return C('admin:ajax',rewriteUri($config['AdminDir'].'/'));
+                return C('admin:ajax',array('msg'=>rewriteUri($config['AdminDir'].'/'),'installerror'=>0));
             }
             if($classdirslist=@scandir(classDir())) {
                 if(in_array($_POST['step'],$classdirslist)) {
                     if(!C('this:class:phpCheck',$_POST['step'])) {
-                        Return C('admin:ajax',$_POST['step'].':PHP版本必须:'.C('this:class:config',$_POST['step'],'php'),1);
+                        return C('admin:ajax',array('msg'=>'PHP版本必须:'.C('this:class:config',$_POST['step'],'php'),'installerror'=>1));
                     }
                     $thisinstall=C('this:class:install',$_POST['step'],0);
-                    if($thisinstall!==true) {
-                        Return C('admin:ajax',$_POST['step'].':'.$thisinstall,1);
+                    if($thisinstall===false) {
+                        if(E()){
+                            return C('admin:ajax',array('msg'=>E(),'installerror'=>1));
+                        }
+                        return C('admin:ajax',array('msg'=>'安装失败','installerror'=>1));
                     }
-                    Return C('admin:ajax','ok');
+                    return C('admin:ajax',array('msg'=>'ok','installerror'=>0));
                 }
             }
-            Return C('admin:ajax','error',1);
+            return C('admin:ajax',array('msg'=>'error','installerror'=>1));
         }
         $array['allow']=true;
         if(!$cmsversion=C('this:class:config','cms','version')) {
@@ -519,11 +522,7 @@ class cms_install {
         if(isset($args['rewrite']) && $args['rewrite']=='0'){ $config['rewrite']=0; }else{ $config['rewrite']=1; }
         if(isset($args['userhash'])){ $_POST['userhash']=$args['userhash']; }else{ $_POST['userhash']='admin'; }
         if(isset($args['passwd'])){ $_POST['passwd']=$args['passwd']; }else{ $_POST['passwd']='admin'; }
-        $thisinstall=C('this:class:install','cms');
-        if($thisinstall!==true) {
-            echo($thisinstall);
-            Return false;
-        }
+        C('this:class:install','cms');
         $classes=C('this:install:classList');
         foreach ($classes as $hash=>$class) {
             if(!C('this:class:phpCheck',$hash)) {
@@ -531,9 +530,14 @@ class cms_install {
                 Return false;
             }
             $thisinstall=C('this:class:install',$hash,0);
-            if($thisinstall!==true) {
-                echo($hash.':'.$thisinstall);
-                Return false;
+            if($thisinstall===false) {
+                if(E()){
+                    echo($hash.':'.E());
+                    Return false;
+                }else{
+                    echo($hash.': error');
+                    Return false;
+                }
             }
         }
         $config['SiteHash']=substr(md5(rand(10000000,99999999).time().rand(10000000,99999999)),0,16);

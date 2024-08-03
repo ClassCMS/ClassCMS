@@ -179,10 +179,13 @@
             layui.$('#step').val(step);
             layui.admin.req({ifdebug:0,type:'post',url:"",data:layui.form.val('install_form'),async:true,beforeSend:function(){
             },done: function(res){
-                if (res.error)
+                if (res.installerror)
                 {
                     layui.$('.layui-layer-content .install_step table tr[rel='+step+'] td').eq(1).html('<i class="layui-icon layui-icon-close-fill"></i>');
-                    layui.$('.layui-layer-content a.layui-btn').text('安装失败,请重试').attr('href','');
+                    if(res.msg){
+                        layui.$('.layui-layer-content .install_step table tr[rel='+step+'] td').eq(0).append(' <span style="color:red">'+res.msg+'</span>');
+                    }
+                    layui.$('.layui-layer-content a.layui-btn').text('安装失败').attr('href','javascript:;');
                 }else{
                     layui.$('.layui-layer-content .install_step table tr[rel='+step+'] td').eq(1).html('<i class="layui-icon layui-icon-ok-circle"></i>');
                     if (layui.$('.layui-layer-content .install_step table i.layui-icon-more').length>0)
@@ -190,6 +193,7 @@
                         install_step(layui.$('.layui-layer-content .install_step table i.layui-icon-more').eq(0).parents('tr').attr('rel'));
                     }else{
                         layui.$('.layui-layer-content a.layui-btn').text('安装成功,访问后台').attr('href',res.msg);
+                        layui.$('.cms-btn[lay-filter=install_submit]').text('已安装').addClass('layui-btn-disabled').removeClass('cms-btn').attr('lay-filter','');
                     }
                 }
             }});
@@ -254,7 +258,7 @@
                 msg=msg+"数据库名:"+layui.$('input[name=mysql_dbname]').val()+"<br>";
             }
             msg=msg+"后台目录:"+layui.$('input[name=admindir]').val()+"<br>";
-            layui.layer.confirm(msg, {
+            var installconfirm = layui.layer.confirm(msg, {
               btn: ['安装','取消'],title:'是否安装',shadeClose:false}, function(){
                 layui.$('#install_step tr').each(function(){
                     if (layui.$(this).attr('rel')!='_database' && layui.$(this).attr('rel')!='_config')
@@ -279,14 +283,14 @@
                 layer.open({
                   type: 1,
                   move:false,
-                  title:false,
-                  closeBtn: 0,
+                  title:'安装',
+                  closeBtn: 1,
                   shadeClose: false,
-                  shade: 0.6,
+                  shade: 0.8,
                   area: layerarea,
-                  skin: 'yourclass',
                   content: layui.$('#install_step').html(),
                   success: function(layero, index){
+                      layer.close(installconfirm);
                       install_step('_database');
                   }
                 });
