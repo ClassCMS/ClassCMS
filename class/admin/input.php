@@ -131,6 +131,10 @@ class admin_input {
                     $config['value']=time();
                 }
                 if(!empty($config['value'])) {
+                    if (defined('PHP_INT_MAX') && $config['value']>PHP_INT_MAX) {
+                        echo('系统不支持此时间戳:'.$config['value']);
+                        Return '';
+                    }
                     if($config['time'] && is_numeric($config['value'])) {
                         $config['value']=date('Y-m-d H:i:s',$config['value']);
                     }elseif(is_numeric($config['value'])) {
@@ -148,6 +152,9 @@ class admin_input {
                 Return $config['defaultvalue'];
             case 'view':
                 if(empty($config['value'])) {
+                    Return '';
+                }
+                if (defined('PHP_INT_MAX') && $config['value']>PHP_INT_MAX) {
                     Return '';
                 }
                 if($config['time']) {
@@ -408,7 +415,12 @@ class admin_input {
                 if($config['savetype']==2) {
                     Return 'decimal(20,6)';
                 }
-                Return 'int(9)';
+                Return 'bigint(11)';
+            case 'view':
+                if($config['savetype']==2 && stripos($config['value'],'.')) {
+                    return rtrim(rtrim($config['value'],'0'),'.');
+                }
+                return $config['value'];
             case 'form':
                 echo('<input type="number" name="'.$config['name'].'"  lay-filter="'.$config['name'].'"');
                 if(!empty($config['min'])) {
@@ -444,6 +456,9 @@ class admin_input {
                 }
                 if(strlen($config['max']) && $_POST[$config['name']]>$config['max']) {
                     Return array('error'=>'最大为'.$config['max']);
+                }
+                if(strlen(intval($_POST[$config['name']]))>11){
+                    Return array('error'=>'格式不正确');
                 }
                 if($config['savetype']==1) {
                     if(strlen($_POST[$config['name']])==0) {Return '';}
