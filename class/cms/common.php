@@ -20,7 +20,7 @@ class cms_common {
         Return @$_SERVER["REMOTE_ADDR"];
     }
     function url(){
-        if(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"]=='on'){
+        if(isset($_SERVER["HTTPS"]) && strtolower($_SERVER["HTTPS"])=='on'){
             $url='https://';
         }else{
             $url='http://';
@@ -119,7 +119,7 @@ class cms_common {
         Return true;
     }
     function serverHttps() {
-        if(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"]=='on'){
+        if(isset($_SERVER["HTTPS"]) && strtolower($_SERVER["HTTPS"])=='on'){
           return true;
         }
         Return false;
