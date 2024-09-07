@@ -392,8 +392,11 @@ class cms_common {
             }
             $content=curl_exec($curl);
             $GLOBALS['C']['curl_info']=curl_getinfo($curl);
-            if(isset($GLOBALS['C']['curl_info']['http_code']) && $GLOBALS['C']['curl_info']['http_code']>=300) {$content=false;}
             curl_close($curl);
+            if(isset($GLOBALS['C']['curl_info']['http_code']) && $GLOBALS['C']['curl_info']['http_code']>=300) {
+                return E($content);
+            }
+            return $content;
         }else{
             if(count($args)){
                 return false;
@@ -403,9 +406,8 @@ class cms_common {
             }else {
                 $options['http']=array('timeout'=>$timeout,'method' =>'GET');
             }
-            $content=@file_get_contents($url, false, stream_context_create($options));
+            return @file_get_contents($url, false, stream_context_create($options));
         }
-        Return $content;
     }
     function download($url,$path,$timeout=999,$args=array()){
         if(!function_exists("curl_init")){
