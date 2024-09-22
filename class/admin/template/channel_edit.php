@@ -52,15 +52,9 @@
                     <label class="layui-form-label">模型</label>
                         <div class="layui-input-right">
                             <div class="layui-input-block">
-                                {$moduleselect_config.name=modulehash}
-                                {if isset($channel.modulehash)}
-                                    {$moduleselect_config.value=$channel.modulehash}
-                                {/if}
-                                {$moduleselect_config.classhash=$classinfo.hash}
-                                {$moduleselect_config.inputhash=moduleselect}
                                 {cms:input:form($moduleselect_config)}
                             </div>
-                            <div class="layui-form-mid">{if isset($channel.modulehash)}变更栏目模型后,旧栏目变量与文章不会同步到新栏目中{/if}</div>
+                            <div class="layui-form-mid">{if isset($channel.id)}变更栏目模型后,旧栏目变量与文章不会同步到新栏目中{/if}</div>
                         </div>
                   </div>
 

@@ -50,19 +50,16 @@ class admin_channel {
             $array['showpage']=0;
             $array['channels']=C('cms:channel:tree',$array['fid'],$array['classinfo']['hash']);
         }
-        foreach($array['channels'] as $key=>$this_channel) {
-            if(isset($GLOBALS['C']['adminmodulecache'][$this_channel['modulehash']])) {
-                $this_module=$GLOBALS['C']['adminmodulecache'][$this_channel['modulehash']];
-            }else {
-                $this_module=C('cms:module:get',$this_channel['modulehash'],$this_channel['classhash']);
-                if(!C('this:moduleAuth',$this_module,'list') && !C('this:moduleAuth',$this_module,'add') && !C('this:moduleAuth',$this_module,'edit') && !C('this:moduleAuth',$this_module,'var')) {
-                    $this_module['_hideChannel']=true;
-                }else{
-                    $this_module['_hideChannel']=false;
+        $allowedModules=C('this:channel:allowedModules',$array['classinfo']['hash']);
+        foreach($array['channels'] as $this_channel) {
+            $allowed=false;
+            foreach ($allowedModules as $allowedModule) {
+                if($allowedModule['hash']==$this_channel['modulehash']){
+                    $allowed=true;
+                    break;
                 }
-                $GLOBALS['C']['adminmodulecache'][$this_channel['modulehash']]=$this_module;
             }
-            if($this_module['_hideChannel']) {
+            if(!$allowed){ 
                 $array['channels']=C('this:channel:hideDisabledChannel',$array['channels'],$this_channel['id']);
             }
         }
@@ -101,6 +98,14 @@ class admin_channel {
             $array['channel']['channelorder']=ceil(($max_order['channelorder']+10)/10)*10;
         }
         $array['title']='增加栏目';
+        $array['moduleselect_config']=array('inputhash'=>'select','name'=>'modulehash','selecttitle'=>'请选择模型','selectvalue'=>'');
+        if(isset($array['channel']['modulehash'])){
+            $array['moduleselect_config']['value']=$array['channel']['modulehash'];
+        }
+        $allowedModules=C('this:channel:allowedModules',$array['classinfo']['hash']);
+        foreach ($allowedModules as $allowedModule) {
+            $array['moduleselect_config']['values'][]=implode(':',array($allowedModule['hash'],$allowedModule['modulename']));
+        }
         Return V('channel_edit',$array);
     }
     function addPost() {
@@ -122,6 +127,15 @@ class admin_channel {
         $channel_add_array['enabled']=C('cms:input:post',array('inputhash'=>'switch','name'=>'enabled'));
         $channel_add_array['channelorder']=intval($_POST['channelorder']);
         if($channel_add_array['channelorder']<0) {$channel_add_array['channelorder']=0;}
+        $allowedModules=C('this:channel:allowedModules',$array['classinfo']['hash']);
+        $allowed=false;
+        foreach ($allowedModules as $allowedModule) {
+            if($allowedModule['hash']==$module['hash']){
+                $allowed=true;
+                break;
+            }
+        }
+        if(!$allowed){ Return E('模型不存在'); }
         $addreturn=C('cms:channel:add',$channel_add_array);
         if(is_numeric($addreturn)) {
             return array('msg'=>'增加成功','id'=>$addreturn,'url'=>'?do=admin:article:home&cid='.$addreturn,'popup'=>array('btns'=>array('管理'=>array('go'=>'?do=admin:article:home&cid='.$addreturn),'返回'=>'back')));
@@ -144,6 +158,16 @@ class admin_channel {
         $array['breadcrumb']=C('this:channel:breadcrumb',$array['channel'],$array['classinfo']['hash'],'修改');
         $array['classinfo']=C('cms:class:get',$array['channel']['classhash']);
         $array['title']=$array['channel']['channelname'].' 修改';
+        $array['moduleselect_config']=array('inputhash'=>'select','name'=>'modulehash','selecttitle'=>'请选择模型','selectvalue'=>'','value'=>$array['channel']['modulehash']);
+        $allowedModules=C('this:channel:allowedModules',$array['classinfo']['hash']);
+        $allowed=false;
+        foreach ($allowedModules as $allowedModule) {
+            if($allowedModule['hash']==$array['channel']['modulehash']){
+                $allowed=true;
+            }
+            $array['moduleselect_config']['values'][]=implode(':',array($allowedModule['hash'],$allowedModule['modulename']));
+        }
+        if(!$allowed){ Return E('栏目不存在'); }
         Return V('channel_edit',$array);
     }
     function editPost() {
@@ -160,6 +184,19 @@ class admin_channel {
             $channel_edit_array['enabled']=C('cms:input:post',array('inputhash'=>'switch','name'=>'enabled'));
             $channel_edit_array['channelorder']=intval($_POST['channelorder']);
             if($channel_edit_array['channelorder']<0) {$channel_edit_array['channelorder']=0;}
+            $allowedModules=C('this:channel:allowedModules',$channel['classhash']);
+            $allowedOld=false;
+            $allowedNew=false;
+            foreach ($allowedModules as $allowedModule) {
+                if($allowedModule['hash']==$channel['modulehash']){
+                    $allowedOld=true;
+                }
+                if($allowedModule['hash']==$module['hash']){
+                    $allowedNew=true;
+                }
+            }
+            if(!$allowedOld){ Return E('栏目不存在'); }
+            if(!$allowedNew){ Return E('模型不存在'); }
             $editreturn=C('cms:channel:edit',$channel_edit_array);
             if($editreturn===true) {
                 return array('msg'=>'修改成功','id'=>$_POST['id'],'url'=>'?do=admin:article:home&cid='.$_POST['id'],'popup'=>array('btns'=>array('管理'=>array('go'=>'?do=admin:article:home&cid='.$_POST['id']),'返回'=>'back')));
@@ -206,6 +243,15 @@ class admin_channel {
     }
     function del() {
         if($channel=C('cms:channel:get',@$_POST['id'])){
+            $allowedModules=C('this:channel:allowedModules',$channel['classhash']);
+            $allowed=false;
+            foreach ($allowedModules as $allowedModule) {
+                if($allowedModule['hash']==$channel['modulehash']){
+                    $allowed=true;
+                    break;
+                }
+            }
+            if(!$allowed){ Return E('栏目不存在'); }
             $son_channels=C('cms:channel:tree',$channel['id'],$channel['classhash']);
             if(count($son_channels)) {
                 Return E('请先删除下属栏目');
@@ -287,5 +333,15 @@ class admin_channel {
             unset($channels[$delkey]);
         }
         return $channels;
+    }
+    function allowedModules($classhash){
+        $allModules=C('cms:module:all',$classhash);
+        $modules=array();
+        foreach ($allModules as $module) {
+            if(C('this:moduleAuth',$module,'list') || C('this:moduleAuth',$module,'add') || C('this:moduleAuth',$module,'edit') || C('this:moduleAuth',$module,'var')) {
+                $modules[]=$module;
+            }
+        }
+        return $modules;
     }
 }
