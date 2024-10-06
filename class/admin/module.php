@@ -164,6 +164,7 @@ class admin_module {
         $array['columns']=C('cms:form:all','column',$array['module']['hash'],$array['module']['classhash']);
         $array['columnstabs']=C('cms:form:getTabs',$array['columns']);
         $array['admin_role_name']=C('cms:user:$admin_role');
+        $array['edit_modulename']=str_replace('"','\"',htmlspecialchars_decode($array['module']['modulename']));
         $array['title']=$array['module']['modulename'].' 模型';
         $array['roles']=C('cms:user:roleAll');
         foreach($array['roles'] as $key=>$thisrole) {

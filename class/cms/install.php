@@ -629,7 +629,7 @@ class cms_install {
             'groupname'=>'varchar(255)'
         );
         $tables['module']=array(
-            'modulename'=>'varchar(32)',
+            'modulename'=>'varchar(255)',
             'hash'=>'varchar(32)',
             'enabled'=>'int(1)',
             'moduleorder'=>'int(11)',

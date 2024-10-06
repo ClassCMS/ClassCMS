@@ -104,7 +104,7 @@ class admin_channel {
         }
         $allowedModules=C('this:channel:allowedModules',$array['classinfo']['hash']);
         foreach ($allowedModules as $allowedModule) {
-            $array['moduleselect_config']['values'][]=implode(':',array($allowedModule['hash'],$allowedModule['modulename']));
+            $array['moduleselect_config']['values'][]=implode(':',array($allowedModule['hash'],htmlspecialchars_decode($allowedModule['modulename'])));
         }
         Return V('channel_edit',$array);
     }

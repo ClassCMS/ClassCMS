@@ -185,7 +185,7 @@
         {if P('module:edit')}
         $('.moduleedit').click(function(){
             layer.prompt({
-              value: '{$module.modulename}',
+              value: "{$edit_modulename}",
               title: '模型名称'
             }, 
               function(value, index, elem){

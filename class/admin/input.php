@@ -2472,6 +2472,7 @@ class admin_input {
                 $config['values'][]=':未增加模型:disabled';
             }
             foreach($modules as $module) {
+                $module['modulename']=htmlspecialchars_decode($module['modulename']);
                 if(isset($config['showhash']) && $config['showhash']) {
                     $config['values'][]=implode(':',array($module['hash'],$module['modulename'].'['.$module['hash'].']'));
                 }else {
