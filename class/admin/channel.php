@@ -165,7 +165,7 @@ class admin_channel {
             if($allowedModule['hash']==$array['channel']['modulehash']){
                 $allowed=true;
             }
-            $array['moduleselect_config']['values'][]=implode(':',array($allowedModule['hash'],$allowedModule['modulename']));
+            $array['moduleselect_config']['values'][]=implode(':',array($allowedModule['hash'],htmlspecialchars_decode($allowedModule['modulename'])));
         }
         if(!$allowed){ Return E('栏目不存在'); }
         Return V('channel_edit',$array);
