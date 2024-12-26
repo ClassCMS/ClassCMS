@@ -943,20 +943,14 @@ function include_template($template_config) {
         }
         $template_config['filepath']=$template_config['nowpath'].$template_config['file'];
     }
-    $cachefile=dir_template($template_config['filepath'],'template'.DIRECTORY_SEPARATOR.$template_config['class']);
-    $cachefiletime=@filemtime($cachefile);
-    if(($cachefiletime+$template_config['cache'])>time()) {
-        Return $cachefile;
-    }else {
-        $content=cms_template($template_config);
-        if($content===false) {
-            $content='file not found: '.str_replace(array($GLOBALS['C']['SystemRoot'],'/','\\'),DIRECTORY_SEPARATOR,$template_config['filepath']);
-            if(stripos($template_config['filepath'],'.php')===false){$content.='.php ';}
-        }
-        $cached=save_template($template_config['filepath'],$content,$template_config['cache'],'template'.DIRECTORY_SEPARATOR.$template_config['class']);
-        if($cached && $content!==false) {
-            Return $cachefile;
-        }
+    $content=cms_template($template_config);
+    if($content===false) {
+        $content='file not found: '.str_replace(array($GLOBALS['C']['SystemRoot'],'/','\\'),'/',$template_config['filepath']);
+        if(stripos($template_config['filepath'],'.php')===false){$content.='.php ';}
+    }
+    $cached=save_template($template_config['filepath'],$content,$template_config['cache'],'template'.DIRECTORY_SEPARATOR.$template_config['class']);
+    if($cached && $content!==false) {
+        Return dir_template($template_config['filepath'],'template'.DIRECTORY_SEPARATOR.$template_config['class']);
     }
     Return false;
 }
