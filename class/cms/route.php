@@ -72,6 +72,9 @@ class cms_route {
         if(!isset($route_add_query['classview'])) {
             $route_add_query['classview']='';
         }
+        if(strpos($route_add_query['classview'],'<') || strpos($route_add_query['classview'],'>') || strpos($route_add_query['classview'],'|') || strpos($route_add_query['classview'],':') || strpos($route_add_query['classview'],'?') || strpos($route_add_query['classview'],'"') || strpos($route_add_query['classview'],'/') || strpos($route_add_query['classview'],'\\')) {
+            Return false;
+        }
         if(empty($route_add_query['classfunction']) && empty($route_add_query['classview'])) {
             Return false;
         }
@@ -109,6 +112,11 @@ class cms_route {
         }
         if(isset($route_edit_query['classfunction'])) {
             $route_edit_query['classfunction']=trim($route_edit_query['classfunction']);
+        }
+        if(isset($route_edit_query['classview'])){
+            if(strpos($route_edit_query['classview'],'<') || strpos($route_edit_query['classview'],'>') || strpos($route_edit_query['classview'],'|') || strpos($route_edit_query['classview'],':') || strpos($route_edit_query['classview'],'?') || strpos($route_edit_query['classview'],'"') || strpos($route_edit_query['classview'],'/') || strpos($route_edit_query['classview'],'\\')) {
+                Return false;
+            }
         }
         Return update($route_edit_query);
     }
