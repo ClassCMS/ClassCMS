@@ -305,7 +305,7 @@ class cms_channel {
             $channel_add_query['channelorder']=1;
         }
         if(isset($channel_add_query['channelname'])) {
-            $channel_add_query['channelname']=str_replace(array('<','>'),array('&lt;','&gt;'),$channel_add_query['channelname']);
+            $channel_add_query['channelname']=str_replace(array('<','>','"'),array('&lt;','&gt;','&quot;'),$channel_add_query['channelname']);
         }
         if(!isset($channel_add_query['enabled'])) {
             $channel_add_query['enabled']=1;
@@ -359,7 +359,7 @@ class cms_channel {
             $channel_edit_query['fid']=0;
         }
         if(isset($channel_edit_query['channelname'])) {
-            $channel_edit_query['channelname']=str_replace(array('<','>'),array('&lt;','&gt;'),$channel_edit_query['channelname']);
+            $channel_edit_query['channelname']=str_replace(array('<','>','"'),array('&lt;','&gt;','&quot;'),$channel_edit_query['channelname']);
         }
         unset($channel_edit_query['classhash']);
         $channel_edit_query['table']='channel';
