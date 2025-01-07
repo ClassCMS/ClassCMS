@@ -59,7 +59,7 @@
                     </span>
                 </td>
                 <td>
-                    {$route.uri}
+                    {htmlspecialchars($route.uri)}
                 </td>
                 <td class="layui-hide-xs">
                     {$route.classfunction}

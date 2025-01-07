@@ -172,7 +172,7 @@ class cms_route {
         }
     }
     function allow($uri) {
-        if(strpos($uri,';')!==false || strpos($uri,'#')!==false) {
+        if(strpos($uri,';')!==false || strpos($uri,'#')!==false || strpos($uri,'"')!==false) {
             Return false;
         }
         if(substr_count($uri,'(')!=substr_count($uri,')')) {
