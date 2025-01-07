@@ -904,7 +904,7 @@ function template_config($classhash) {
 }
 function include_template($template_config) {
     if(isset($template_config['code'])) {$template_config['file']=md5($template_config['code']);}
-    if(stripos($template_config['file'],'.php')===false) {$template_config['file'].='.php';}
+    if(strtolower(substr($template_config['file'],-4))!='.php'){ $template_config['file'].='.php'; }
     $template_config['file']=str_replace("\\","/",$template_config['file']);
     if(!isset($template_config['nowpath'])){$template_config['nowpath']=$template_config['rootpath'];}
     $fileExplode=explode('/',$template_config['file']);
