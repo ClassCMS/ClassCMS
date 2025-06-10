@@ -6,14 +6,15 @@
 
 
 
-演示:  <a href="https://classcms.com/demo/" target="_blank">https://classcms.com/demo/</a>
 
-插件:  <a href="https://classcms.com/class/" target="_blank">https://classcms.com/class/</a>
-
-文档:  <a href="https://classcms.com/class/cms/doc/" target="_blank">https://classcms.com/class/cms/doc/</a>
+文档:  <a href="http://classcms.com/class/cms/doc/" target="_blank">http://classcms.com/class/cms/doc/</a>
 
 
-交流QQ群:83626496
+
+### 不再更新
+
+ClassCMS 已正式升级为 [1CMS](https://1cms.com/ "1CMS") ([github](https://github.com/linjiangxiao/1CMS "github") | [gitee](https://gitee.com/linjiangxiao/1CMS "gitee")) ！全面优化插件制作流程，并开放开发者应用上传平台，为您带来更强大、更灵活的建站体验！
+
 
 
 
@@ -25,7 +26,7 @@
 
 ### 部署方便
 
-兼容PHP5.2--PHP8.2,在APACHE、NGINX、IIS上都能使用,支持MySQL、SQLite数据库.
+兼容PHP5.2--PHP8.3,在APACHE、NGINX、IIS上都能使用,支持MySQL、SQLite数据库.
 
 ### 开箱即用
 
@@ -48,51 +49,7 @@
 
 开放源代码,无任何加密,基于MIT协议,免费使用,无需授权.
 
-## 推荐应用
 
-| 应用名称  | 简介  | 详情 |
-|---|---|---|
-|网站统计|简单实用的网站流量统计系统 |[查看](https://classcms.com/class/tongji/ "查看")|
-|后台菜单自定义|自定义后台菜单,支持权限管理,支持多分类 |[查看](https://classcms.com/class/adminmenu/ "查看")|
-|API接口|通过接口可以调用应用方法,返回数据 |[查看](https://classcms.com/class/api/ "查看")|
-|页面静态化|将页面生成静态文件,有效降低服务器负载,加快访问速度 |[查看](https://classcms.com/class/html/ "查看")|
-|消息中心|方便其它应用发送消息至用户,可以设置各类通知方式,如邮件,微信等 |[查看](https://classcms.com/class/message/ "查看")|
-|栏目菜单|将栏目显示至后台管理菜单,方便管理|[查看](https://classcms.com/class/channelmenu/ "查看")|
-|自定义表单|通过模型字段显示自定义表单 |[查看](https://classcms.com/class/diyform/ "查看")|
-|会员扩展|后台会员扩展 |[查看](https://classcms.com/class/user/ "查看")|
-|文章草稿箱|方便临时保存文章 |[查看](https://classcms.com/class/articledrafts/ "查看")|
-|文章时光机|记录文章的历史版本,方便恢复 |[查看](https://classcms.com/class/articlehistory/ "查看")|
-|域名绑定|为应用绑定域名或页面前缀,防止多个应用之间页面网址冲突 |[查看](https://classcms.com/class/domainbind/ "查看")|
-|计划任务|可定时或循环执行任务 |[查看](https://classcms.com/class/task/ "查看")|
-
-
-## 常用字段介绍
-
-| 类型  | 介绍 |
-|---|---|
-|文本框|保存小段文本|
-|文本区域|保存大段文本|
-|日期时间|日期时间选择器|
-|图片上传|图片上传,支持拖拽上传与多图上传|
-|文件上传|文件上传,支持拖拽上传与多文件上传|
-|开关|是否启用|
-|数字|保存数字与金额|
-|颜色|颜色选择器|
-|多项文本框|保存多项文本,支持自定义列数|
-|滑块|滑动选择数值|
-|单选框|单选自定义的选项|
-|多选框|多选自定义的选项|
-|列表框|以列表框形式选择自定义的选项|
-|穿梭框|以左右穿梭形式选择自定义的选项|
-|文章选择|从栏目中选择网站文章,配置灵活,功能强大|
-|文章单选/多选/列表框|以单选/多选/列表框形式选择文章|
-|数据选择|从数据库中选择内容,配置灵活,功能强大|
-|数据单选/多选/列表框|以单选/多选/列表框形式选择数据库内容|
-|数据多级联动框|多表间联动选择数据|
-|数据无限联动框|类似于省市区联动选择|
-|数据树形列表框|以树形目录选择数据内容|
-
-> 字段也可通过插件制作,目前已有40+字段类型,10+编辑器可供选择
 
 
 
